@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; margin: 0; }
+        nav { background: #333; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .container { padding: 20px; }
+        .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; max-width: 500px; }
+        button { padding: 10px; cursor: pointer; }
+        .logout-btn { background: #ff4d4d; color: white; border: none; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div id="nav-clinic-name">Loading...</div>
+    <button class="logout-btn" onclick="handleLogout()">Logout</button>
+</nav>
+
+<div class="container">
+    <h2 id="welcome-msg">Welcome, Doctor</h2>
+    
+    <div class="card">
+        <h3>Profile Details</h3>
+        <p><strong>Email:</strong> <span id="disp-email"></span></p>
+        <p><strong>Mobile:</strong> <span id="disp-mobile"></span></p>
+        <hr>
+        <h4>Security</h4>
+        <button onclick="changePassword()">Change Password</button>
+    </div>
+</div>
+
+<script>
+    const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+    const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+    async function loadDashboard() {
+        // 1. Check if user is logged in
+        const { data: { user } } = await supabaseClient.auth.getUser();
+
+        if (!user) {
+            // Not logged in? Send them back to login page
+            window.location.href = "login.html";
+            return;
+        }
+
+        // 2. Fetch the clinic details for THIS specific user
+        const { data: profile, error } = await supabaseClient
+            .from('applications')
+            .select('*')
+            .eq('email', user.email)
+            .single();
+
+        if (error) {
+            console.error("Error fetching profile:", error);
+            return;
+        }
+
+        // 3. Update the UI with their specific data
+        document.getElementById('nav-clinic-name').innerText = profile.clinic_name;
+        document.getElementById('welcome-msg').innerText = "Welcome, " + profile.clinic_name;
+        document.getElementById('disp-email').innerText = profile.email;
+        document.getElementById('disp-mobile').innerText = profile.mobile_number;
+    }
+
+    async function handleLogout() {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+    }
+
+    function changePassword() {
+        const newPass = prompt("Enter your new password:");
+        if (newPass) {
+            supabaseClient.auth.updateUser({ password: newPass })
+                .then(({error}) => {
+                    if (error) alert(error.message);
+                    else alert("Password updated successfully!");
+                });
+        }
+    }
+
+    // Run on load
+    loadDashboard();
+</script>
+
+</body>
+</html>
