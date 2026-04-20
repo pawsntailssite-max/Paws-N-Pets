@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vet Portal - Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 100px; }
+        .login-box { border: 1px solid #ddd; padding: 20px; border-radius: 8px; width: 300px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Veterinarian Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email Address">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button onclick="handleLogin()">Login</button>
+        <p id="msg"></p>
+        <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+    </div>
+
+    <script>
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPass').value;
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                document.getElementById('msg').innerText = error.message;
+                document.getElementById('msg').style.color = "red";
+            } else {
+                // Success! Redirect to the Doctor Dashboard
+                window.location.href = "dashboard.html";
+            }
+        }
+
+        async function forgotPassword() {
+            const email = document.getElementById('loginEmail').value;
+            if (!email) { alert("Please enter your email first."); return; }
+            
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/vet-portal/reset-password.html',
+            });
+            
+            if (error) alert(error.message);
+            else alert("Password reset link sent to your email!");
+        }
+    </script>
+</body>
+</html>
