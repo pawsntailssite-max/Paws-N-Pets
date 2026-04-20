@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Veterinarian Application</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav id="main-nav">
+        <h1 id="nav-title">Veterinary Portal Registration</h1>
+    </nav>
+
+    <section>
+        <h2>Apply for Access</h2>
+        <form id="applyForm">
+            <input type="text" id="clinicName" placeholder="Clinic/Business Name" required><br><br>
+            <input type="email" id="email" placeholder="Email Address" required><br><br>
+            <input type="tel" id="mobile" placeholder="Mobile Number" required><br><br>
+            <button type="submit">Submit Application</button>
+        </form>
+        <p id="message"></p>
+    </section>
+
+    <script>
+        // REPLACE THESE with your actual keys from Supabase Settings > API
+        const SUPABASE_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const form = document.getElementById('applyForm');
+        
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const clinic_name = document.getElementById('clinicName').value;
+            const email = document.getElementById('email').value;
+            const mobile_number = document.getElementById('mobile').value;
+
+            // This inserts the data into the table you just created
+            const { error } = await supabase
+                .from('applications')
+                .insert([{ clinic_name, email, mobile_number }]);
+
+            if (error) {
+                document.getElementById('message').innerText = "Error: " + error.message;
+            } else {
+                document.getElementById('message').innerText = "Success! Your application has been sent for approval.";
+                form.reset();
+            }
+        };
+    </script>
+</body>
+</html>
