@@ -5,10 +5,12 @@
     <title>Admin - Manage Applications</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: sans-serif; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #f4f4f4; }
-        .approve-btn { background-color: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        .approve-btn { background-color: #28a745; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        .approve-btn:hover { background-color: #218838; }
+        body { padding: 20px; font-family: sans-serif; }
     </style>
 </head>
 <body>
@@ -48,26 +50,46 @@
             const table = document.getElementById('appTable');
 
             tableBody.innerHTML = "";
-            data.forEach(app => {
-                tableBody.innerHTML += `
-                    <tr>
-                        <td>${app.clinic_name}</td>
-                        <td>${app.email}</td>
-                        <td>${app.mobile_number}</td>
-                        <td><button class="approve-btn" onclick="approveVet('${app.id}', '${app.email}')">Approve</button></td>
-                    </tr>
-                `;
-            });
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='4'>No pending applications found.</td></tr>";
+            } else {
+                data.forEach(app => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${app.clinic_name}</td>
+                            <td>${app.email}</td>
+                            <td>${app.mobile_number}</td>
+                            <td><button class="approve-btn" onclick="approveVet('${app.id}', '${app.email}')">Approve</button></td>
+                        </tr>
+                    `;
+                });
+            }
 
             loading.style.display = "none";
             table.style.display = "table";
         }
 
         async function approveVet(id, email) {
-            alert("Approving " + email + "... (We will set up the actual account creation next!)");
-            // Logic for account creation will go here in the next step
+            // 1. Update the status in the database from 'pending' to 'approved'
+            const { error: updateError } = await supabaseClient
+                .from('applications')
+                .update({ status: 'approved' })
+                .eq('id', id);
+
+            if (updateError) {
+                alert("Update failed: " + updateError.message);
+                return;
+            }
+
+            // 2. Alert you to do the manual invite
+            alert("Status updated to Approved!\n\nNext step: Go to Supabase > Authentication > Users > Add User > 'Send Invite' to " + email);
+            
+            // 3. Refresh the table so the approved person disappears from this view
+            fetchApplications();
         }
 
+        // Run this when the page loads
         fetchApplications();
     </script>
 </body>
