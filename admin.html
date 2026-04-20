@@ -2,20 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Manage Applications</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: sans-serif; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .approve-btn { background-color: #28a745; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        body { padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .approve-btn { background-color: #28a745; color: white; border: none; padding: 8px 16px; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .approve-btn:hover { background-color: #218838; }
-        body { padding: 20px; font-family: sans-serif; }
+        #loading { font-style: italic; color: #666; }
     </style>
 </head>
 <body>
     <h1>Pending Veterinarian Applications</h1>
-    <div id="loading">Loading applications...</div>
+    <div id="loading">Connecting to database...</div>
     
     <table id="appTable" style="display:none;">
         <thead>
@@ -32,6 +34,7 @@
     <script>
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         async function fetchApplications() {
@@ -51,9 +54,7 @@
 
             tableBody.innerHTML = "";
             
-            if (data.length === 0) {
-                tableBody.innerHTML = "<tr><td colspan='4'>No pending applications found.</td></tr>";
-            } else {
+            if (data && data.length > 0) {
                 data.forEach(app => {
                     tableBody.innerHTML += `
                         <tr>
@@ -64,6 +65,8 @@
                         </tr>
                     `;
                 });
+            } else {
+                tableBody.innerHTML = "<tr><td colspan='4'>No pending applications found.</td></tr>";
             }
 
             loading.style.display = "none";
@@ -71,7 +74,9 @@
         }
 
         async function approveVet(id, email) {
-            // 1. Update the status in the database from 'pending' to 'approved'
+            console.log("Starting approval for:", email);
+
+            // 1. Update the row in Supabase
             const { error: updateError } = await supabaseClient
                 .from('applications')
                 .update({ status: 'approved' })
@@ -79,17 +84,18 @@
 
             if (updateError) {
                 alert("Update failed: " + updateError.message);
+                console.error(updateError);
                 return;
             }
 
-            // 2. Alert you to do the manual invite
-            alert("Status updated to Approved!\n\nNext step: Go to Supabase > Authentication > Users > Add User > 'Send Invite' to " + email);
+            // 2. The NEW alert message
+            alert("SUCCESS!\n\nApplication for " + email + " is now APPROVED.\n\nPlease go to Supabase Dashboard > Auth > Add User to send their invite.");
             
-            // 3. Refresh the table so the approved person disappears from this view
+            // 3. Refresh list
             fetchApplications();
         }
 
-        // Run this when the page loads
+        // Initial load
         fetchApplications();
     </script>
 </body>
