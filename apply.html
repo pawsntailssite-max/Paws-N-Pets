@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veterinarian Application</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -16,36 +17,46 @@
             <input type="text" id="clinicName" placeholder="Clinic/Business Name" required><br><br>
             <input type="email" id="email" placeholder="Email Address" required><br><br>
             <input type="tel" id="mobile" placeholder="Mobile Number" required><br><br>
-            <button type="submit">Submit Application</button>
+            <button type="submit" id="submitBtn">Submit Application</button>
         </form>
-        <p id="message"></p>
+        <p id="message" style="font-weight: bold; color: blue;"></p>
     </section>
 
     <script>
-        // REPLACE THESE with your actual keys from Supabase Settings > API
-        const SUPABASE_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        // Use your actual keys
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // We name the client 'supabaseClient' to avoid naming conflicts
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         const form = document.getElementById('applyForm');
+        const msgDisplay = document.getElementById('message');
         
         form.onsubmit = async (e) => {
             e.preventDefault();
+            msgDisplay.innerText = "Sending application...";
             
             const clinic_name = document.getElementById('clinicName').value;
             const email = document.getElementById('email').value;
             const mobile_number = document.getElementById('mobile').value;
 
-            // This inserts the data into the table you just created
-            const { error } = await supabase
+            // Using supabaseClient to insert data
+            const { error } = await supabaseClient
                 .from('applications')
-                .insert([{ clinic_name, email, mobile_number }]);
+                .insert([{ 
+                    clinic_name: clinic_name, 
+                    email: email, 
+                    mobile_number: mobile_number 
+                }]);
 
             if (error) {
-                document.getElementById('message').innerText = "Error: " + error.message;
+                console.error("Supabase Error:", error);
+                msgDisplay.style.color = "red";
+                msgDisplay.innerText = "Error: " + error.message;
             } else {
-                document.getElementById('message').innerText = "Success! Your application has been sent for approval.";
+                msgDisplay.style.color = "green";
+                msgDisplay.innerText = "Success! Your application has been sent for approval.";
                 form.reset();
             }
         };
