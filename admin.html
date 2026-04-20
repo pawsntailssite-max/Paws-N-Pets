@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Manage Applications</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .approve-btn { background-color: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Pending Veterinarian Applications</h1>
+    <div id="loading">Loading applications...</div>
+    
+    <table id="appTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Clinic Name</th>
+                <th>Email</th>
+                <th>Mobile</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function fetchApplications() {
+            const { data, error } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('status', 'pending');
+
+            if (error) {
+                alert("Error fetching data: " + error.message);
+                return;
+            }
+
+            const tableBody = document.getElementById('tableBody');
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('appTable');
+
+            tableBody.innerHTML = "";
+            data.forEach(app => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${app.clinic_name}</td>
+                        <td>${app.email}</td>
+                        <td>${app.mobile_number}</td>
+                        <td><button class="approve-btn" onclick="approveVet('${app.id}', '${app.email}')">Approve</button></td>
+                    </tr>
+                `;
+            });
+
+            loading.style.display = "none";
+            table.style.display = "table";
+        }
+
+        async function approveVet(id, email) {
+            alert("Approving " + email + "... (We will set up the actual account creation next!)");
+            // Logic for account creation will go here in the next step
+        }
+
+        fetchApplications();
+    </script>
+</body>
+</html>
