@@ -12,6 +12,7 @@
         #editFormContainer::-webkit-scrollbar { width: 6px; }
         #editFormContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .profile-img { width: 45px; height: 45px; object-fit: cover; border-radius: 50%; border: 2px solid #e2e8f0; background-color: #f8fafc; }
+        .preview-img-large { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; margin-bottom: 1rem; border: 3px solid #3b82f6; }
     </style>
 </head>
 <body class="bg-slate-100 font-sans text-slate-800">
@@ -24,15 +25,6 @@
     </nav>
 
     <main class="max-w-7xl mx-auto p-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 text-sm">
-            <div class="flex-1 min-w-[250px] relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search name, email, business..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white"><option value="all">All Types</option><option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option></select>
-            <select id="filterStatus" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white"><option value="all">Status: All</option><option value="pending">Pending</option><option value="approved">Approved</option></select>
-        </div>
-
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 border-b border-slate-200">
@@ -43,7 +35,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-slate-100">
-                    <tr><td colspan="3" class="p-10 text-center text-sm text-slate-400 italic">Loading records...</td></tr>
+                    <tr><td colspan="3" class="p-10 text-center text-sm text-slate-400 italic">Loading...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -55,29 +47,36 @@
                 <h2 class="text-xl font-bold text-slate-800">Edit Profile</h2>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
+            
             <div id="editFormContainer" class="p-8 overflow-y-auto">
                 <form id="editForm" class="space-y-5">
                     <input type="hidden" id="editId">
                     
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-blue-600 mb-1">Profile Picture URL</label>
-                        <input type="text" id="editProfileUrl" placeholder="https://example.com/photo.jpg" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <label class="block text-xs font-bold uppercase text-blue-600 mb-2">Profile Picture</label>
+                        <div class="flex items-center gap-4">
+                            <img id="editImgPreview" src="" class="preview-img-large hidden">
+                            <div class="flex-1">
+                                <input type="file" id="fileInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+                                <p class="mt-2 text-[10px] text-slate-400">Or paste URL below:</p>
+                                <input type="text" id="editProfileUrl" class="w-full mt-1 p-2 border rounded text-xs border-blue-200" placeholder="https://...">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
-                        <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Title</label><select id="editTitle" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"><option value="Dr.">Dr.</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option></select></div>
-                        <div class="col-span-2"><label class="block text-xs font-bold uppercase text-slate-500 mb-1">First Name</label><input type="text" id="editFirstName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                        <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Title</label><select id="editTitle" class="w-full p-2.5 border rounded-lg text-sm"><option value="Dr.">Dr.</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option></select></div>
+                        <div class="col-span-2"><label class="block text-xs font-bold uppercase text-slate-500 mb-1">First Name</label><input type="text" id="editFirstName" class="w-full p-2.5 border rounded-lg text-sm"></div>
                     </div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Last Name</label><input type="text" id="editLastName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">Email</label><input type="email" id="editEmail" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Business Name</label><input type="text" id="editClinicName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm font-semibold"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">City</label><input type="text" id="editCity" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">Registration Status</label><select id="editStatus" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm font-bold"><option value="pending">Pending</option><option value="approved">Approved</option></select></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Last Name</label><input type="text" id="editLastName" class="w-full p-2.5 border rounded-lg text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Business Name</label><input type="text" id="editClinicName" class="w-full p-2.5 border rounded-lg text-sm font-semibold"></div>
+                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">Status</label><select id="editStatus" class="w-full p-2.5 border rounded-lg bg-blue-50 text-sm font-bold"><option value="pending">Pending</option><option value="approved">Approved</option></select></div>
                 </form>
             </div>
+            
             <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
                 <button type="button" onclick="closeModal()" class="px-6 py-2 rounded-lg text-slate-600 font-bold text-sm">Cancel</button>
-                <button type="button" onclick="saveEdit()" class="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-blue-700">Save Changes</button>
+                <button id="saveBtn" type="button" onclick="saveEdit()" class="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-blue-700">Save Changes</button>
             </div>
         </div>
     </div>
@@ -99,54 +98,69 @@
             
             data.forEach(app => {
                 const isApproved = app.status === 'approved';
-                // Handle missing profile picture with a generic icon
                 const profileImg = app.profile_url ? `<img src="${app.profile_url}" class="profile-img">` : `<div class="profile-img flex items-center justify-center bg-slate-200 text-slate-400"><i class="fa-solid fa-user"></i></div>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-slate-700">
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
                                 ${profileImg}
                                 <div>
                                     <div class="font-bold text-slate-900">${app.title || ''} ${app.first_name || ''} ${app.last_name || ''}</div>
-                                    <div class="text-[11px] text-slate-500 font-medium">${app.email}</div>
+                                    <div class="text-[11px] text-slate-500">${app.email}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="p-4 text-sm font-semibold text-slate-700">
                             ${app.clinic_name || 'N/A'}
-                            <div class="flex gap-2 mt-1">
-                                <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${isApproved ? 'border-green-200 bg-green-50 text-green-700':'border-amber-200 bg-amber-50 text-amber-700'}">${app.status}</span>
-                            </div>
+                            <div class="mt-1"><span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${isApproved ? 'border-green-200 bg-green-50 text-green-700':'border-amber-200 bg-amber-50 text-amber-700'}">${app.status}</span></div>
                         </td>
                         <td class="p-4 text-center">
                             <div class="flex justify-center items-center gap-3">
-                                <button onclick="toggleQuickStatus('${app.id}', '${app.status}')" class="px-3 py-1 text-[10px] font-black uppercase rounded border ${isApproved ? 'border-amber-500 text-amber-600 hover:bg-amber-50' : 'border-green-600 text-green-600 hover:bg-green-50'}">
-                                    ${isApproved ? 'Revoke' : 'Approve'}
-                                </button>
+                                <button onclick="toggleQuickStatus('${app.id}', '${app.status}')" class="px-3 py-1 text-[10px] font-black uppercase rounded border ${isApproved ? 'border-amber-500 text-amber-600' : 'border-green-600 text-green-600'}">${isApproved ? 'Revoke' : 'Approve'}</button>
                                 <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteRecord('${app.id}')" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
                         </td>
                     </tr>`;
             });
         }
 
-        async function sendEmail(app, type) {
-            const { error } = await supabaseClient.functions.invoke('send-email', {
-                body: { email: app.email, name: `${app.title} ${app.first_name} ${app.last_name}`, templateId: type === 'approval' ? 1 : 2 }
-            });
-            if (error) console.error("Email error:", error);
+        async function uploadFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) return document.getElementById('editProfileUrl').value;
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}.${fileExt}`;
+            
+            const { data, error } = await supabaseClient.storage.from('profiles').upload(fileName, file);
+            if (error) { alert("Upload Failed"); return null; }
+
+            const { data: urlData } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
+            return urlData.publicUrl;
         }
 
-        async function toggleQuickStatus(id, current) {
-            const next = current === 'pending' ? 'approved' : 'pending';
-            const app = allApplications.find(a => a.id === id);
-            const { error } = await supabaseClient.from('applications').update({ status: next, is_active: (next === 'approved') }).eq('id', id);
-            if (!error) {
-                await sendEmail(app, next === 'approved' ? 'approval' : 'revoke');
-                loadData();
-            }
+        async function saveEdit() {
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Saving...";
+
+            const id = document.getElementById('editId').value;
+            const finalUrl = await uploadFile();
+
+            const updateData = {
+                profile_url: finalUrl,
+                title: document.getElementById('editTitle').value,
+                first_name: document.getElementById('editFirstName').value,
+                last_name: document.getElementById('editLastName').value,
+                clinic_name: document.getElementById('editClinicName').value,
+                status: document.getElementById('editStatus').value,
+                is_active: document.getElementById('editStatus').value === 'approved'
+            };
+
+            const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
+            if (!error) { closeModal(); loadData(); }
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Save Changes";
         }
 
         function openEditModal(id) {
@@ -156,34 +170,24 @@
             document.getElementById('editTitle').value = app.title;
             document.getElementById('editFirstName').value = app.first_name;
             document.getElementById('editLastName').value = app.last_name;
-            document.getElementById('editEmail').value = app.email;
             document.getElementById('editClinicName').value = app.clinic_name;
-            document.getElementById('editCity').value = app.city;
             document.getElementById('editStatus').value = app.status;
+            
+            const preview = document.getElementById('editImgPreview');
+            if(app.profile_url) { preview.src = app.profile_url; preview.classList.remove('hidden'); }
+            else { preview.classList.add('hidden'); }
+            
             document.getElementById('editModal').style.display = 'block';
         }
 
-        async function saveEdit() {
-            const id = document.getElementById('editId').value;
-            const updateData = {
-                profile_url: document.getElementById('editProfileUrl').value,
-                title: document.getElementById('editTitle').value,
-                first_name: document.getElementById('editFirstName').value,
-                last_name: document.getElementById('editLastName').value,
-                email: document.getElementById('editEmail').value,
-                clinic_name: document.getElementById('editClinicName').value,
-                city: document.getElementById('editCity').value,
-                status: document.getElementById('editStatus').value,
-                is_active: document.getElementById('editStatus').value === 'approved'
-            };
-            const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
-            if (!error) { closeModal(); loadData(); }
+        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+        
+        async function toggleQuickStatus(id, current) {
+            const next = current === 'pending' ? 'approved' : 'pending';
+            const { error } = await supabaseClient.from('applications').update({ status: next, is_active: (next === 'approved') }).eq('id', id);
+            if (!error) loadData();
         }
 
-        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
-        async function deleteRecord(id) { if(confirm("Delete record?")) { await supabaseClient.from('applications').delete().eq('id', id); loadData(); } }
-        function filterTable() { /* same logic as before */ loadData(); }
-        
         loadData();
     </script>
 </body>
