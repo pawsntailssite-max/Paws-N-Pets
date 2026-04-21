@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* This hides the page until Supabase confirms the user is an Admin */
+        /* Prevents unauthorized users from seeing a "flash" of content */
         body { display: none; }
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
         #editFormContainer::-webkit-scrollbar { width: 6px; }
@@ -49,13 +49,13 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Name</th>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Business Info</th>
+                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Practitioner</th>
+                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Clinic Info</th>
                         <th class="p-4 font-semibold text-slate-600 uppercase text-xs text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-slate-100 italic text-slate-400">
-                    <tr><td colspan="3" class="p-10 text-center text-sm">Loading records...</td></tr>
+                    <tr><td colspan="3" class="p-10 text-center text-sm">Loading applications...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -76,7 +76,7 @@
                     <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">4. Email (Primary Login)</label><input type="email" id="editEmail" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm outline-none"></div>
                     <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">5. Mobile Number</label><input type="text" id="editMobile" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
                     <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">6. Date of Birth</label><input type="date" id="editDob" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">7. Business Name</label><input type="text" id="editClinicName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm font-semibold"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">7. Clinic Name</label><input type="text" id="editClinicName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm font-semibold"></div>
                     <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">8. Address</label><textarea id="editAddress" rows="2" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></textarea></div>
                     <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">9. City</label><input type="text" id="editCity" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
                     <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">10. State</label><input type="text" id="editState" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
@@ -95,7 +95,6 @@
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         
@@ -105,19 +104,17 @@
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
         let allApplications = [];
 
-        // --- THE GATEKEEPER (Checks Login Status immediately) ---
+        // --- AUTH GATEKEEPER ---
         async function checkAccess() {
             try {
                 const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
-                // 1. If not logged in
                 if (!session || sessionError) {
                     alert("Please log in to access the Admin Panel.");
-                    window.location.href = "login.html"; // Change to your actual login page filename
+                    window.location.href = "index.html"; 
                     return;
                 }
 
-                // 2. Fetch the user's profile from your table
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('applications')
                     .select('status, user_type, is_active, first_name')
@@ -125,76 +122,59 @@
                     .single();
 
                 if (profileError || !profile) {
-                    alert("Account configuration not found. Please contact support.");
+                    alert("Not authorized. Redirecting to home.");
                     await supabaseClient.auth.signOut();
-                    window.location.href = "login.html";
+                    window.location.href = "index.html";
                     return;
                 }
 
-                // 3. Verify Admin rights
-                const isApproved = profile.status === 'approved';
-                const isAdmin = profile.user_type === 'admin';
-                const isActive = profile.is_active === true;
-
-                if (isApproved && isAdmin && isActive) {
-                    // ALL GOOD! Show the page and load the data.
+                if (profile.status === 'approved' && profile.user_type === 'admin' && profile.is_active === true) {
                     document.body.style.display = 'block';
-                    
-                    // Safely update the navbar
                     const adminControls = document.getElementById('adminControls');
                     const adminNameText = document.getElementById('adminName');
                     if (adminControls && adminNameText) {
                         adminControls.classList.remove('hidden');
                         adminNameText.innerText = `Admin: ${profile.first_name || 'User'}`;
                     }
-                    
                     loadData();
                 } else {
-                    // FAILED CHECK
-                    alert("Not Authorized: You must be an Approved, Active Admin to view this page.");
+                    alert("Not Authorised: Your account does not have Admin access.");
                     await supabaseClient.auth.signOut();
                     window.location.href = "index.html"; 
                 }
             } catch (err) {
-                console.error("Auth Check Failed:", err);
-                alert("Security check failed. Redirecting...");
                 window.location.href = "index.html";
             }
         }
 
         async function handleLogout() {
             await supabaseClient.auth.signOut();
-            window.location.href = "login.html"; // Change to your actual login page filename
+            window.location.href = "index.html";
         }
 
-        // --- DATA LOADING & RENDERING ---
+        // --- DATA LOGIC ---
         async function loadData() {
             const { data, error } = await supabaseClient.from('applications').select('*').order('created_at', { ascending: false });
             if (!error) { 
                 allApplications = data; 
                 renderTable(data); 
-            } else {
-                document.getElementById('tableBody').innerHTML = "<tr><td colspan='3' class='p-10 text-center text-red-500 font-bold'>Error loading records.</td></tr>";
-                console.error("Supabase Error:", error);
             }
         }
 
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = data.length ? "" : "<tr><td colspan='3' class='p-10 text-center text-slate-400 text-sm not-italic'>No records found</td></tr>";
-            
+            tbody.innerHTML = data.length ? "" : "<tr><td colspan='3' class='p-10 text-center text-slate-400 text-sm'>No records found</td></tr>";
             data.forEach(app => {
                 const isApproved = app.status === 'approved';
                 const statusBtnClass = isApproved ? 'border-amber-500 text-amber-600 hover:bg-amber-50' : 'border-green-600 text-green-600 hover:bg-green-50';
-                
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-slate-700 not-italic">
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-slate-700">
                         <td class="p-4">
                             <div class="font-bold text-slate-900">${app.title || ''} ${app.first_name || ''} ${app.last_name || ''} <span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-200 text-slate-600 uppercase font-black ml-1">${app.user_type}</span></div>
-                            <div class="text-[11px] text-slate-500 font-medium">${app.email}</div>
+                            <div class="text-[11px] text-slate-500 italic font-medium">${app.email}</div>
                         </td>
                         <td class="p-4">
-                            <div class="text-sm font-semibold text-slate-700">${app.clinic_name || 'N/A'}</div>
+                            <div class="text-sm font-semibold text-slate-700">${app.clinic_name}</div>
                             <div class="flex gap-2 mt-1">
                                 <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${isApproved ? 'border-green-200 bg-green-50 text-green-700':'border-amber-200 bg-amber-50 text-amber-700'}">${app.status}</span>
                                 <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${app.is_active ? 'border-blue-200 bg-blue-50 text-blue-700':'border-slate-200 bg-slate-50 text-slate-400'}">${app.is_active ? 'ACTIVE' : 'INACTIVE'}</span>
@@ -213,11 +193,9 @@
             });
         }
 
-        // --- FUNCTIONAL ACTIONS (Approve, Edit, Delete, Filter) ---
         async function toggleQuickStatus(id, current) {
             const next = current === 'pending' ? 'approved' : 'pending';
             const app = allApplications.find(a => a.id === id);
-            
             const { error } = await supabaseClient.from('applications').update({ 
                 status: next, 
                 is_active: (next === 'approved') 
@@ -233,13 +211,10 @@
             const templateId = (type === 'approval') ? APPROVAL_ID : REVOKE_ID;
             const combinedFullName = `${app.title || ''} ${app.first_name || ''} ${app.last_name || ''}`.trim();
             try {
-                const { error } = await supabaseClient.functions.invoke('send-email', {
+                await supabaseClient.functions.invoke('send-email', {
                     body: { email: app.email, name: combinedFullName, templateId: templateId }
                 });
-                if (error) console.error('Email trigger failed:', error);
-            } catch (err) {
-                console.error('Network error during email:', err);
-            }
+            } catch (err) { console.error('Email error:', err); }
         }
 
         function openEditModal(id) {
@@ -289,7 +264,7 @@
         }
 
         async function deleteRecord(id) {
-            if(confirm("Permanently delete this record? This cannot be undone.")) {
+            if(confirm("Permanently delete this record?")) {
                 const { error } = await supabaseClient.from('applications').delete().eq('id', id);
                 if (!error) loadData();
             }
@@ -307,7 +282,6 @@
             renderTable(filtered);
         }
 
-        // Start the process by checking security
         checkAccess();
     </script>
 </body>
