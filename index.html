@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAWS-N-TAILS | Veterinarian Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <div class="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+        
+        <div class="mb-4 text-blue-600">
+            <i class="fa-solid fa-paw text-7xl"></i>
+        </div>
+
+        <h1 class="text-5xl font-extrabold tracking-tight text-gray-900 mb-2">
+            PAWS-N-TAILS
+        </h1>
+        <h2 class="text-xl font-semibold uppercase tracking-widest text-blue-500 mb-12">
+            Veterinarian Portal
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 w-full max-w-2xl">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p class="text-sm text-gray-500 uppercase font-bold">Total Registrations</p>
+                <h3 id="stat-total" class="text-4xl font-black text-gray-800">--</h3>
+                <p class="text-xs text-gray-400 mt-1">(Pending + Approved)</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-b-4 border-b-green-500">
+                <p class="text-sm text-gray-500 uppercase font-bold text-green-600">Active Members</p>
+                <h3 id="stat-active" class="text-4xl font-black text-gray-800">--</h3>
+                <p class="text-xs text-gray-400 mt-1">(Approved & Verified)</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+            <a href="apply.html" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg shadow-lg transition duration-200 text-center">
+                Register as Member
+            </a>
+            <a href="login.html" class="flex-1 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-4 rounded-lg transition duration-200 text-center">
+                Members Login
+            </a>
+        </div>
+
+        <a href="mailto:support@pawsntails.com" class="mt-8 text-gray-500 hover:text-blue-600 transition underline underline-offset-4">
+            <i class="fa-solid fa-envelope mr-2"></i>Contact Us
+        </a>
+    </div>
+
+    <script>
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function getStats() {
+            // Fetch total count
+            const { count: totalCount, error: err1 } = await supabaseClient
+                .from('applications')
+                .select('*', { count: 'exact', head: true });
+
+            // Fetch active count (Approved)
+            const { count: activeCount, error: err2 } = await supabaseClient
+                .from('applications')
+                .select('*', { count: 'exact', head: true })
+                .eq('status', 'approved');
+
+            if (!err1) document.getElementById('stat-total').innerText = totalCount;
+            if (!err2) document.getElementById('stat-active').innerText = activeCount;
+        }
+
+        getStats();
+    </script>
+</body>
+</html>
