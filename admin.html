@@ -10,11 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* Prevents unauthorized users from seeing a "flash" of content */
+        /* Hidden by default for security */
         body { display: none; }
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        #editFormContainer::-webkit-scrollbar { width: 6px; }
-        #editFormContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-slate-100 font-sans text-slate-800">
@@ -40,9 +38,8 @@
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
                 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search name, email, clinic..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white cursor-pointer"><option value="all">All Types</option><option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option></select>
-            <select id="filterStatus" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white cursor-pointer"><option value="all">Status: All</option><option value="pending">Pending</option><option value="approved">Approved</option></select>
-            <select id="filterActive" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white cursor-pointer"><option value="all">Active: All</option><option value="true">Active Only</option><option value="false">Inactive Only</option></select>
+            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white"><option value="all">All Types</option><option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option></select>
+            <select id="filterStatus" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white"><option value="all">Status: All</option><option value="pending">Pending</option><option value="approved">Approved</option></select>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -54,8 +51,8 @@
                         <th class="p-4 font-semibold text-slate-600 uppercase text-xs text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="divide-y divide-slate-100 italic text-slate-400">
-                    <tr><td colspan="3" class="p-10 text-center text-sm">Loading applications...</td></tr>
+                <tbody id="tableBody" class="divide-y divide-slate-100">
+                    <tr><td colspan="3" class="p-10 text-center text-slate-400 italic">Initializing security check...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -64,32 +61,21 @@
     <div id="editModal" class="modal">
         <div class="bg-white max-w-xl mx-auto my-10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="px-8 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800">Edit Member Profile</h2>
+                <h2 class="text-xl font-bold text-slate-800">Edit Profile</h2>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
-            <div id="editFormContainer" class="p-8 overflow-y-auto">
-                <form id="editForm" class="space-y-5">
+            <div class="p-8 overflow-y-auto space-y-4">
+                <form id="editForm" class="space-y-4">
                     <input type="hidden" id="editId">
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">1. Title</label><select id="editTitle" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"><option value="Dr.">Dr.</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option></select></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">2. First Name</label><input type="text" id="editFirstName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">3. Last Name</label><input type="text" id="editLastName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">4. Email (Primary Login)</label><input type="email" id="editEmail" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm outline-none"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">5. Mobile Number</label><input type="text" id="editMobile" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">6. Date of Birth</label><input type="date" id="editDob" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">7. Clinic Name</label><input type="text" id="editClinicName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm font-semibold"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">8. Address</label><textarea id="editAddress" rows="2" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></textarea></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">9. City</label><input type="text" id="editCity" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">10. State</label><input type="text" id="editState" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">11. Pincode</label><input type="text" id="editPincode" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">12. Type</label><select id="editUserType" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm font-bold"><option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
-                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">13. Expiry Date</label><input type="date" id="editExpiry" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">14. Registration Status</label><select id="editStatus" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm font-bold"><option value="pending">Pending</option><option value="approved">Approved</option></select></div>
-                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">15. Active Status</label><select id="editIsActive" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm font-bold"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">First Name</label><input type="text" id="editFirstName" class="w-full p-2 border rounded text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Last Name</label><input type="text" id="editLastName" class="w-full p-2 border rounded text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">User Type</label><select id="editUserType" class="w-full p-2 border rounded text-sm font-bold bg-blue-50 border-blue-200"><option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
+                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">Status</label><select id="editStatus" class="w-full p-2 border rounded text-sm font-bold bg-blue-50 border-blue-200"><option value="pending">Pending</option><option value="approved">Approved</option></select></div>
                 </form>
             </div>
-            <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-                <button type="button" onclick="closeModal()" class="px-6 py-2 rounded-lg text-slate-600 font-bold text-sm hover:bg-slate-200 transition">Cancel</button>
-                <button type="button" onclick="saveEdit()" class="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-blue-700 transition">Save Changes</button>
+            <div class="p-6 border-t bg-slate-50 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 text-sm font-bold text-slate-500">Cancel</button>
+                <button onclick="saveEdit()" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-md">Save Changes</button>
             </div>
         </div>
     </div>
@@ -97,144 +83,102 @@
     <script>
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-        
-        const APPROVAL_ID = 1;
-        const REVOKE_ID = 2;
-
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
         let allApplications = [];
 
-        // --- AUTH GATEKEEPER ---
+        // --- AUTHENTICATION GATEKEEPER ---
         async function checkAccess() {
             try {
                 const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
+                // 1. Not Logged In
                 if (!session || sessionError) {
-                    alert("Please log in to access the Admin Panel.");
-                    window.location.href = "index.html"; 
+                    alert("Unauthorized access. Please log in from the main portal.");
+                    window.location.replace("index.html");
                     return;
                 }
 
+                // 2. Fetch User Data
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('applications')
                     .select('status, user_type, is_active, first_name')
                     .eq('email', session.user.email)
                     .single();
 
+                // 3. Permission Checks
                 if (profileError || !profile) {
-                    alert("Not authorized. Redirecting to home.");
+                    alert("Profile not found. Returning to home.");
                     await supabaseClient.auth.signOut();
-                    window.location.href = "index.html";
+                    window.location.replace("index.html");
                     return;
                 }
 
-                if (profile.status === 'approved' && profile.user_type === 'admin' && profile.is_active === true) {
+                const isAdmin = (profile.user_type === 'admin');
+                const isApproved = (profile.status === 'approved');
+                const isActive = (profile.is_active === true);
+
+                if (isAdmin && isApproved && isActive) {
+                    // SUCCESS: Reveal the page
                     document.body.style.display = 'block';
-                    const adminControls = document.getElementById('adminControls');
-                    const adminNameText = document.getElementById('adminName');
-                    if (adminControls && adminNameText) {
-                        adminControls.classList.remove('hidden');
-                        adminNameText.innerText = `Admin: ${profile.first_name || 'User'}`;
-                    }
+                    document.getElementById('adminControls').classList.remove('hidden');
+                    document.getElementById('adminName').innerText = `Admin: ${profile.first_name}`;
                     loadData();
                 } else {
-                    alert("Not Authorised: Your account does not have Admin access.");
+                    // FAIL: Not an admin
+                    alert("Access Denied: You do not have administrator privileges.");
                     await supabaseClient.auth.signOut();
-                    window.location.href = "index.html"; 
+                    window.location.replace("index.html");
                 }
             } catch (err) {
-                window.location.href = "index.html";
+                console.error("Auth Exception:", err);
+                window.location.replace("index.html");
             }
         }
 
         async function handleLogout() {
             await supabaseClient.auth.signOut();
-            window.location.href = "index.html";
+            window.location.replace("index.html");
         }
 
-        // --- DATA LOGIC ---
+        // --- DATA LOADING ---
         async function loadData() {
             const { data, error } = await supabaseClient.from('applications').select('*').order('created_at', { ascending: false });
-            if (!error) { 
-                allApplications = data; 
-                renderTable(data); 
+            if (!error) {
+                allApplications = data;
+                renderTable(data);
             }
         }
 
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = data.length ? "" : "<tr><td colspan='3' class='p-10 text-center text-slate-400 text-sm'>No records found</td></tr>";
+            tbody.innerHTML = data.length ? "" : "<tr><td colspan='3' class='p-10 text-center text-slate-400'>No records found</td></tr>";
             data.forEach(app => {
                 const isApproved = app.status === 'approved';
-                const statusBtnClass = isApproved ? 'border-amber-500 text-amber-600 hover:bg-amber-50' : 'border-green-600 text-green-600 hover:bg-green-50';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-slate-700">
+                    <tr class="hover:bg-slate-50 border-b border-slate-100 transition">
                         <td class="p-4">
-                            <div class="font-bold text-slate-900">${app.title || ''} ${app.first_name || ''} ${app.last_name || ''} <span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-200 text-slate-600 uppercase font-black ml-1">${app.user_type}</span></div>
-                            <div class="text-[11px] text-slate-500 italic font-medium">${app.email}</div>
+                            <div class="font-bold text-slate-900">${app.first_name} ${app.last_name}</div>
+                            <div class="text-[11px] text-slate-400 uppercase font-black">${app.user_type}</div>
                         </td>
                         <td class="p-4">
-                            <div class="text-sm font-semibold text-slate-700">${app.clinic_name}</div>
-                            <div class="flex gap-2 mt-1">
-                                <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${isApproved ? 'border-green-200 bg-green-50 text-green-700':'border-amber-200 bg-amber-50 text-amber-700'}">${app.status}</span>
-                                <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${app.is_active ? 'border-blue-200 bg-blue-50 text-blue-700':'border-slate-200 bg-slate-50 text-slate-400'}">${app.is_active ? 'ACTIVE' : 'INACTIVE'}</span>
-                            </div>
+                            <div class="text-sm font-semibold text-slate-700">${app.clinic_name || 'N/A'}</div>
+                            <div class="text-[10px] font-bold text-slate-400">${app.email}</div>
                         </td>
-                        <td class="p-4">
-                            <div class="flex justify-center items-center gap-3">
-                                <button onclick="toggleQuickStatus('${app.id}', '${app.status}')" class="px-3 py-1 text-[10px] font-black uppercase rounded border transition-all ${statusBtnClass}">
-                                    ${isApproved ? 'Revoke' : 'Approve'}
-                                </button>
-                                <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700 text-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteRecord('${app.id}')" class="text-slate-200 hover:text-red-500 text-lg"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
+                        <td class="p-4 text-center">
+                            <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700 mx-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteRecord('${app.id}')" class="text-slate-300 hover:text-red-500 mx-2"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>`;
             });
         }
 
-        async function toggleQuickStatus(id, current) {
-            const next = current === 'pending' ? 'approved' : 'pending';
-            const app = allApplications.find(a => a.id === id);
-            const { error } = await supabaseClient.from('applications').update({ 
-                status: next, 
-                is_active: (next === 'approved') 
-            }).eq('id', id);
-
-            if (!error) {
-                await sendEmail(app, next === 'approved' ? 'approval' : 'revoke');
-                loadData();
-            }
-        }
-
-        async function sendEmail(app, type) {
-            const templateId = (type === 'approval') ? APPROVAL_ID : REVOKE_ID;
-            const combinedFullName = `${app.title || ''} ${app.first_name || ''} ${app.last_name || ''}`.trim();
-            try {
-                await supabaseClient.functions.invoke('send-email', {
-                    body: { email: app.email, name: combinedFullName, templateId: templateId }
-                });
-            } catch (err) { console.error('Email error:', err); }
-        }
-
         function openEditModal(id) {
             const app = allApplications.find(a => a.id === id);
             document.getElementById('editId').value = app.id;
-            document.getElementById('editTitle').value = app.title;
             document.getElementById('editFirstName').value = app.first_name;
             document.getElementById('editLastName').value = app.last_name;
-            document.getElementById('editEmail').value = app.email;
-            document.getElementById('editMobile').value = app.mobile_number;
-            document.getElementById('editDob').value = app.dob;
-            document.getElementById('editClinicName').value = app.clinic_name;
-            document.getElementById('editAddress').value = app.address;
-            document.getElementById('editCity').value = app.city;
-            document.getElementById('editState').value = app.state;
-            document.getElementById('editPincode').value = app.pincode;
             document.getElementById('editUserType').value = app.user_type;
-            document.getElementById('editExpiry').value = app.expiry_date;
             document.getElementById('editStatus').value = app.status;
-            document.getElementById('editIsActive').value = String(app.is_active);
             document.getElementById('editModal').style.display = 'block';
         }
 
@@ -243,28 +187,17 @@
         async function saveEdit() {
             const id = document.getElementById('editId').value;
             const updateData = {
-                title: document.getElementById('editTitle').value,
                 first_name: document.getElementById('editFirstName').value,
                 last_name: document.getElementById('editLastName').value,
-                email: document.getElementById('editEmail').value,
-                mobile_number: document.getElementById('editMobile').value,
-                dob: document.getElementById('editDob').value || null,
-                clinic_name: document.getElementById('editClinicName').value,
-                address: document.getElementById('editAddress').value,
-                city: document.getElementById('editCity').value,
-                state: document.getElementById('editState').value,
-                pincode: document.getElementById('editPincode').value,
                 user_type: document.getElementById('editUserType').value,
-                expiry_date: document.getElementById('editExpiry').value || null,
-                status: document.getElementById('editStatus').value,
-                is_active: document.getElementById('editIsActive').value === 'true'
+                status: document.getElementById('editStatus').value
             };
             const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
             if (!error) { closeModal(); loadData(); }
         }
 
         async function deleteRecord(id) {
-            if(confirm("Permanently delete this record?")) {
+            if(confirm("Are you sure?")) {
                 const { error } = await supabaseClient.from('applications').delete().eq('id', id);
                 if (!error) loadData();
             }
@@ -273,15 +206,15 @@
         function filterTable() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const type = document.getElementById('filterType').value;
-            const status = document.getElementById('filterStatus').value;
-            const active = document.getElementById('filterActive').value;
             const filtered = allApplications.filter(app => {
-                const searchStr = (app.first_name + " " + app.last_name + " " + app.clinic_name + " " + app.email).toLowerCase();
-                return searchStr.includes(query) && (type === 'all' || app.user_type === type) && (status === 'all' || app.status === status) && (active === 'all' || String(app.is_active) === active);
+                const match = (app.first_name + app.last_name + app.email).toLowerCase().includes(query);
+                const matchType = (type === 'all' || app.user_type === type);
+                return match && matchType;
             });
             renderTable(filtered);
         }
 
+        // Run security check on load
         checkAccess();
     </script>
 </body>
