@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        /* Custom scrollbar for the modal form */
         #editFormContainer::-webkit-scrollbar { width: 6px; }
         #editFormContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
@@ -40,7 +39,7 @@
                 <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>
                         <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Practitioner</th>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Clinic</th>
+                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Clinic Info</th>
                         <th class="p-4 font-semibold text-slate-600 uppercase text-xs text-center">Actions</th>
                     </tr>
                 </thead>
@@ -57,96 +56,38 @@
                 <h2 class="text-xl font-bold text-slate-800">Edit Member Profile</h2>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
-            
             <div id="editFormContainer" class="p-8 overflow-y-auto">
                 <form id="editForm" class="space-y-5">
                     <input type="hidden" id="editId">
-                    
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">1. Title</label>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">1. Title</label>
                         <select id="editTitle" class="w-full p-2.5 border rounded-lg border-slate-300 bg-white text-sm">
                             <option value="Dr.">Dr.</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">2. First Name</label>
-                        <input type="text" id="editFirstName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">3. Last Name</label>
-                        <input type="text" id="editLastName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">4. Email (Account ID - Cannot Change)</label>
-                        <input type="email" id="editEmail" readonly class="w-full p-2.5 border rounded-lg border-slate-200 bg-slate-50 text-slate-500 text-sm outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">5. Mobile Number</label>
-                        <input type="text" id="editMobile" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">6. Date of Birth</label>
-                        <input type="date" id="editDob" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">7. Name of Clinic/Company</label>
-                        <input type="text" id="editClinicName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm font-semibold">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">8. Address</label>
-                        <textarea id="editAddress" rows="2" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">9. City</label>
-                        <input type="text" id="editCity" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">10. State</label>
-                        <input type="text" id="editState" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">11. Pincode</label>
-                        <input type="text" id="editPincode" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-blue-600 mb-1">12. Type (Role)</label>
+                        </select></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">2. First Name</label><input type="text" id="editFirstName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">3. Last Name</label><input type="text" id="editLastName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-400 mb-1">4. Email (ID)</label><input type="email" id="editEmail" readonly class="w-full p-2.5 border rounded-lg border-slate-200 bg-slate-50 text-slate-500 text-sm outline-none"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">5. Mobile Number</label><input type="text" id="editMobile" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">6. Date of Birth</label><input type="date" id="editDob" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">7. Clinic Name</label><input type="text" id="editClinicName" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm font-semibold"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">8. Address</label><textarea id="editAddress" rows="2" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></textarea></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">9. City</label><input type="text" id="editCity" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">10. State</label><input type="text" id="editState" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">11. Pincode</label><input type="text" id="editPincode" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">12. Type</label>
                         <select id="editUserType" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm font-bold">
                             <option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">13. Expiry Date</label>
-                        <input type="date" id="editExpiry" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-blue-600 mb-1">14. Registration Status</label>
+                        </select></div>
+                    <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">13. Expiry Date</label><input type="date" id="editExpiry" class="w-full p-2.5 border rounded-lg border-slate-300 text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">14. Registration Status</label>
                         <select id="editStatus" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm font-bold">
                             <option value="pending">Pending</option><option value="approved">Approved</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-blue-600 mb-1">15. Active Status</label>
+                        </select></div>
+                    <div><label class="block text-xs font-bold uppercase text-blue-600 mb-1">15. Active Status</label>
                         <select id="editIsActive" class="w-full p-2.5 border rounded-lg border-blue-200 bg-blue-50 text-sm font-bold">
                             <option value="true">Active</option><option value="false">Inactive</option>
-                        </select>
-                    </div>
+                        </select></div>
                 </form>
             </div>
-
             <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
                 <button type="button" onclick="closeModal()" class="px-6 py-2 rounded-lg text-slate-600 font-bold text-sm hover:bg-slate-200 transition">Cancel</button>
                 <button type="button" onclick="saveEdit()" class="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-blue-700 transition">Save Changes</button>
@@ -170,25 +111,41 @@
             tbody.innerHTML = data.length ? "" : "<tr><td colspan='3' class='p-10 text-center text-slate-400 text-sm'>No records found</td></tr>";
             data.forEach(app => {
                 const isApproved = app.status === 'approved';
-                const activeLabel = app.is_active ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400';
+                const statusBtnClass = isApproved ? 'border-amber-500 text-amber-600 hover:bg-amber-50' : 'border-green-600 text-green-600 hover:bg-green-50';
+                
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0 text-slate-700">
                         <td class="p-4">
-                            <div class="font-bold">${app.title} ${app.first_name} ${app.last_name} <span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-200 text-slate-600 uppercase font-black ml-2">${app.user_type}</span></div>
-                            <div class="text-[11px] text-slate-500 italic">${app.email}</div>
+                            <div class="font-bold text-slate-900">${app.title} ${app.first_name} ${app.last_name} <span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-200 text-slate-600 uppercase font-black ml-1">${app.user_type}</span></div>
+                            <div class="text-[11px] text-slate-500 italic font-medium">${app.email}</div>
                         </td>
-                        <td class="p-4 text-sm">
-                            <div class="font-medium">${app.clinic_name}</div>
-                            <div class="text-[10px] text-slate-400 uppercase font-bold">${app.status} • ${app.is_active ? 'ACTIVE' : 'INACTIVE'}</div>
+                        <td class="p-4">
+                            <div class="text-sm font-semibold text-slate-700">${app.clinic_name}</div>
+                            <div class="flex gap-2 mt-1">
+                                <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${isApproved ? 'border-green-200 bg-green-50 text-green-700':'border-amber-200 bg-amber-50 text-amber-700'}">${app.status}</span>
+                                <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${app.is_active ? 'border-blue-200 bg-blue-50 text-blue-700':'border-slate-200 bg-slate-50 text-slate-400'}">${app.is_active ? 'ACTIVE' : 'INACTIVE'}</span>
+                            </div>
                         </td>
-                        <td class="p-4 text-center">
-                            <div class="flex justify-center gap-4 text-lg">
-                                <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700" title="Edit Profile"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteRecord('${app.id}')" class="text-slate-200 hover:text-red-500" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                        <td class="p-4">
+                            <div class="flex justify-center items-center gap-3">
+                                <button onclick="toggleQuickStatus('${app.id}', '${app.status}')" class="px-3 py-1 text-[10px] font-black uppercase rounded border transition-all ${statusBtnClass}">
+                                    ${isApproved ? 'Revoke' : 'Approve'}
+                                </button>
+                                <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700 text-lg" title="Edit Profile"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteRecord('${app.id}')" class="text-slate-200 hover:text-red-500 text-lg" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
                         </td>
                     </tr>`;
             });
+        }
+
+        async function toggleQuickStatus(id, current) {
+            const next = current === 'pending' ? 'approved' : 'pending';
+            const { error } = await supabaseClient.from('applications').update({ 
+                status: next, 
+                is_active: (next === 'approved') 
+            }).eq('id', id);
+            if (!error) loadData();
         }
 
         function openEditModal(id) {
@@ -209,7 +166,6 @@
             document.getElementById('editExpiry').value = app.expiry_date || '';
             document.getElementById('editStatus').value = app.status || 'pending';
             document.getElementById('editIsActive').value = String(app.is_active);
-            
             document.getElementById('editModal').style.display = 'block';
         }
 
