@@ -22,27 +22,27 @@
     </nav>
 
     <main class="max-w-7xl mx-auto p-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 text-sm">
             <div class="flex-1 min-w-[250px] relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
                 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search name, email, clinic..." 
                        class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             
-            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white">
+            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white cursor-pointer">
                 <option value="all">All Types</option>
                 <option value="member">Member</option>
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
             </select>
 
-            <select id="filterStatus" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white">
+            <select id="filterStatus" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white cursor-pointer">
                 <option value="all">Registration: All</option>
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
             </select>
 
-            <select id="filterActive" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white">
+            <select id="filterActive" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white cursor-pointer">
                 <option value="all">Active Status: All</option>
                 <option value="true">Active Only</option>
                 <option value="false">Inactive Only</option>
@@ -54,10 +54,10 @@
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="p-4 font-semibold text-slate-600">Practitioner</th>
-                            <th class="p-4 font-semibold text-slate-600">Clinic</th>
-                            <th class="p-4 font-semibold text-slate-600">Registration</th>
-                            <th class="p-4 font-semibold text-slate-600 text-center">Actions</th>
+                            <th class="p-4 font-semibold text-slate-600 uppercase text-xs tracking-wider">Practitioner</th>
+                            <th class="p-4 font-semibold text-slate-600 uppercase text-xs tracking-wider">Clinic Details</th>
+                            <th class="p-4 font-semibold text-slate-600 uppercase text-xs tracking-wider">Status</th>
+                            <th class="p-4 font-semibold text-slate-600 uppercase text-xs tracking-wider text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-100 italic text-slate-400">
@@ -69,76 +69,91 @@
     </main>
 
     <div id="editModal" class="modal">
-        <div class="bg-white max-w-2xl mx-auto my-10 p-8 rounded-2xl shadow-2xl">
+        <div class="bg-white max-w-2xl mx-auto my-10 p-8 rounded-2xl shadow-2xl relative">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <h2 class="text-2xl font-bold text-slate-800">Edit Practitioner Details</h2>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl transition">&times;</button>
             </div>
             
-            <form id="editForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="editForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <input type="hidden" id="editId">
                 
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Title</label>
-                    <select id="editTitle" class="w-full p-2 border rounded border-slate-300 bg-white">
+                <div class="md:col-span-2 text-blue-600 font-bold text-xs uppercase tracking-widest mt-2">Personal Information</div>
+                
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Title</label>
+                    <select id="editTitle" class="w-full p-2 border rounded border-slate-300 bg-white text-sm">
                         <option value="Dr.">Dr.</option><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option><option value="Mrs.">Mrs.</option>
                     </select>
                 </div>
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Type</label>
-                    <select id="editUserType" class="w-full p-2 border rounded border-slate-300 bg-white">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Date of Birth</label>
+                    <input type="date" id="editDob" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">First Name</label>
+                    <input type="text" id="editFirstName" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Last Name</label>
+                    <input type="text" id="editLastName" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+
+                <div class="md:col-span-2 text-blue-600 font-bold text-xs uppercase tracking-widest mt-4">Clinic & Contact Details</div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Clinic/Company Name</label>
+                    <input type="text" id="editClinicName" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Address</label>
+                    <textarea id="editAddress" rows="2" class="w-full p-2 border rounded border-slate-300 text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">City</label>
+                    <input type="text" id="editCity" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">State</label>
+                    <input type="text" id="editState" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Pincode</label>
+                    <input type="text" id="editPincode" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Mobile</label>
+                    <input type="text" id="editMobile" class="w-full p-2 border rounded border-slate-300 text-sm">
+                </div>
+
+                <div class="md:col-span-2 text-blue-600 font-bold text-xs uppercase tracking-widest mt-4 border-t pt-4">Admin Management</div>
+                
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">User Type</label>
+                    <select id="editUserType" class="w-full p-2 border rounded border-slate-300 bg-white text-sm">
                         <option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option>
                     </select>
                 </div>
-
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">First Name</label>
-                    <input type="text" id="editFirstName" class="w-full p-2 border rounded border-slate-300">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Last Name</label>
-                    <input type="text" id="editLastName" class="w-full p-2 border rounded border-slate-300">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Registration Status</label>
-                    <select id="editStatus" class="w-full p-2 border rounded border-slate-300 bg-white">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Registration Status</label>
+                    <select id="editStatus" class="w-full p-2 border rounded border-slate-300 bg-white text-sm">
                         <option value="pending">Pending</option><option value="approved">Approved</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Account Active</label>
-                    <select id="editIsActive" class="w-full p-2 border rounded border-slate-300 bg-white">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Active Status</label>
+                    <select id="editIsActive" class="w-full p-2 border rounded border-slate-300 bg-white text-sm">
                         <option value="true">Active</option><option value="false">Inactive</option>
                     </select>
                 </div>
-
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Clinic/Company Name</label>
-                    <input type="text" id="editClinicName" class="w-full p-2 border rounded border-slate-300">
-                </div>
-
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Email</label>
-                    <input type="email" id="editEmail" class="w-full p-2 border rounded border-slate-300 bg-slate-50" readonly>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Mobile</label>
-                    <input type="text" id="editMobile" class="w-full p-2 border rounded border-slate-300">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Expiry Date</label>
+                    <input type="date" id="editExpiry" class="w-full p-2 border rounded border-slate-300 text-sm">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Expiry Date</label>
-                    <input type="date" id="editExpiry" class="w-full p-2 border rounded border-slate-300">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">City</label>
-                    <input type="text" id="editCity" class="w-full p-2 border rounded border-slate-300">
-                </div>
-
-                <div class="md:col-span-2 flex justify-end gap-3 mt-4 border-t pt-6">
-                    <button type="button" onclick="closeModal()" class="px-6 py-2 border rounded text-slate-600 hover:bg-slate-50 font-bold">Cancel</button>
-                    <button type="button" onclick="saveEdit()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold">Save Changes</button>
+                <div class="md:col-span-2 flex justify-end gap-3 mt-6 border-t pt-6">
+                    <button type="button" onclick="closeModal()" class="px-6 py-2 border rounded text-slate-600 hover:bg-slate-50 font-bold text-sm">Cancel</button>
+                    <button type="button" onclick="saveEdit()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold text-sm shadow-md transition-all">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -168,24 +183,24 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
                         <td class="p-4">
-                            <div class="font-bold flex items-center gap-2">${app.title} ${app.first_name} ${app.last_name} <span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 uppercase">${app.user_type}</span></div>
-                            <div class="text-xs text-slate-500">${app.email}</div>
+                            <div class="font-bold flex items-center gap-2 text-slate-800">${app.title} ${app.first_name} ${app.last_name} <span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-200 text-slate-600 uppercase font-black tracking-tighter">${app.user_type}</span></div>
+                            <div class="text-[11px] text-slate-500">${app.email}</div>
                         </td>
                         <td class="p-4">
                             <div class="text-sm font-medium text-slate-700">${app.clinic_name}</div>
-                            <div class="text-[11px] text-slate-400 italic">${app.city}</div>
+                            <div class="text-[10px] text-slate-400 italic">${app.city}, ${app.state}</div>
                         </td>
                         <td class="p-4">
-                            <div class="flex items-center gap-2 text-xs font-bold uppercase">
-                                <i class="fa-solid ${statusIcon}"></i> ${app.status}
+                            <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tight">
+                                <i class="fa-solid ${statusIcon} text-sm"></i> ${app.status}
                                 <span class="px-2 py-0.5 rounded ${activeLabel}">${app.is_active ? 'Active' : 'Inactive'}</span>
                             </div>
                         </td>
                         <td class="p-4">
-                            <div class="flex justify-center gap-3">
-                                <button onclick="openEditModal('${app.id}')" class="text-blue-600 hover:text-blue-800 transition" title="Edit Profile"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="toggleQuickStatus('${app.id}', '${app.status}')" class="text-slate-400 hover:text-green-600 transition" title="Toggle Approval"><i class="fa-solid fa-power-off"></i></button>
-                                <button onclick="deleteRecord('${app.id}')" class="text-slate-300 hover:text-red-600 transition" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                            <div class="flex justify-center gap-4 text-lg">
+                                <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700 transition" title="Edit Full Profile"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="toggleQuickStatus('${app.id}', '${app.status}')" class="text-slate-300 hover:text-green-500 transition" title="Quick Approval Toggle"><i class="fa-solid fa-power-off"></i></button>
+                                <button onclick="deleteRecord('${app.id}')" class="text-slate-200 hover:text-red-500 transition" title="Delete Permanent"><i class="fa-solid fa-trash-can text-sm"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -200,7 +215,8 @@
             const isActive = document.getElementById('filterActive').value;
 
             const filtered = allApplications.filter(app => {
-                const matchesSearch = (app.first_name + " " + app.last_name).toLowerCase().includes(query) || app.clinic_name.toLowerCase().includes(query) || app.email.toLowerCase().includes(query);
+                const searchStr = (app.first_name + " " + app.last_name + " " + app.clinic_name + " " + app.email).toLowerCase();
+                const matchesSearch = searchStr.includes(query);
                 const matchesType = type === 'all' || app.user_type === type;
                 const matchesStatus = status === 'all' || app.status === status;
                 const matchesActive = isActive === 'all' || String(app.is_active) === isActive;
@@ -209,21 +225,23 @@
             renderTable(filtered);
         }
 
-        // --- EDIT MODAL LOGIC ---
         function openEditModal(id) {
             const app = allApplications.find(a => a.id === id);
             document.getElementById('editId').value = app.id;
-            document.getElementById('editTitle').value = app.title;
-            document.getElementById('editFirstName').value = app.first_name;
-            document.getElementById('editLastName').value = app.last_name;
-            document.getElementById('editEmail').value = app.email;
-            document.getElementById('editMobile').value = app.mobile_number;
-            document.getElementById('editClinicName').value = app.clinic_name;
-            document.getElementById('editCity').value = app.city;
-            document.getElementById('editStatus').value = app.status;
-            document.getElementById('editUserType').value = app.user_type;
+            document.getElementById('editTitle').value = app.title || '';
+            document.getElementById('editDob').value = app.dob || '';
+            document.getElementById('editFirstName').value = app.first_name || '';
+            document.getElementById('editLastName').value = app.last_name || '';
+            document.getElementById('editMobile').value = app.mobile_number || '';
+            document.getElementById('editClinicName').value = app.clinic_name || '';
+            document.getElementById('editAddress').value = app.address || '';
+            document.getElementById('editCity').value = app.city || '';
+            document.getElementById('editState').value = app.state || '';
+            document.getElementById('editPincode').value = app.pincode || '';
+            document.getElementById('editStatus').value = app.status || 'pending';
+            document.getElementById('editUserType').value = app.user_type || 'member';
             document.getElementById('editIsActive').value = String(app.is_active);
-            document.getElementById('editExpiry').value = app.expiry_date;
+            document.getElementById('editExpiry').value = app.expiry_date || '';
             
             document.getElementById('editModal').style.display = 'block';
         }
@@ -234,11 +252,15 @@
             const id = document.getElementById('editId').value;
             const updateData = {
                 title: document.getElementById('editTitle').value,
+                dob: document.getElementById('editDob').value || null,
                 first_name: document.getElementById('editFirstName').value,
                 last_name: document.getElementById('editLastName').value,
                 mobile_number: document.getElementById('editMobile').value,
                 clinic_name: document.getElementById('editClinicName').value,
+                address: document.getElementById('editAddress').value,
                 city: document.getElementById('editCity').value,
+                state: document.getElementById('editState').value,
+                pincode: document.getElementById('editPincode').value,
                 status: document.getElementById('editStatus').value,
                 user_type: document.getElementById('editUserType').value,
                 is_active: document.getElementById('editIsActive').value === 'true',
@@ -246,20 +268,20 @@
             };
 
             const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
-            if (error) alert("Error: " + error.message);
+            if (error) alert("Error saving changes: " + error.message);
             else { closeModal(); loadData(); }
         }
 
         async function toggleQuickStatus(id, current) {
             const next = current === 'pending' ? 'approved' : 'pending';
-            await supabaseClient.from('applications').update({ status: next, is_active: (next === 'approved') }).eq('id', id);
-            loadData();
+            const { error } = await supabaseClient.from('applications').update({ status: next, is_active: (next === 'approved') }).eq('id', id);
+            if (!error) loadData();
         }
 
         async function deleteRecord(id) {
-            if(confirm("Permanently delete this record?")) {
-                await supabaseClient.from('applications').delete().eq('id', id);
-                loadData();
+            if(confirm("Are you sure? This will permanently delete this practitioner's application.")) {
+                const { error } = await supabaseClient.from('applications').delete().eq('id', id);
+                if (!error) loadData();
             }
         }
 
