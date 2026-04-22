@@ -26,13 +26,27 @@
 
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
         
-        <form id="applyForm" class="space-y-6">
+        <form id="applyForm" class="space-y-8">
             
             <div>
+                <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-slate-700"><i class="fa-solid fa-camera mr-2 text-blue-500"></i>Profile Picture</h3>
+                <div class="flex items-center gap-4">
+                    <div id="imagePreviewContainer" class="h-20 w-20 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden shrink-0">
+                        <i class="fa-solid fa-user text-2xl" id="profilePreviewIcon"></i>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Upload Photo *</label>
+                        <input type="file" id="profilePic" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer outline-none">
+                        <p class="text-xs text-slate-400 mt-1">JPG, PNG or GIF (Max 2MB)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
                 <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-slate-700"><i class="fa-solid fa-user-doctor mr-2 text-blue-500"></i>Personal Details</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    
-                    <div class="col-span-1">
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div class="col-span-1 md:col-span-3">
                         <label class="block text-sm font-medium text-slate-600 mb-1">Title *</label>
                         <select id="title" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
                             <option value="" disabled selected>Select...</option>
@@ -43,35 +57,36 @@
                         </select>
                     </div>
 
-                    <div class="col-span-1 md:col-span-1">
+                    <div class="col-span-1 md:col-span-4">
                         <label class="block text-sm font-medium text-slate-600 mb-1">First Name *</label>
                         <input type="text" id="firstName" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
 
-                    <div class="col-span-1 md:col-span-1">
+                    <div class="col-span-1 md:col-span-5">
                         <label class="block text-sm font-medium text-slate-600 mb-1">Last Name *</label>
                         <input type="text" id="lastName" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Date of Birth *</label>
-                        <input type="date" id="dob" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-700">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="col-span-1 md:col-span-1">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Email Address *</label>
+                        <input type="email" id="email" required placeholder="doctor@clinic.com" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
-                    <div>
+
+                    <div class="col-span-1 md:col-span-1">
                         <label class="block text-sm font-medium text-slate-600 mb-1">Mobile Number *</label>
                         <input type="tel" id="mobile" required placeholder="+91 9876543210" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
-                </div>
 
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Email Address *</label>
-                    <input type="email" id="email" required placeholder="doctor@clinic.com" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <div class="col-span-1 md:col-span-1">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Date of Birth *</label>
+                        <input type="date" id="dob" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-700">
+                    </div>
                 </div>
             </div>
 
-            <div class="pt-4">
+            <div>
                 <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-slate-700"><i class="fa-solid fa-house-medical mr-2 text-blue-500"></i>Clinic / Company Details</h3>
                 
                 <div>
@@ -80,7 +95,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Full Address *</label>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Address *</label>
                     <textarea id="address" rows="2" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"></textarea>
                 </div>
 
@@ -89,10 +104,12 @@
                         <label class="block text-sm font-medium text-slate-600 mb-1">City *</label>
                         <input type="text" id="city" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
+                    
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">State *</label>
                         <input type="text" id="state" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
+                    
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Pincode *</label>
                         <input type="text" id="pincode" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -116,56 +133,103 @@
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
+        // UI Elements
         const form = document.getElementById('applyForm');
         const submitBtn = document.getElementById('submitBtn');
         const msgBox = document.getElementById('messageBox');
-        
+        const profilePicInput = document.getElementById('profilePic');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+
+        // --- IMAGE PREVIEW LOGIC ---
+        profilePicInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-full shadow-sm" />`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // --- FORM SUBMISSION LOGIC ---
         form.onsubmit = async (e) => {
             e.preventDefault();
             
-            // Visual feedback while submitting
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+            // 1. Loading State
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-70');
             msgBox.style.display = "none";
             
-            // Gather all data
-            const newApplication = {
-                title: document.getElementById('title').value,
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                dob: document.getElementById('dob').value,
-                mobile_number: document.getElementById('mobile').value,
-                email: document.getElementById('email').value,
-                clinic_name: document.getElementById('clinicName').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                state: document.getElementById('state').value,
-                pincode: document.getElementById('pincode').value
-                // Note: user_type, expiry_date, is_active, and status are handled automatically by database defaults
-            };
+            try {
+                let profilePicUrl = null;
+                const file = profilePicInput.files[0];
 
-            // Send to Supabase
-            const { error } = await supabaseClient
-                .from('applications')
-                .insert([newApplication]);
+                // 2. Upload Image to Supabase Storage (if file exists)
+                if (file) {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `avatar_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                    
+                    // REPLACE 'profiles' WITH YOUR ACTUAL STORAGE BUCKET NAME!
+                    const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                        .from('profiles') 
+                        .upload(`public/${fileName}`, file);
 
-            // Handle Response
-            msgBox.style.display = "block";
-            if (error) {
-                console.error(error);
-                msgBox.className = "p-4 rounded-lg mt-4 text-center font-medium fade-in bg-red-100 text-red-700 border border-red-200";
-                msgBox.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-2"></i> Error: ' + error.message;
-            } else {
+                    if (uploadError) throw new Error("Image Upload Failed: " + uploadError.message);
+
+                    // Get the public URL for the database
+                    const { data: { publicUrl } } = supabaseClient.storage
+                        .from('profiles')
+                        .getPublicUrl(`public/${fileName}`);
+                        
+                    profilePicUrl = publicUrl;
+                }
+
+                // 3. Gather all text data
+                const newApplication = {
+                    profile_picture: profilePicUrl, // Saving the image link to the DB
+                    title: document.getElementById('title').value,
+                    first_name: document.getElementById('firstName').value,
+                    last_name: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    mobile_number: document.getElementById('mobile').value,
+                    dob: document.getElementById('dob').value,
+                    clinic_name: document.getElementById('clinicName').value,
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    pincode: document.getElementById('pincode').value
+                };
+
+                // 4. Save to Supabase Database
+                const { error: dbError } = await supabaseClient
+                    .from('applications')
+                    .insert([newApplication]);
+
+                if (dbError) throw new Error("Database Error: " + dbError.message);
+
+                // 5. Success State
+                msgBox.style.display = "block";
                 msgBox.className = "p-4 rounded-lg mt-4 text-center font-medium fade-in bg-green-100 text-green-700 border border-green-200";
-                msgBox.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i> <strong>Success!</strong> Your application has been submitted for review.';
+                msgBox.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i> <strong>Success!</strong> Your application has been submitted.';
+                
+                // Reset form and image preview
                 form.reset();
-            }
+                previewContainer.innerHTML = '<i class="fa-solid fa-user text-2xl" id="profilePreviewIcon"></i>';
 
-            // Reset button state
-            submitBtn.innerHTML = 'Submit Application <i class="fa-solid fa-arrow-right"></i>';
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-70');
+            } catch (error) {
+                // Error State
+                console.error(error);
+                msgBox.style.display = "block";
+                msgBox.className = "p-4 rounded-lg mt-4 text-center font-medium fade-in bg-red-100 text-red-700 border border-red-200";
+                msgBox.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-2"></i> ' + error.message;
+            } finally {
+                // Revert button state
+                submitBtn.innerHTML = 'Submit Application <i class="fa-solid fa-arrow-right"></i>';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70');
+            }
         };
     </script>
 </body>
