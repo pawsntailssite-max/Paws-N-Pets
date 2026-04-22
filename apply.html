@@ -12,125 +12,149 @@
 
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
         <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-slate-800">Veterinarian Registration</h2>
-            <p class="text-slate-500">PAWS-N-TAILS Network</p>
+            <div class="text-blue-600 mb-2"><i class="fa-solid fa-paw text-5xl"></i></div>
+            <h2 class="text-2xl font-bold text-slate-800 uppercase tracking-tight">Paws-N-Tails</h2>
+            <p class="text-slate-500">Veterinarian Registration Portal</p>
         </div>
 
         <form id="applyForm" class="space-y-6">
-            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-                <div id="preview" class="h-16 w-16 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
-                    <i class="fa-solid fa-user text-slate-400"></i>
+            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div id="preview" class="h-16 w-16 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
+                    <i class="fa-solid fa-user text-slate-400 text-xl"></i>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Profile Photo (Optional)</label>
-                    <input type="file" id="profilePic" accept="image/*" class="text-sm">
+                <div class="flex-1">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Profile Photo</label>
+                    <input type="file" id="profilePic" accept="image/*" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <select id="title" required class="p-2 border rounded">
-                    <option value="" disabled selected>Title *</option>
-                    <option>Dr.</option><option>Mr.</option><option>Ms.</option>
-                </select>
-                <input type="text" id="firstName" placeholder="First Name *" required class="p-2 border rounded col-span-1">
-                <input type="text" id="lastName" placeholder="Last Name *" required class="p-2 border rounded col-span-1">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div class="col-span-1 md:col-span-3">
+                    <select id="title" required class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="" disabled selected>Title *</option>
+                        <option>Dr.</option><option>Mr.</option><option>Ms.</option>
+                    </select>
+                </div>
+                <div class="col-span-1 md:col-span-4">
+                    <input type="text" id="firstName" placeholder="First Name *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="col-span-1 md:col-span-5">
+                    <input type="text" id="lastName" placeholder="Last Name *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="email" id="email" placeholder="Email *" required class="p-2 border rounded">
-                <input type="tel" id="mobile" placeholder="Mobile *" required class="p-2 border rounded">
+                <input type="email" id="email" placeholder="Email Address *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="tel" id="mobile" placeholder="Mobile Number *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
-            <input type="date" id="dob" required class="w-full p-2 border rounded">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Date of Birth</label>
+                    <input type="date" id="dob" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Clinic Name</label>
+                    <input type="text" id="clinicName" placeholder="Name *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
 
-            <input type="text" id="clinicName" placeholder="Clinic Name *" required class="w-full p-2 border rounded">
-            <textarea id="address" placeholder="Address *" required class="w-full p-2 border rounded"></textarea>
+            <textarea id="address" placeholder="Clinic Address *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" rows="2"></textarea>
             
             <div class="grid grid-cols-3 gap-4">
-                <input type="text" id="city" placeholder="City *" required class="p-2 border rounded">
-                <input type="text" id="state" placeholder="State *" required class="p-2 border rounded">
-                <input type="text" id="pincode" placeholder="Pincode *" required class="p-2 border rounded">
+                <input type="text" id="city" placeholder="City *" required class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="state" placeholder="State *" required class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="pincode" placeholder="Pincode *" required class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                Submit Application
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+                SUBMIT APPLICATION
             </button>
         </form>
     </div>
 
     <script>
-        // Use the exact same Supabase credentials as before
-        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
-        const form = document.getElementById('applyForm');
-        const fileInput = document.getElementById('profilePic');
-        const preview = document.getElementById('preview');
-
-        // Simple Image Preview
-        fileInput.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (f) => preview.innerHTML = `<img src="${f.target.result}" class="w-full h-full object-cover">`;
-                reader.readAsDataURL(file);
+        // Use a function to wait for the page to be fully loaded
+        window.onload = function() {
+            const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+            const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+            
+            // Safety check: Is the library loaded?
+            if (typeof supabase === 'undefined') {
+                alert("Supabase library failed to load. Please check your internet connection and refresh.");
+                return;
             }
-        };
 
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerText = "Sending...";
+            const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-            try {
-                let photoUrl = null;
-                const file = fileInput.files[0];
+            const form = document.getElementById('applyForm');
+            const fileInput = document.getElementById('profilePic');
+            const preview = document.getElementById('preview');
 
-                // 1. Storage Upload (only if file exists)
+            // Image Preview
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
                 if (file) {
-                    const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-                    const { data, error: upError } = await supabaseClient.storage
-                        .from('profiles')
-                        .upload(`public/${fileName}`, file);
-
-                    if (upError) throw new Error("Photo Upload: " + upError.message);
-
-                    const { data: { publicUrl } } = supabaseClient.storage
-                        .from('profiles').getPublicUrl(`public/${fileName}`);
-                    photoUrl = publicUrl;
+                    const reader = new FileReader();
+                    reader.onload = (f) => preview.innerHTML = `<img src="${f.target.result}" class="w-full h-full object-cover">`;
+                    reader.readAsDataURL(file);
                 }
+            };
 
-                // 2. Database Insert
-                const { error: dbError } = await supabaseClient.from('applications').insert([{
-                    profile_picture: photoUrl,
-                    title: document.getElementById('title').value,
-                    first_name: document.getElementById('firstName').value,
-                    last_name: document.getElementById('lastName').value,
-                    email: document.getElementById('email').value,
-                    mobile_number: document.getElementById('mobile').value,
-                    dob: document.getElementById('dob').value,
-                    clinic_name: document.getElementById('clinicName').value,
-                    address: document.getElementById('address').value,
-                    city: document.getElementById('city').value,
-                    state: document.getElementById('state').value,
-                    pincode: document.getElementById('pincode').value,
-                    user_type: 'member'
-                }]);
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('submitBtn');
+                btn.disabled = true;
+                btn.innerText = "SENDING...";
 
-                if (dbError) throw new Error("Database: " + dbError.message);
+                try {
+                    let photoUrl = null;
+                    const file = fileInput.files[0];
 
-                alert("Successfully Registered!");
-                window.location.reload();
+                    // 1. Storage Upload
+                    if (file) {
+                        const fileName = `profile_${Date.now()}_${file.name.replace(/\s/g, '_')}`;
+                        const { error: upError } = await supabaseClient.storage
+                            .from('profiles')
+                            .upload(`public/${fileName}`, file);
 
-            } catch (err) {
-                alert(err.message);
-                console.error(err);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Submit Application";
-            }
+                        if (upError) throw new Error("Photo Upload: " + upError.message);
+
+                        const { data: { publicUrl } } = supabaseClient.storage
+                            .from('profiles').getPublicUrl(`public/${fileName}`);
+                        photoUrl = publicUrl;
+                    }
+
+                    // 2. Database Insert
+                    const { error: dbError } = await supabaseClient.from('applications').insert([{
+                        profile_picture: photoUrl,
+                        title: document.getElementById('title').value,
+                        first_name: document.getElementById('firstName').value,
+                        last_name: document.getElementById('lastName').value,
+                        email: document.getElementById('email').value,
+                        mobile_number: document.getElementById('mobile').value,
+                        dob: document.getElementById('dob').value,
+                        clinic_name: document.getElementById('clinicName').value,
+                        address: document.getElementById('address').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        pincode: document.getElementById('pincode').value,
+                        user_type: 'member'
+                    }]);
+
+                    if (dbError) throw dbError;
+
+                    alert("Registration Successful!");
+                    window.location.reload();
+
+                } catch (err) {
+                    alert("Error: " + err.message);
+                    console.error(err);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = "SUBMIT APPLICATION";
+                }
+            };
         };
     </script>
 </body>
