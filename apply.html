@@ -79,7 +79,7 @@
             const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
             
             if (typeof supabase === 'undefined') {
-                alert("Database connection failed. Please refresh.");
+                alert("Critical Error: Database library not found. Check your internet connection.");
                 return;
             }
 
@@ -88,6 +88,7 @@
             const fileInput = document.getElementById('profilePic');
             const preview = document.getElementById('preview');
 
+            // Handle Image Preview
             fileInput.onchange = (e) => {
                 const file = e.target.files[0];
                 if (file) {
@@ -97,33 +98,35 @@
                 }
             };
 
+            // Form Submission
             form.onsubmit = async (e) => {
                 e.preventDefault();
                 const btn = document.getElementById('submitBtn');
                 btn.disabled = true;
-                btn.innerText = "SENDING...";
+                btn.innerText = "PROCESSING...";
 
                 try {
                     let photoUrl = null;
                     const file = fileInput.files[0];
 
+                    // 1. Upload Photo to Storage if selected
                     if (file) {
                         const fileName = `profile_${Date.now()}_${file.name.replace(/\s/g, '_')}`;
                         const { error: upError } = await supabaseClient.storage
                             .from('profiles')
                             .upload(`public/${fileName}`, file);
 
-                        if (upError) throw new Error("Photo Error: " + upError.message);
+                        if (upError) throw new Error("Storage Upload Failed: " + upError.message);
 
                         const { data: { publicUrl } } = supabaseClient.storage
                             .from('profiles').getPublicUrl(`public/${fileName}`);
                         photoUrl = publicUrl;
                     }
 
-                    // Insert record into both URL fields to ensure compatibility
+                    // 2. Insert Record into Table
                     const { error: dbError } = await supabaseClient.from('applications').insert([{
-                        profile_picture: photoUrl,
-                        profil_url: photoUrl,
+                        profile_picture: photoUrl, // Set first image field
+                        profil_url: photoUrl,      // Set second image field for redundancy
                         title: document.getElementById('title').value,
                         first_name: document.getElementById('firstName').value,
                         last_name: document.getElementById('lastName').value,
@@ -140,12 +143,13 @@
 
                     if (dbError) throw dbError;
 
+                    // 3. Success Feedback and Redirect
                     alert("Registration Successful!");
-                    window.location.reload();
+                    window.location.replace("index.html");
 
                 } catch (err) {
-                    alert("Submission Failed: " + err.message);
-                    console.error(err);
+                    alert("Error: " + err.message);
+                    console.error("Submission Error:", err);
                 } finally {
                     btn.disabled = false;
                     btn.innerText = "SUBMIT APPLICATION";
