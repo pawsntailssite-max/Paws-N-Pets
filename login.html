@@ -2,23 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Vet Portal - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PAWS-N-TAILS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 100px; }
-        .login-box { border: 1px solid #ddd; padding: 20px; border-radius: 8px; width: 300px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <div class="login-box">
-        <h2>Veterinarian Login</h2>
-        <input type="email" id="loginEmail" placeholder="Email Address">
-        <input type="password" id="loginPass" placeholder="Password">
-        <button onclick="handleLogin()">Login</button>
-        <p id="msg"></p>
-        <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center px-4">
+
+    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+        <div class="text-center mb-8">
+            <div class="text-blue-600 mb-2"><i class="fa-solid fa-paw text-5xl"></i></div>
+            <h2 class="text-2xl font-bold text-slate-800 uppercase tracking-tight">Paws-N-Tails</h2>
+            <p id="auth-subtitle" class="text-slate-500">Member Login</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div id="email-field">
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+                <input type="email" id="email" placeholder="vet@example.com" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div id="password-field">
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                <input type="password" id="password" placeholder="••••••••" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div id="new-password-field" class="hidden">
+                <label class="block text-sm font-semibold text-blue-700 mb-1">Enter New Password</label>
+                <input type="password" id="newPassword" placeholder="Minimum 6 characters" class="w-full p-2.5 border-2 border-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button type="submit" id="authBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95">
+                SIGN IN
+            </button>
+        </form>
+
+        <div class="mt-6 text-center space-y-2">
+            <button id="forgotBtn" class="text-sm text-blue-600 hover:underline">Forgot Password?</button>
+            <div class="block">
+                <a href="apply.html" class="text-sm text-slate-500 hover:text-blue-600">Don't have an account? Register here</a>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -26,35 +51,66 @@
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        async function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPass').value;
+        const loginForm = document.getElementById('loginForm');
+        const authBtn = document.getElementById('authBtn');
+        const forgotBtn = document.getElementById('forgotBtn');
+        const subtitle = document.getElementById('auth-subtitle');
+        
+        // Detect if the user arrived here from a Reset Password email link
+        const isResetFlow = window.location.hash.includes('type=recovery');
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                document.getElementById('msg').innerText = error.message;
-                document.getElementById('msg').style.color = "red";
-            } else {
-                // Success! Redirect to the Doctor Dashboard
-                window.location.href = "dashboard.html";
-            }
+        if (isResetFlow) {
+            subtitle.innerText = "Update Your Password";
+            subtitle.classList.add("text-blue-600", "font-bold");
+            document.getElementById('email-field').classList.add('hidden');
+            document.getElementById('password-field').classList.add('hidden');
+            document.getElementById('new-password-field').classList.remove('hidden');
+            authBtn.innerText = "UPDATE PASSWORD";
+            forgotBtn.classList.add('hidden');
         }
 
-        async function forgotPassword() {
-            const email = document.getElementById('loginEmail').value;
-            if (!email) { alert("Please enter your email first."); return; }
+        loginForm.onsubmit = async (e) => {
+            e.preventDefault();
+            authBtn.disabled = true;
+            const email = document.getElementById('email').value;
+
+            try {
+                if (isResetFlow) {
+                    // FLOW: Updating the password after clicking email link
+                    const newPass = document.getElementById('newPassword').value;
+                    const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+                    if (error) throw error;
+                    alert("Password updated successfully! You can now login.");
+                    window.location.href = "login.html";
+                } else {
+                    // FLOW: Standard Login
+                    const password = document.getElementById('password').value;
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    window.location.href = "index.html"; // Redirect to dashboard/home
+                }
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                authBtn.disabled = false;
+            }
+        };
+
+        // Handle Forgot Password Click
+        forgotBtn.onclick = async () => {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert("Please enter your email address first.");
+                return;
+            }
             
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/vet-portal/reset-password.html',
+                redirectTo: window.location.origin + '/login.html',
             });
-            
+
             if (error) alert(error.message);
-            else alert("Password reset link sent to your email!");
-        }
+            else alert("Reset link sent! Please check your email.");
+        };
     </script>
 </body>
 </html>
