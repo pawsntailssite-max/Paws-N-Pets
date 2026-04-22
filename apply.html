@@ -1,60 +1,137 @@
-<script>
-    const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-    const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | PAWS-N-TAILS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 py-10 px-4">
 
-    document.getElementById('applyForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerText = "Processing...";
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-slate-800">Veterinarian Registration</h2>
+            <p class="text-slate-500">PAWS-N-TAILS Network</p>
+        </div>
 
-        try {
-            let photoUrl = null;
-            const file = document.getElementById('profilePic').files[0];
+        <form id="applyForm" class="space-y-6">
+            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
+                <div id="preview" class="h-16 w-16 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
+                    <i class="fa-solid fa-user text-slate-400"></i>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Profile Photo (Optional)</label>
+                    <input type="file" id="profilePic" accept="image/*" class="text-sm">
+                </div>
+            </div>
 
-            // Only try to upload if a file was actually picked
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <select id="title" required class="p-2 border rounded">
+                    <option value="" disabled selected>Title *</option>
+                    <option>Dr.</option><option>Mr.</option><option>Ms.</option>
+                </select>
+                <input type="text" id="firstName" placeholder="First Name *" required class="p-2 border rounded col-span-1">
+                <input type="text" id="lastName" placeholder="Last Name *" required class="p-2 border rounded col-span-1">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="email" id="email" placeholder="Email *" required class="p-2 border rounded">
+                <input type="tel" id="mobile" placeholder="Mobile *" required class="p-2 border rounded">
+            </div>
+
+            <input type="date" id="dob" required class="w-full p-2 border rounded">
+
+            <input type="text" id="clinicName" placeholder="Clinic Name *" required class="w-full p-2 border rounded">
+            <textarea id="address" placeholder="Address *" required class="w-full p-2 border rounded"></textarea>
+            
+            <div class="grid grid-cols-3 gap-4">
+                <input type="text" id="city" placeholder="City *" required class="p-2 border rounded">
+                <input type="text" id="state" placeholder="State *" required class="p-2 border rounded">
+                <input type="text" id="pincode" placeholder="Pincode *" required class="p-2 border rounded">
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                Submit Application
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Use the exact same Supabase credentials as before
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        const form = document.getElementById('applyForm');
+        const fileInput = document.getElementById('profilePic');
+        const preview = document.getElementById('preview');
+
+        // Simple Image Preview
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
             if (file) {
-                const fileName = `${Date.now()}_${file.name}`;
-                const { data, error: upError } = await supabaseClient.storage
-                    .from('profiles')
-                    .upload(`public/${fileName}`, file);
-                
-                if (upError) throw upError;
-
-                const { data: { publicUrl } } = supabaseClient.storage
-                    .from('profiles').getPublicUrl(`public/${fileName}`);
-                photoUrl = publicUrl;
+                const reader = new FileReader();
+                reader.onload = (f) => preview.innerHTML = `<img src="${f.target.result}" class="w-full h-full object-cover">`;
+                reader.readAsDataURL(file);
             }
+        };
 
-            // Save the data (This is the part that was 500ing)
-            const { error: dbError } = await supabaseClient.from('applications').insert([{
-                profile_picture: photoUrl, // If no photo, this is just null (legal)
-                title: document.getElementById('title').value,
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                mobile_number: document.getElementById('mobile').value,
-                dob: document.getElementById('dob').value,
-                clinic_name: document.getElementById('clinicName').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                state: document.getElementById('state').value,
-                pincode: document.getElementById('pincode').value,
-                user_type: 'member'
-            }]);
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Sending...";
 
-            if (dbError) throw dbError;
+            try {
+                let photoUrl = null;
+                const file = fileInput.files[0];
 
-            alert("Application Submitted Successfully!");
-            location.reload(); // Refresh to clear form
+                // 1. Storage Upload (only if file exists)
+                if (file) {
+                    const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
+                    const { data, error: upError } = await supabaseClient.storage
+                        .from('profiles')
+                        .upload(`public/${fileName}`, file);
 
-        } catch (err) {
-            alert("Error: " + err.message);
-            console.error(err);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Submit Application";
-        }
-    };
-</script>
+                    if (upError) throw new Error("Photo Upload: " + upError.message);
+
+                    const { data: { publicUrl } } = supabaseClient.storage
+                        .from('profiles').getPublicUrl(`public/${fileName}`);
+                    photoUrl = publicUrl;
+                }
+
+                // 2. Database Insert
+                const { error: dbError } = await supabaseClient.from('applications').insert([{
+                    profile_picture: photoUrl,
+                    title: document.getElementById('title').value,
+                    first_name: document.getElementById('firstName').value,
+                    last_name: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    mobile_number: document.getElementById('mobile').value,
+                    dob: document.getElementById('dob').value,
+                    clinic_name: document.getElementById('clinicName').value,
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    pincode: document.getElementById('pincode').value,
+                    user_type: 'member'
+                }]);
+
+                if (dbError) throw new Error("Database: " + dbError.message);
+
+                alert("Successfully Registered!");
+                window.location.reload();
+
+            } catch (err) {
+                alert(err.message);
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Application";
+            }
+        };
+    </script>
+</body>
+</html>
