@@ -20,7 +20,7 @@
         <form id="loginForm" class="space-y-4">
             <div id="email-field">
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
-                <input type="email" id="email" placeholder="vet@example.com" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="email" id="email" placeholder="vet@example.com" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div id="password-field">
@@ -72,22 +72,32 @@
         loginForm.onsubmit = async (e) => {
             e.preventDefault();
             authBtn.disabled = true;
-            const email = document.getElementById('email').value;
 
             try {
                 if (isResetFlow) {
                     // FLOW: Updating the password after clicking email link
                     const newPass = document.getElementById('newPassword').value;
+                    if (!newPass || newPass.length < 6) {
+                        throw new Error("Password must be at least 6 characters long.");
+                    }
                     const { error } = await supabaseClient.auth.updateUser({ password: newPass });
                     if (error) throw error;
+                    
                     alert("Password updated successfully! You can now login.");
                     window.location.href = "login.html";
                 } else {
                     // FLOW: Standard Login
+                    const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
+                    
+                    if (!email || !password) {
+                        throw new Error("Please enter both email and password.");
+                    }
+
                     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
-                    window.location.href = "index.html"; // Redirect to dashboard/home
+                    
+                    window.location.href = "index.html"; // Redirect to index
                 }
             } catch (err) {
                 alert("Error: " + err.message);
@@ -104,8 +114,9 @@
                 return;
             }
             
+            // Hardcoded address to completely prevent dynamic variable mistakes
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/login.html',
+                redirectTo: 'http://127.0.0.1:5500/login.html',
             });
 
             if (error) alert(error.message);
