@@ -30,36 +30,36 @@
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div class="col-span-1 md:col-span-3">
-                    <select id="title" required class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <select id="title" required class="w-full p-2.5 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="" disabled selected>Title *</option>
                         <option>Dr.</option><option>Mr.</option><option>Ms.</option>
                     </select>
                 </div>
                 <div class="col-span-1 md:col-span-4">
-                    <input type="text" id="firstName" placeholder="First Name *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="firstName" placeholder="First Name *" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="col-span-1 md:col-span-5">
-                    <input type="text" id="lastName" placeholder="Last Name *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="lastName" placeholder="Last Name *" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="email" id="email" placeholder="Email Address *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <input type="tel" id="mobile" placeholder="Mobile Number *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="email" id="email" placeholder="Email Address *" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="tel" id="mobile" placeholder="Mobile Number *" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Date of Birth</label>
-                    <input type="date" id="dob" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="date" id="dob" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase ml-1">Clinic Name</label>
-                    <input type="text" id="clinicName" placeholder="Name *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="clinicName" placeholder="Clinic Name *" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
 
-            <textarea id="address" placeholder="Clinic Address *" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" rows="2"></textarea>
+            <textarea id="address" placeholder="Clinic Address *" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500" rows="2"></textarea>
             
             <div class="grid grid-cols-3 gap-4">
                 <input type="text" id="city" placeholder="City *" required class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
@@ -67,31 +67,27 @@
                 <input type="text" id="pincode" placeholder="Pincode *" required class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95">
                 SUBMIT APPLICATION
             </button>
         </form>
     </div>
 
     <script>
-        // Use a function to wait for the page to be fully loaded
         window.onload = function() {
             const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
             const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
             
-            // Safety check: Is the library loaded?
             if (typeof supabase === 'undefined') {
-                alert("Supabase library failed to load. Please check your internet connection and refresh.");
+                alert("Database connection failed. Please refresh.");
                 return;
             }
 
             const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
             const form = document.getElementById('applyForm');
             const fileInput = document.getElementById('profilePic');
             const preview = document.getElementById('preview');
 
-            // Image Preview
             fileInput.onchange = (e) => {
                 const file = e.target.files[0];
                 if (file) {
@@ -111,23 +107,23 @@
                     let photoUrl = null;
                     const file = fileInput.files[0];
 
-                    // 1. Storage Upload
                     if (file) {
                         const fileName = `profile_${Date.now()}_${file.name.replace(/\s/g, '_')}`;
                         const { error: upError } = await supabaseClient.storage
                             .from('profiles')
                             .upload(`public/${fileName}`, file);
 
-                        if (upError) throw new Error("Photo Upload: " + upError.message);
+                        if (upError) throw new Error("Photo Error: " + upError.message);
 
                         const { data: { publicUrl } } = supabaseClient.storage
                             .from('profiles').getPublicUrl(`public/${fileName}`);
                         photoUrl = publicUrl;
                     }
 
-                    // 2. Database Insert
+                    // Insert record into both URL fields to ensure compatibility
                     const { error: dbError } = await supabaseClient.from('applications').insert([{
                         profile_picture: photoUrl,
+                        profil_url: photoUrl,
                         title: document.getElementById('title').value,
                         first_name: document.getElementById('firstName').value,
                         last_name: document.getElementById('lastName').value,
@@ -148,7 +144,7 @@
                     window.location.reload();
 
                 } catch (err) {
-                    alert("Error: " + err.message);
+                    alert("Submission Failed: " + err.message);
                     console.error(err);
                 } finally {
                     btn.disabled = false;
