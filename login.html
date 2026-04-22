@@ -39,7 +39,7 @@
         </form>
 
         <div class="mt-6 text-center space-y-2">
-            <button id="forgotBtn" class="text-sm text-blue-600 hover:underline">Forgot Password?</button>
+            <button id="forgotBtn" type="button" class="text-sm text-blue-600 hover:underline">Forgot Password?</button>
             <div class="block">
                 <a href="apply.html" class="text-sm text-slate-500 hover:text-blue-600">Don't have an account? Register here</a>
             </div>
@@ -56,11 +56,11 @@
         const forgotBtn = document.getElementById('forgotBtn');
         const subtitle = document.getElementById('auth-subtitle');
         
-        // Detect if the user arrived here from a Reset Password email link
+        // Check if returning from email (Reset Flow)
         const isResetFlow = window.location.hash.includes('type=recovery');
 
         if (isResetFlow) {
-            subtitle.innerText = "Update Your Password";
+            subtitle.innerText = "Set Your New Password";
             subtitle.classList.add("text-blue-600", "font-bold");
             document.getElementById('email-field').classList.add('hidden');
             document.getElementById('password-field').classList.add('hidden');
@@ -75,29 +75,20 @@
 
             try {
                 if (isResetFlow) {
-                    // FLOW: Updating the password after clicking email link
                     const newPass = document.getElementById('newPassword').value;
-                    if (!newPass || newPass.length < 6) {
-                        throw new Error("Password must be at least 6 characters long.");
-                    }
+                    if (newPass.length < 6) throw new Error("Password too short!");
+                    
                     const { error } = await supabaseClient.auth.updateUser({ password: newPass });
                     if (error) throw error;
                     
-                    alert("Password updated successfully! You can now login.");
+                    alert("Success! Password updated.");
                     window.location.href = "login.html";
                 } else {
-                    // FLOW: Standard Login
                     const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
-                    
-                    if (!email || !password) {
-                        throw new Error("Please enter both email and password.");
-                    }
-
                     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
-                    
-                    window.location.href = "index.html"; // Redirect to index
+                    window.location.href = "index.html";
                 }
             } catch (err) {
                 alert("Error: " + err.message);
@@ -106,7 +97,6 @@
             }
         };
 
-        // Handle Forgot Password Click
         forgotBtn.onclick = async () => {
             const email = document.getElementById('email').value;
             if (!email) {
@@ -114,13 +104,13 @@
                 return;
             }
             
-            // Hardcoded address to completely prevent dynamic variable mistakes
+            // This 'redirectTo' must exactly match your 'Redirect URLs' in Supabase
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                 redirectTo: 'http://127.0.0.1:5500/login.html',
             });
 
             if (error) alert(error.message);
-            else alert("Reset link sent! Please check your email.");
+            else alert("Fresh reset link sent! Please check your email.");
         };
     </script>
 </body>
