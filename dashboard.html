@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Dashboard | PAWS-N-TAILS</title>
+    <title>Dashboard | PAWS-N-TAILS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,87 +13,59 @@
     <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
         <div class="flex items-center gap-2 text-blue-600">
             <i class="fa-solid fa-paw text-3xl"></i>
-            <span class="font-bold text-xl tracking-tight text-slate-800">PAWS-N-TAILS</span>
+            <span class="font-bold text-xl text-slate-800">PAWS-N-TAILS</span>
         </div>
         <div class="flex gap-3">
-            <a id="adminBtn" href="admin.html" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-md">
+            <a id="adminBtn" href="admin.html" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
                 <i class="fa-solid fa-lock-open mr-1"></i> ADMIN PANEL
             </a>
-            <button onclick="handleLogout()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm transition-all uppercase">
-                LOGOUT
-            </button>
+            <button onclick="handleLogout()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm">LOGOUT</button>
         </div>
     </div>
 
-    <div class="max-w-3xl mx-auto space-y-6">
+    <div class="max-w-3xl mx-auto">
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-slate-800">My Profile</h2>
-                <span id="statusBadge" class="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-500">Checking Status...</span>
+                <span id="statusBadge" class="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-500">Checking...</span>
             </div>
 
             <form id="profileForm" class="space-y-6">
-                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <div id="preview" class="h-16 w-16 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
-                        <i class="fa-solid fa-user text-slate-400 text-xl"></i>
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                    <div id="preview" class="h-16 w-16 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-sm">
+                        <i class="fa-solid fa-user text-slate-400 text-xl m-5"></i>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Update Photo</label>
-                        <input type="file" id="profilePic" accept="image/*" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <label class="block text-sm font-semibold text-slate-700">Update Photo</label>
+                        <input type="file" id="profilePic" accept="image/*" class="text-xs text-slate-500">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                    <div class="col-span-1 md:col-span-3">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label>
-                        <select id="title" class="w-full p-2.5 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>Dr.</option><option>Mr.</option><option>Ms.</option>
-                        </select>
-                    </div>
-                    <div class="col-span-1 md:col-span-4">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label>
-                        <input type="text" id="firstName" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="col-span-1 md:col-span-5">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label>
-                        <input type="text" id="lastName" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">1. Title</label><select id="title" class="w-full p-2 border rounded"><option>Dr.</option><option>Mr.</option><option>Ms.</option></select></div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">2. First Name</label><input type="text" id="firstName" class="w-full p-2 border rounded"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">3. Last Name</label><input type="text" id="lastName" class="w-full p-2 border rounded"></div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">4. Email (Disabled)</label>
-                        <input type="email" id="email" disabled class="w-full p-2.5 border rounded-lg bg-slate-50 text-slate-400 cursor-not-allowed outline-none">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label>
-                        <input type="tel" id="mobile" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">4. Email (Fixed)</label><input type="email" id="email" disabled class="w-full p-2 border rounded bg-slate-50"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">5. Mobile</label><input type="tel" id="mobile" class="w-full p-2 border rounded"></div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">6. DOB</label>
-                        <input type="date" id="dob" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label>
-                        <input type="text" id="clinicName" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">6. DOB</label><input type="date" id="dob" class="w-full p-2 border rounded"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">7. Clinic Name</label><input type="text" id="clinicName" class="w-full p-2 border rounded"></div>
                 </div>
 
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label>
-                    <textarea id="address" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500" rows="2"></textarea>
-                </div>
+                <div><label class="text-[10px] font-bold uppercase text-slate-400">8. Address</label><textarea id="address" class="w-full p-2 border rounded" rows="2"></textarea></div>
                 
                 <div class="grid grid-cols-3 gap-4">
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label><input type="text" id="city" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label><input type="text" id="state" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label><input type="text" id="pincode" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">9. City</label><input type="text" id="city" class="w-full p-2 border rounded"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">10. State</label><input type="text" id="state" class="w-full p-2 border rounded"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-slate-400">11. Pincode</label><input type="text" id="pincode" class="w-full p-2 border rounded"></div>
                 </div>
 
-                <button type="submit" id="updateBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95 uppercase tracking-wide">
+                <button type="submit" id="updateBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all uppercase">
                     SAVE MY PROFILE
                 </button>
             </form>
@@ -104,66 +76,63 @@
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
         let currentUser = null;
         let existingPhotoUrl = null;
 
         window.onload = async () => {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.href = "login.html"; return; }
+            if (!user) { window.location.href = "index.html"; return; }
             currentUser = user;
 
-            const { data, error } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
+            const { data } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
 
             if (data) {
-                document.getElementById('title').value = data.title || 'Dr.';
-                document.getElementById('firstName').value = data.first_name || '';
-                document.getElementById('lastName').value = data.last_name || '';
-                document.getElementById('email').value = data.email || '';
-                document.getElementById('mobile').value = data.mobile_number || '';
-                document.getElementById('dob').value = data.dob || '';
-                document.getElementById('clinicName').value = data.clinic_name || '';
-                document.getElementById('address').value = data.address || '';
-                document.getElementById('city').value = data.city || '';
-                document.getElementById('state').value = data.state || '';
-                document.getElementById('pincode').value = data.pincode || '';
-                
-                const badge = document.getElementById('statusBadge');
-                badge.innerText = data.status || 'Pending';
-                if(data.status.toLowerCase() === 'approved') {
-                    badge.className = "text-[10px] font-black uppercase px-3 py-1 rounded-full bg-green-100 text-green-700";
-                }
+                // Populate the 11 fields
+                document.getElementById('title').value = data.title;
+                document.getElementById('firstName').value = data.first_name;
+                document.getElementById('lastName').value = data.last_name;
+                document.getElementById('email').value = data.email;
+                document.getElementById('mobile').value = data.mobile_number;
+                document.getElementById('dob').value = data.dob;
+                document.getElementById('clinicName').value = data.clinic_name;
+                document.getElementById('address').value = data.address;
+                document.getElementById('city').value = data.city;
+                document.getElementById('state').value = data.state;
+                document.getElementById('pincode').value = data.pincode;
 
+                // Set Status Badge
+                const badge = document.getElementById('statusBadge');
+                badge.innerText = data.status;
+                if(data.status.toLowerCase() === 'approved') badge.className = "text-[10px] font-black uppercase px-3 py-1 rounded-full bg-green-100 text-green-700";
+
+                // Set Profile Pic
                 if (data.profile_url) {
                     existingPhotoUrl = data.profile_url;
                     document.getElementById('preview').innerHTML = `<img src="${data.profile_url}" class="w-full h-full object-cover">`;
                 }
 
-                // Show admin button ONLY if user_type is admin
-                if (data.user_type === 'admin') {
+                // ADMIN PANEL BUTTON GATEKEEPER
+                // Only show if Admin AND Approved AND Active
+                if (data.user_type === 'admin' && data.status.toLowerCase() === 'approved' && data.is_active === true) {
                     document.getElementById('adminBtn').classList.remove('hidden');
                 }
             }
         };
 
-        // Profile Update (Limited to 11 fields + photo)
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('updateBtn');
-            btn.disabled = true;
-            btn.innerText = "SAVING...";
+            btn.disabled = true; btn.innerText = "SAVING...";
 
             try {
                 let photoUrl = existingPhotoUrl;
                 const file = document.getElementById('profilePic').files[0];
 
                 if (file) {
-                    const fileName = `${Date.now()}_${currentUser.email.split('@')[0]}`;
-                    const { error: upError } = await supabaseClient.storage.from('profiles').upload(fileName, file);
-                    if (upError) throw upError;
-
-                    const { data: { publicUrl } } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
-                    photoUrl = publicUrl;
+                    const fileName = `${Date.now()}_user`;
+                    await supabaseClient.storage.from('profiles').upload(fileName, file);
+                    const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
+                    photoUrl = pub.publicUrl;
                 }
 
                 const { error } = await supabaseClient.from('applications').update({
@@ -179,20 +148,15 @@
                     city: document.getElementById('city').value,
                     state: document.getElementById('state').value,
                     pincode: document.getElementById('pincode').value
-                    // user_type, status, etc. NOT INCLUDED HERE
                 }).eq('email', currentUser.email);
 
                 if (error) throw error;
-                alert("Profile Updated Successfully!");
-            } catch (err) {
-                alert("Update Error: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "SAVE MY PROFILE";
-            }
+                alert("Profile Updated!");
+            } catch (err) { alert(err.message); }
+            finally { btn.disabled = false; btn.innerText = "SAVE MY PROFILE"; }
         };
 
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = "login.html"; }
+        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = "index.html"; }
     </script>
 </body>
 </html>
