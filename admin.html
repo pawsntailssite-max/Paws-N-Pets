@@ -59,7 +59,9 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Member</th> <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Business Info</th> <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Status</th>
+                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Member</th>
+                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Business Info</th>
+                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Status</th>
                         <th class="p-4 font-semibold text-slate-600 uppercase text-xs text-center">Actions</th>
                     </tr>
                 </thead>
@@ -123,8 +125,9 @@
 
             const { data: profile } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
             
-            // STRICT CHECK: Approved + Active + Admin
-            if (!profile || profile.user_type !== 'admin' || profile.status.toLowerCase() !== 'approved' || profile.is_active !== true) {
+            // STRICT CHECK: Approved + Active + Admin (Added fallback to empty string if status is null)
+            const userStatus = profile && profile.status ? profile.status.toLowerCase() : '';
+            if (!profile || profile.user_type !== 'admin' || userStatus !== 'approved' || profile.is_active !== true) {
                 alert("UNAUTHORIZED ACCESS: Admin, Approved, and Active status required.");
                 window.location.replace("index.html");
             } else {
@@ -153,7 +156,9 @@
             }
 
             data.forEach(app => {
-                const isApproved = app.status.toLowerCase() === 'approved';
+                // BUG FIX: Provide a default fallback to 'Pending' if status is missing in the database
+                const displayStatus = app.status || 'Pending';
+                const isApproved = displayStatus.toLowerCase() === 'approved';
                 const profileImg = app.profile_url || 'https://via.placeholder.com/150';
 
                 tbody.innerHTML += `
@@ -163,13 +168,13 @@
                                 <img src="${profileImg}" class="w-10 h-10 rounded-full object-cover border border-slate-200" onerror="this.src='https://via.placeholder.com/150'">
                                 <div>
                                     <div class="font-bold text-slate-900">${app.title || ''} ${app.first_name} ${app.last_name}</div>
-                                    <div class="text-[10px] text-slate-400 uppercase font-black">${app.user_type}</div>
+                                    <div class="text-[10px] text-slate-400 uppercase font-black">${app.user_type || 'Unknown'}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="p-4"><div class="text-sm font-semibold">${app.clinic_name || 'N/A'}</div><div class="text-[10px] text-slate-400">${app.email}</div></td>
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${isApproved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${app.status}</span>
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${isApproved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${displayStatus}</span>
                             <span class="ml-1 text-[10px] font-bold ${app.is_active ? 'text-blue-500' : 'text-slate-300'}">${app.is_active ? 'Active' : 'Inactive'}</span>
                         </td>
                         <td class="p-4 text-center">
@@ -201,8 +206,9 @@
                 // 2. Type filter
                 const matchesType = typeFilter === 'all' || (app.user_type && app.user_type.toLowerCase() === typeFilter);
 
-                // 3. Status filter
-                const matchesStatus = statusFilter === 'all' || (app.status && app.status.toLowerCase() === statusFilter);
+                // 3. Status filter (with fallback for missing statuses)
+                const appStatus = (app.status || 'Pending').toLowerCase();
+                const matchesStatus = statusFilter === 'all' || appStatus === statusFilter;
 
                 // 4. Active filter
                 const isActiveStr = app.is_active ? "true" : "false";
