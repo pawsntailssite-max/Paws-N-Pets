@@ -108,10 +108,10 @@
                 <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
                 <div class="md:col-span-3 pt-8 flex gap-4">
-                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-all uppercase">
+                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-all uppercase tracking-widest">
                         Discard
                     </button>
-                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all active:scale-95 uppercase">
+                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all active:scale-95 uppercase tracking-widest">
                         Save
                     </button>
                 </div>
@@ -138,17 +138,18 @@
 
             if (error || !profile) { window.location.replace("index.html"); return; }
 
-            // Store ID and Email for logic
+            // Store UUID Primary Key and current Email
             document.getElementById('internalId').value = profile.id;
             originalEmail = profile.email;
 
-            // Nav & Header
+            // Nav & Header Display
             document.getElementById('navBusinessName').innerText = profile.clinic_name || 'Individual';
             document.getElementById('navProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
             document.getElementById('userNameHeader').innerText = `${profile.first_name} ${profile.last_name}`;
             document.getElementById('userEmailHeader').innerText = profile.email;
+            document.getElementById('profilePicPreview').src = profile.profile_url || 'https://via.placeholder.com/150';
 
-            // Fields
+            // Fill Form Fields (Matching Admin.html structure)
             document.getElementById('title').value = profile.title || '';
             document.getElementById('firstName').value = profile.first_name || '';
             document.getElementById('lastName').value = profile.last_name || '';
@@ -160,8 +161,8 @@
             document.getElementById('city').value = profile.city || '';
             document.getElementById('state').value = profile.state || '';
             document.getElementById('pincode').value = profile.pincode || '';
-            document.getElementById('profilePicPreview').src = profile.profile_url || 'https://via.placeholder.com/150';
 
+            // Admin Logic
             if (profile.user_type === 'admin' && profile.status === 'Approved' && profile.is_active) {
                 document.getElementById('adminNavLink').classList.remove('hidden');
             }
@@ -186,6 +187,7 @@
             btn.disabled = true;
             btn.innerText = "SAVING...";
 
+            // Map data exactly to Supabase Columns as seen in admin.html
             let updateData = {
                 title: document.getElementById('title').value,
                 first_name: document.getElementById('firstName').value,
@@ -200,7 +202,6 @@
                 pincode: document.getElementById('pincode').value
             };
 
-            // Handle Photo upload
             if (file) {
                 const fileName = `profile_${Date.now()}`;
                 const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
@@ -210,29 +211,29 @@
                 }
             }
 
-            // 1. If email changed, update Supabase Auth first
+            // Step 1: If email changed, update Authentication first
             if (newEmail !== originalEmail) {
                 const { error: authErr } = await supabaseClient.auth.updateUser({ email: newEmail });
                 if (authErr) {
-                    alert("Auth Update Error: " + authErr.message);
+                    alert("Authentication Error: " + authErr.message);
                     btn.disabled = false;
                     btn.innerText = "SAVE";
                     return;
                 }
-                alert("Email change initiated. You may need to verify the new email address.");
             }
 
-            // 2. Update Database row by primary ID
-            const { error } = await supabaseClient
+            // Step 2: Update Table Record using the UUID 'id' (Matches admin.html logic)
+            const { data, error } = await supabaseClient
                 .from('applications')
                 .update(updateData)
-                .eq('id', rowId);
+                .eq('id', rowId)
+                .select();
 
-            if (!error) {
+            if (!error && data && data.length > 0) {
                 alert("Profile successfully saved!");
                 window.location.href = "navigation.html";
             } else {
-                alert("Database Error: " + error.message);
+                alert("Database Error: " + (error ? error.message : "Record not found"));
                 btn.disabled = false;
                 btn.innerText = "SAVE";
             }
