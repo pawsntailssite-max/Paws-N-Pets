@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Hub | PAWS-N-TAILS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { display: none; } /* Hidden until session is verified */
+        .nav-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <nav class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center gap-4">
+            <img src="logo.jpg" alt="Logo" class="w-10 h-10 object-contain rounded-md" onerror="this.src='https://via.placeholder.com/40?text=Logo'">
+            <h1 class="text-lg font-black tracking-tight text-slate-900">PAWS-N-TAILS</h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+                <p id="userBusinessName" class="text-sm font-bold text-slate-900 leading-none"></p>
+                <p id="userRoleBadge" class="text-[10px] uppercase font-black text-blue-600 tracking-widest"></p>
+            </div>
+            <img id="userProfilePic" src="" class="w-10 h-10 rounded-full border-2 border-blue-100 object-cover" onerror="this.src='https://via.placeholder.com/150'">
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-8 mt-10">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-extrabold text-slate-900">Welcome back!</h2>
+            <p class="text-slate-500">Select a module to continue</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center text-center">
+                <div class="bg-blue-100 text-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                    <i class="fa-solid fa-gauge-high text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">Dashboard</h3>
+                <div class="flex flex-col w-full gap-3">
+                    <a href="dashboard.html" class="bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                        <i class="fa-solid fa-user-gear mr-2"></i> User Profile
+                    </a>
+                    <a href="security.html" class="bg-slate-100 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-200 transition">
+                        <i class="fa-solid fa-shield-halved mr-2"></i> Security (Password)
+                    </a>
+                </div>
+            </div>
+
+            <div id="adminCard" class="hidden bg-white p-8 rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center text-center">
+                <div class="bg-purple-100 text-purple-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                    <i class="fa-solid fa-unlock-keyhole text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">Admin Panel</h3>
+                <p class="text-sm text-slate-500 mb-6">Manage members, status, and system configurations.</p>
+                <a href="admin.html" class="w-full bg-purple-600 text-white py-4 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-200">
+                    Enter Admin Suite
+                </a>
+            </div>
+
+            <div class="md:col-span-1 bg-white p-8 rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center text-center nav-card">
+                 <div class="bg-red-50 text-red-500 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                    <i class="fa-solid fa-right-from-bracket text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Sign Out</h3>
+                <p class="text-sm text-slate-500 mb-6">Securely log out of your session</p>
+                <button onclick="handleLogout()" class="w-full border-2 border-red-100 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 transition">
+                    Logout Now
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function hubGatekeeper() {
+            // Check if user is logged in
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) { window.location.replace("index.html"); return; }
+
+            // Fetch profile data
+            const { data: profile, error } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('email', user.email)
+                .single();
+
+            if (error || !profile) {
+                alert("Profile not found. Redirecting...");
+                window.location.replace("index.html");
+                return;
+            }
+
+            // Populate User Info in Nav
+            document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual Member';
+            document.getElementById('userRoleBadge').innerText = profile.user_type;
+            document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
+            
+            // ADMIN ACCESS LOGIC
+            const isAdmin = profile.user_type === 'admin';
+            const isApproved = (profile.status || '').toLowerCase() === 'approved';
+            const isActive = profile.is_active === true;
+
+            if (isAdmin && isApproved && isActive) {
+                document.getElementById('adminCard').classList.remove('hidden');
+            }
+
+            // Reveal Page
+            document.body.style.display = 'block';
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.replace("index.html");
+        }
+
+        hubGatekeeper();
+    </script>
+</body>
+</html>
