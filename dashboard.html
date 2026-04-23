@@ -54,66 +54,65 @@
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-6 md:p-12">
+    <main class="max-w-5xl mx-auto p-6 md:p-12">
         <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-            <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-6">
+            
+            <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-8">
                 <div class="relative group">
-                    <img id="profilePicPreview" src="" class="w-24 h-24 rounded-full border-4 border-white/30 object-cover shadow-lg" onerror="this.src='https://via.placeholder.com/150'">
+                    <img id="profilePicPreview" src="" class="w-28 h-28 rounded-full border-4 border-white/30 object-cover shadow-2xl" onerror="this.src='https://via.placeholder.com/150'">
                     <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-all">
-                        <i class="fa-solid fa-camera text-xl"></i>
+                        <i class="fa-solid fa-camera text-2xl"></i>
                     </label>
-                    <input type="file" id="fileUpload" class="hidden" accept="image/*">
+                    <input type="file" id="fileUpload" class="hidden" accept="image/*" onchange="previewImage(this)">
                 </div>
                 <div class="text-center md:text-left">
-                    <h2 class="text-2xl font-bold" id="userNameHeader">Loading Profile...</h2>
-                    <p class="text-blue-100 text-sm font-medium" id="userEmailHeader"></p>
+                    <h2 class="text-3xl font-bold" id="userNameHeader">My Profile</h2>
+                    <p class="text-blue-100 font-medium opacity-80" id="userEmailHeader"></p>
                 </div>
             </div>
 
-            <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input type="hidden" id="userId">
+            <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <input type="hidden" id="internalId">
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">1. Title</label>
+                <input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
                 
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Business Name</label>
-                    <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
-                </div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">2. First Name</label>
+                <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">3. Last Name</label>
+                <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">First Name</label>
-                    <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
-                </div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">4. Email Address</label>
+                <input type="email" id="email" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Name</label>
-                    <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
-                </div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">5. Mobile Number</label>
+                <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mobile Number</label>
-                    <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
-                </div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">6. Date of Birth</label>
+                <input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
-                <div class="md:col-span-2 space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Address</label>
-                    <input type="text" id="address" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
-                </div>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">7. Business Name</label>
+                <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">City</label>
-                    <input type="text" id="city" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
-                </div>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">8. Address</label>
+                <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">State</label>
-                    <input type="text" id="state" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
-                </div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">9. City</label>
+                <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
 
-                <div class="md:col-span-2 pt-6 flex gap-4">
-                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-50 transition-all">
-                        DISCARD
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">10. State</label>
+                <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">11. Pincode</label>
+                <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+
+                <div class="md:col-span-3 pt-8 flex gap-4">
+                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-all uppercase">
+                        Discard
                     </button>
-                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
-                        SAVE
+                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all active:scale-95 uppercase">
+                        Save
                     </button>
                 </div>
             </form>
@@ -124,6 +123,8 @@
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        let originalEmail = "";
 
         async function initDashboard() {
             const { data: { user } } = await supabaseClient.auth.getUser();
@@ -137,53 +138,71 @@
 
             if (error || !profile) { window.location.replace("index.html"); return; }
 
-            // Populate Navigation Bar
+            // Store ID and Email for logic
+            document.getElementById('internalId').value = profile.id;
+            originalEmail = profile.email;
+
+            // Nav & Header
             document.getElementById('navBusinessName').innerText = profile.clinic_name || 'Individual';
             document.getElementById('navProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
-
-            // Populate Page Fields
-            document.getElementById('userId').value = profile.id;
             document.getElementById('userNameHeader').innerText = `${profile.first_name} ${profile.last_name}`;
             document.getElementById('userEmailHeader').innerText = profile.email;
-            document.getElementById('clinic').value = profile.clinic_name || '';
+
+            // Fields
+            document.getElementById('title').value = profile.title || '';
             document.getElementById('firstName').value = profile.first_name || '';
             document.getElementById('lastName').value = profile.last_name || '';
+            document.getElementById('email').value = profile.email || '';
             document.getElementById('mobile').value = profile.mobile_number || '';
+            document.getElementById('dob').value = profile.dob || '';
+            document.getElementById('clinic').value = profile.clinic_name || '';
             document.getElementById('address').value = profile.address || '';
             document.getElementById('city').value = profile.city || '';
             document.getElementById('state').value = profile.state || '';
+            document.getElementById('pincode').value = profile.pincode || '';
             document.getElementById('profilePicPreview').src = profile.profile_url || 'https://via.placeholder.com/150';
 
-            // Check Admin Status for Nav
             if (profile.user_type === 'admin' && profile.status === 'Approved' && profile.is_active) {
                 document.getElementById('adminNavLink').classList.remove('hidden');
             }
-
             document.body.style.display = 'block';
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => document.getElementById('profilePicPreview').src = e.target.result;
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
-            const id = document.getElementById('userId').value;
+            const rowId = document.getElementById('internalId').value;
+            const newEmail = document.getElementById('email').value;
             const file = document.getElementById('fileUpload').files[0];
             
             btn.disabled = true;
             btn.innerText = "SAVING...";
 
             let updateData = {
-                clinic_name: document.getElementById('clinic').value,
+                title: document.getElementById('title').value,
                 first_name: document.getElementById('firstName').value,
                 last_name: document.getElementById('lastName').value,
+                email: newEmail,
                 mobile_number: document.getElementById('mobile').value,
+                dob: document.getElementById('dob').value || null,
+                clinic_name: document.getElementById('clinic').value,
                 address: document.getElementById('address').value,
                 city: document.getElementById('city').value,
-                state: document.getElementById('state').value
+                state: document.getElementById('state').value,
+                pincode: document.getElementById('pincode').value
             };
 
-            // Handle Image Upload if new file exists
+            // Handle Photo upload
             if (file) {
-                const fileName = `profile_${id}_${Date.now()}`;
+                const fileName = `profile_${Date.now()}`;
                 const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
                 if (!upErr) {
                     const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
@@ -191,14 +210,29 @@
                 }
             }
 
-            // CRITICAL FIX: Ensure the record is matched by ID for a proper update
-            const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
+            // 1. If email changed, update Supabase Auth first
+            if (newEmail !== originalEmail) {
+                const { error: authErr } = await supabaseClient.auth.updateUser({ email: newEmail });
+                if (authErr) {
+                    alert("Auth Update Error: " + authErr.message);
+                    btn.disabled = false;
+                    btn.innerText = "SAVE";
+                    return;
+                }
+                alert("Email change initiated. You may need to verify the new email address.");
+            }
+
+            // 2. Update Database row by primary ID
+            const { error } = await supabaseClient
+                .from('applications')
+                .update(updateData)
+                .eq('id', rowId);
 
             if (!error) {
-                alert("Profile successfully updated!");
-                window.location.href = "navigation.html"; // Success Redirect
+                alert("Profile successfully saved!");
+                window.location.href = "navigation.html";
             } else {
-                alert("Error saving: " + error.message);
+                alert("Database Error: " + error.message);
                 btn.disabled = false;
                 btn.innerText = "SAVE";
             }
