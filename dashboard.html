@@ -3,90 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Dashboard</title>
+    <title>Member Dashboard | PAWS-N-TAILS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; margin: 0; }
-        nav { background: #333; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 20px; }
-        .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; max-width: 500px; }
-        button { padding: 10px; cursor: pointer; }
-        .logout-btn { background: #ff4d4d; color: white; border: none; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-slate-50 py-6 px-4">
 
-<nav>
-    <div id="nav-clinic-name">Loading...</div>
-    <button class="logout-btn" onclick="handleLogout()">Logout</button>
-</nav>
-
-<div class="container">
-    <h2 id="welcome-msg">Welcome, Doctor</h2>
-    
-    <div class="card">
-        <h3>Profile Details</h3>
-        <p><strong>Email:</strong> <span id="disp-email"></span></p>
-        <p><strong>Mobile:</strong> <span id="disp-mobile"></span></p>
-        <hr>
-        <h4>Security</h4>
-        <button onclick="changePassword()">Change Password</button>
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+        <div class="flex items-center gap-2 text-blue-600">
+            <i class="fa-solid fa-paw text-3xl"></i>
+            <span class="font-bold text-xl tracking-tight text-slate-800">PAWS-N-TAILS</span>
+        </div>
+        <div class="flex gap-3">
+            <a id="adminBtn" href="admin.html" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-all shadow-md">
+                <i class="fa-solid fa-lock-open mr-1"></i> ADMIN PANEL
+            </a>
+            <button onclick="handleLogout()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm transition-all">
+                LOGOUT
+            </button>
+        </div>
     </div>
-</div>
 
-<script>
-    const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-    const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+    <div class="max-w-3xl mx-auto space-y-6">
+        
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">My Profile</h2>
+                <span id="statusBadge" class="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-500">Loading...</span>
+            </div>
 
-    async function loadDashboard() {
-        // 1. Check if user is logged in
-        const { data: { user } } = await supabaseClient.auth.getUser();
+            <form id="profileForm" class="space-y-6">
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div id="preview" class="h-16 w-16 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
+                        <i class="fa-solid fa-user text-slate-400 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Update Photo</label>
+                        <input type="file" id="profilePic" accept="image/*" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
+                </div>
 
-        if (!user) {
-            // Not logged in? Send them back to login page
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div class="col-span-1 md:col-span-3">
+                        <select id="title" class="w-full p-2.5 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option>Dr.</option><option>Mr.</option><option>Ms.</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 md:col-span-4">
+                        <input type="text" id="firstName" placeholder="First Name" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="col-span-1 md:col-span-5">
+                        <input type="text" id="lastName" placeholder="Last Name" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="email" id="email" disabled class="w-full p-2.5 border rounded-lg bg-slate-50 text-slate-400 cursor-not-allowed outline-none">
+                    <input type="tel" id="mobile" placeholder="Mobile Number" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="date" id="dob" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="clinicName" placeholder="Clinic Name" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <textarea id="address" placeholder="Clinic Address" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500" rows="2"></textarea>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <input type="text" id="city" placeholder="City" class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="state" placeholder="State" class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="pincode" placeholder="Pincode" class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <button type="submit" id="updateBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95">
+                    SAVE CHANGES
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+            <h2 class="text-xl font-bold text-slate-800 mb-6">Security</h2>
+            <form id="passwordForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">New Password</label>
+                    <input type="password" id="newPassword" placeholder="Minimum 6 characters" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="bg-slate-800 text-white font-bold py-2 px-6 rounded-lg hover:bg-slate-900 transition-all">
+                    UPDATE PASSWORD
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        let currentUser = null;
+        let existingPhotoUrl = null;
+
+        window.onload = async () => {
+            // 1. Check Authentication
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            currentUser = user;
+
+            // 2. Fetch User Data from 'applications' table
+            const { data, error } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('email', user.email)
+                .single();
+
+            if (data) {
+                // Populate Fields
+                document.getElementById('title').value = data.title;
+                document.getElementById('firstName').value = data.first_name;
+                document.getElementById('lastName').value = data.last_name;
+                document.getElementById('email').value = data.email;
+                document.getElementById('mobile').value = data.mobile_number;
+                document.getElementById('dob').value = data.dob;
+                document.getElementById('clinicName').value = data.clinic_name;
+                document.getElementById('address').value = data.address;
+                document.getElementById('city').value = data.city;
+                document.getElementById('state').value = data.state;
+                document.getElementById('pincode').value = data.pincode;
+                
+                // Status Badge
+                const badge = document.getElementById('statusBadge');
+                badge.innerText = data.status || 'Pending';
+                if(data.status === 'approved') badge.classList.replace('bg-slate-100', 'bg-green-100'), badge.classList.replace('text-slate-500', 'text-green-700');
+
+                // Photo Preview
+                if (data.profile_url) {
+                    existingPhotoUrl = data.profile_url;
+                    document.getElementById('preview').innerHTML = `<img src="${data.profile_url}" class="w-full h-full object-cover">`;
+                }
+
+                // ADMIN CHECK
+                if (data.user_type === 'admin') {
+                    document.getElementById('adminBtn').classList.remove('hidden');
+                }
+            }
+        };
+
+        // Handle Photo Preview
+        document.getElementById('profilePic').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (f) => document.getElementById('preview').innerHTML = `<img src="${f.target.result}" class="w-full h-full object-cover">`;
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Update Profile Logic
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('updateBtn');
+            btn.disabled = true;
+            btn.innerText = "UPDATING...";
+
+            try {
+                let photoUrl = existingPhotoUrl;
+                const file = document.getElementById('profilePic').files[0];
+
+                if (file) {
+                    const fileName = `profile_${Date.now()}_${file.name.replace(/\s/g, '_')}`;
+                    const { error: upError } = await supabaseClient.storage
+                        .from('profiles')
+                        .upload(`public/${fileName}`, file);
+                    if (upError) throw upError;
+
+                    const { data: { publicUrl } } = supabaseClient.storage.from('profiles').getPublicUrl(`public/${fileName}`);
+                    photoUrl = publicUrl;
+                }
+
+                const { error } = await supabaseClient
+                    .from('applications')
+                    .update({
+                        profile_url: photoUrl,
+                        profile_picture: photoUrl,
+                        title: document.getElementById('title').value,
+                        first_name: document.getElementById('firstName').value,
+                        last_name: document.getElementById('lastName').value,
+                        mobile_number: document.getElementById('mobile').value,
+                        dob: document.getElementById('dob').value,
+                        clinic_name: document.getElementById('clinicName').value,
+                        address: document.getElementById('address').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        pincode: document.getElementById('pincode').value
+                    })
+                    .eq('email', currentUser.email);
+
+                if (error) throw error;
+                alert("Profile Updated Successfully!");
+            } catch (err) {
+                alert("Update Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "SAVE CHANGES";
+            }
+        };
+
+        // Change Password Logic
+        document.getElementById('passwordForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const newPass = document.getElementById('newPassword').value;
+            if (newPass.length < 6) {
+                alert("Password must be at least 6 characters.");
+                return;
+            }
+
+            const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("Password updated!");
+                document.getElementById('newPassword').value = "";
+            }
+        };
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
             window.location.href = "login.html";
-            return;
         }
-
-        // 2. Fetch the clinic details for THIS specific user
-        const { data: profile, error } = await supabaseClient
-            .from('applications')
-            .select('*')
-            .eq('email', user.email)
-            .single();
-
-        if (error) {
-            console.error("Error fetching profile:", error);
-            return;
-        }
-
-        // 3. Update the UI with their specific data
-        document.getElementById('nav-clinic-name').innerText = profile.clinic_name;
-        document.getElementById('welcome-msg').innerText = "Welcome, " + profile.clinic_name;
-        document.getElementById('disp-email').innerText = profile.email;
-        document.getElementById('disp-mobile').innerText = profile.mobile_number;
-    }
-
-    async function handleLogout() {
-        await supabaseClient.auth.signOut();
-        window.location.href = "login.html";
-    }
-
-    function changePassword() {
-        const newPass = prompt("Enter your new password:");
-        if (newPass) {
-            supabaseClient.auth.updateUser({ password: newPass })
-                .then(({error}) => {
-                    if (error) alert(error.message);
-                    else alert("Password updated successfully!");
-                });
-        }
-    }
-
-    // Run on load
-    loadDashboard();
-</script>
-
+    </script>
 </body>
 </html>
