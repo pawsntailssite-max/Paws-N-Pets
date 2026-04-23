@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
+        /* CRITICAL SECURITY: Hide everything until the Admin check passes */
         body { display: none; }
+        
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
-        /* Custom scrollbar for the modal */
         #modalContent::-webkit-scrollbar { width: 6px; }
         #modalContent::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
@@ -72,7 +73,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-slate-100">
-                    <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">Loading records...</td></tr>
+                    <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">Verifying credentials...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -95,15 +96,15 @@
                 <form id="editForm" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <input type="hidden" id="editId">
                     
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">First Name</label>
-                        <input type="text" id="editFirstName" class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                        <input type="text" id="editFirstName" class="w-full p-2.5 border rounded-lg text-sm bg-white">
                     </div>
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Last Name</label>
-                        <input type="text" id="editLastName" class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                        <input type="text" id="editLastName" class="w-full p-2.5 border rounded-lg text-sm bg-white">
                     </div>
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Email</label>
                         <input type="email" id="editEmail" disabled class="w-full p-2.5 border rounded-lg text-sm bg-slate-100 text-slate-500 cursor-not-allowed">
                     </div>
@@ -178,25 +179,46 @@
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
         let allApplications = [];
 
+        // --- DILIGENT SECURITY GATEKEEPER ---
         async function checkAccess() {
             try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (!session) { window.location.replace("index.html"); return; }
+                const { data: { session }, error: sErr } = await supabaseClient.auth.getSession();
+                
+                // 1. Check if even logged in
+                if (!session || sErr) {
+                    window.location.replace("index.html");
+                    return;
+                }
 
-                const { data: profile } = await supabaseClient.from('applications').select('*').eq('email', session.user.email).single();
+                // 2. Verify if this user is actually an approved Admin
+                const { data: profile, error: pErr } = await supabaseClient
+                    .from('applications')
+                    .select('*')
+                    .eq('email', session.user.email)
+                    .single();
 
-                if (profile && profile.user_type === 'admin' && profile.status === 'approved' && profile.is_active) {
+                if (!profile || pErr || profile.user_type !== 'admin' || profile.status !== 'approved' || !profile.is_active) {
+                    alert("Security Check Failed: You do not have administrator permissions.");
+                    // Force signout to prevent session hijacking
+                    await supabaseClient.auth.signOut();
+                    window.location.replace("index.html");
+                } else {
+                    // Success: Reveal body and load dashboard
                     document.body.style.display = 'block';
                     document.getElementById('adminControls').classList.remove('hidden');
                     document.getElementById('adminName').innerText = profile.first_name;
                     loadData();
-                } else {
-                    alert("Unauthorized Access");
-                    window.location.replace("index.html");
                 }
-            } catch (err) { window.location.replace("index.html"); }
+            } catch (err) {
+                console.error("Critical Security Failure:", err);
+                window.location.replace("index.html");
+            }
         }
 
+        // Initialize security check immediately
+        checkAccess();
+
+        // --- DATA FUNCTIONS ---
         async function loadData() {
             const { data, error } = await supabaseClient.from('applications').select('*').order('created_at', { ascending: false });
             if (!error) {
@@ -215,7 +237,7 @@
                     <tr class="hover:bg-slate-50 border-b border-slate-100 transition">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <img src="${app.profile_pic || ''}" class="w-8 h-8 rounded-full bg-slate-200" onerror="this.src='https://via.placeholder.com/50'">
+                                <img src="${app.profile_pic || ''}" class="w-8 h-8 rounded-full bg-slate-200 object-cover" onerror="this.src='https://via.placeholder.com/50'">
                                 <div>
                                     <div class="font-bold text-slate-900">${app.first_name} ${app.last_name}</div>
                                     <div class="text-[10px] text-slate-400 uppercase font-black tracking-tighter">${app.user_type}</div>
@@ -223,7 +245,7 @@
                             </div>
                         </td>
                         <td class="p-4">
-                            <div class="text-sm font-semibold text-slate-700">${app.clinic_name || 'Individual'}</div>
+                            <div class="text-sm font-semibold text-slate-700">${app.clinic_name || 'N/A'}</div>
                             <div class="text-[10px] font-bold text-slate-400">${app.email}</div>
                         </td>
                         <td class="p-4">
@@ -244,28 +266,22 @@
 
         function openEditModal(id) {
             const app = allApplications.find(a => a.id === id);
-            
-            // Populate All Fields
             document.getElementById('editId').value = app.id;
             document.getElementById('modalSubId').innerText = `Record ID: ${app.id}`;
             document.getElementById('modalProfilePic').src = app.profile_pic || '';
-            
             document.getElementById('editFirstName').value = app.first_name || '';
             document.getElementById('editLastName').value = app.last_name || '';
             document.getElementById('editEmail').value = app.email || '';
             document.getElementById('editPhone').value = app.phone || '';
             document.getElementById('editTitle').value = app.specialty || app.title || '';
             document.getElementById('editLicense').value = app.license_no || '';
-            
             document.getElementById('editClinicName').value = app.clinic_name || '';
             document.getElementById('editClinicAddress').value = app.clinic_address || '';
             document.getElementById('editClinicCity').value = app.clinic_city || '';
             document.getElementById('editClinicZip').value = app.clinic_zip || '';
-            
             document.getElementById('editUserType').value = app.user_type;
             document.getElementById('editStatus').value = app.status;
             document.getElementById('editIsActive').value = app.is_active.toString();
-
             document.getElementById('editModal').style.display = 'block';
         }
 
@@ -290,11 +306,10 @@
 
             const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
             if (!error) { 
-                alert("Profile Updated Successfully!");
                 closeModal(); 
                 loadData(); 
             } else {
-                alert("Error updating: " + error.message);
+                alert("Update failed: " + error.message);
             }
         }
 
@@ -309,7 +324,6 @@
                 const typeMatch = (typeFilter === 'all' || app.user_type === typeFilter);
                 const statusMatch = (statusFilter === 'all' || app.status === statusFilter);
                 const activeMatch = (activeFilter === 'all' || app.is_active.toString() === activeFilter);
-                
                 return searchMatch && typeMatch && statusMatch && activeMatch;
             });
             renderTable(filtered);
@@ -321,13 +335,11 @@
         }
 
         async function deleteRecord(id) {
-            if(confirm("Permanently delete this practitioner record?")) {
+            if(confirm("Permanently delete this record?")) {
                 const { error } = await supabaseClient.from('applications').delete().eq('id', id);
                 if (!error) loadData();
             }
         }
-
-        checkAccess();
     </script>
 </body>
 </html>
