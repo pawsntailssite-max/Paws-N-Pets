@@ -86,9 +86,9 @@
                     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     
-                    // SUCCESS CASE: Go to Dashboard
+                    // SUCCESS CASE: Now redirects to the Navigation Hub
                     alert("Login Successful! Welcome back.");
-                    window.location.href = "dashboard.html";
+                    window.location.href = "navigation.html";
                 }
             } catch (err) {
                 // FAILURE CASE: Go back to Index
