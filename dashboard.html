@@ -3,160 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | PAWS-N-TAILS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>My Profile | PAWS-N-TAILS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { display: none; }
+        .dropdown-content { display: none; }
+        .dropdown-content.show { display: block; }
+    </style>
 </head>
-<body class="bg-slate-50 py-6 px-4">
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
-        <div class="flex items-center gap-2 text-blue-600">
-            <i class="fa-solid fa-paw text-3xl"></i>
-            <span class="font-bold text-xl text-slate-800">PAWS-N-TAILS</span>
-        </div>
-        <div class="flex gap-3">
-            <a id="adminBtn" href="admin.html" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md transition-all">
-                <i class="fa-solid fa-lock-open mr-1"></i> ADMIN PANEL
-            </a>
-            <button onclick="handleLogout()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm">LOGOUT</button>
-        </div>
-    </div>
-
-    <div class="max-w-3xl mx-auto">
-        <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-slate-800">My Profile</h2>
-                <span id="statusBadge" class="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-500">Checking...</span>
+    <nav class="bg-white border-b border-slate-200 px-4 py-2 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
+                <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block">PAWS-N-TAILS</span>
             </div>
 
-            <form id="profileForm" class="space-y-6">
-                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                    <div id="preview" class="h-16 w-16 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-sm">
-                        <i class="fa-solid fa-user text-slate-400 text-xl m-5"></i>
+            <div class="flex items-center gap-1">
+                <div class="relative">
+                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600 transition-colors">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                    <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
+                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                            <i class="fa-solid fa-user-circle mr-2"></i> User Profile
+                        </a>
+                        <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                            <i class="fa-solid fa-shield-halved mr-2"></i> Security
+                        </a>
                     </div>
-                    <div class="flex-1">
-                        <label class="block text-sm font-semibold text-slate-700">Update Photo</label>
-                        <input type="file" id="profilePic" accept="image/*" class="text-xs text-slate-500">
-                    </div>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">1. Title</label><select id="title" class="w-full p-2 border rounded"><option>Dr.</option><option>Mr.</option><option>Ms.</option></select></div>
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">2. First Name</label><input type="text" id="firstName" class="w-full p-2 border rounded"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">3. Last Name</label><input type="text" id="lastName" class="w-full p-2 border rounded"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">4. Email (Fixed)</label><input type="email" id="email" disabled class="w-full p-2 border rounded bg-slate-50"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">5. Mobile</label><input type="tel" id="mobile" class="w-full p-2 border rounded"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">6. DOB</label><input type="date" id="dob" class="w-full p-2 border rounded"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">7. Clinic Name</label><input type="text" id="clinicName" class="w-full p-2 border rounded"></div>
-                </div>
-
-                <div><label class="text-[10px] font-bold uppercase text-slate-400">8. Address</label><textarea id="address" class="w-full p-2 border rounded" rows="2"></textarea></div>
-                
-                <div class="grid grid-cols-3 gap-4">
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">9. City</label><input type="text" id="city" class="w-full p-2 border rounded"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">10. State</label><input type="text" id="state" class="w-full p-2 border rounded"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">11. Pincode</label><input type="text" id="pincode" class="w-full p-2 border rounded"></div>
-                </div>
-
-                <button type="submit" id="updateBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all uppercase">
-                    SAVE MY PROFILE
+                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 text-purple-600 font-bold text-sm transition-colors">
+                    <i class="fa-solid fa-unlock-keyhole"></i> Admin Panel
+                </a>
+                <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-50 text-red-500 font-bold text-sm transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
+                <div class="text-right hidden md:block">
+                    <p id="navBusinessName" class="text-xs font-black text-slate-900 uppercase truncate max-w-[150px]"></p>
+                    <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Active Member</p>
+                </div>
+                <img id="navProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-6 md:p-12">
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+            <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-6">
+                <div class="relative group">
+                    <img id="profilePicPreview" src="" class="w-24 h-24 rounded-full border-4 border-white/30 object-cover shadow-lg" onerror="this.src='https://via.placeholder.com/150'">
+                    <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-all">
+                        <i class="fa-solid fa-camera text-xl"></i>
+                    </label>
+                    <input type="file" id="fileUpload" class="hidden" accept="image/*">
+                </div>
+                <div class="text-center md:text-left">
+                    <h2 class="text-2xl font-bold" id="userNameHeader">Loading Profile...</h2>
+                    <p class="text-blue-100 text-sm font-medium" id="userEmailHeader"></p>
+                </div>
+            </div>
+
+            <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="hidden" id="userId">
+                
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Business Name</label>
+                    <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">First Name</label>
+                    <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Name</label>
+                    <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mobile Number</label>
+                    <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                </div>
+
+                <div class="md:col-span-2 space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Address</label>
+                    <input type="text" id="address" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">City</label>
+                    <input type="text" id="city" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">State</label>
+                    <input type="text" id="state" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold">
+                </div>
+
+                <div class="md:col-span-2 pt-6 flex gap-4">
+                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-50 transition-all">
+                        DISCARD
+                    </button>
+                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+                        SAVE
+                    </button>
+                </div>
             </form>
         </div>
-    </div>
+    </main>
 
     <script>
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-        let currentUser = null;
-        let existingPhotoUrl = null;
 
-        window.onload = async () => {
+        async function initDashboard() {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.href = "index.html"; return; }
-            currentUser = user;
+            if (!user) { window.location.replace("index.html"); return; }
 
-            const { data } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
+            const { data: profile, error } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('email', user.email)
+                .single();
 
-            if (data) {
-                // Populate the 11 fields
-                document.getElementById('title').value = data.title;
-                document.getElementById('firstName').value = data.first_name;
-                document.getElementById('lastName').value = data.last_name;
-                document.getElementById('email').value = data.email;
-                document.getElementById('mobile').value = data.mobile_number;
-                document.getElementById('dob').value = data.dob;
-                document.getElementById('clinicName').value = data.clinic_name;
-                document.getElementById('address').value = data.address;
-                document.getElementById('city').value = data.city;
-                document.getElementById('state').value = data.state;
-                document.getElementById('pincode').value = data.pincode;
+            if (error || !profile) { window.location.replace("index.html"); return; }
 
-                // Set Status Badge
-                const badge = document.getElementById('statusBadge');
-                badge.innerText = data.status;
-                if(data.status.toLowerCase() === 'approved') badge.className = "text-[10px] font-black uppercase px-3 py-1 rounded-full bg-green-100 text-green-700";
+            // Populate Navigation Bar
+            document.getElementById('navBusinessName').innerText = profile.clinic_name || 'Individual';
+            document.getElementById('navProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
 
-                // Set Profile Pic
-                if (data.profile_url) {
-                    existingPhotoUrl = data.profile_url;
-                    document.getElementById('preview').innerHTML = `<img src="${data.profile_url}" class="w-full h-full object-cover">`;
-                }
+            // Populate Page Fields
+            document.getElementById('userId').value = profile.id;
+            document.getElementById('userNameHeader').innerText = `${profile.first_name} ${profile.last_name}`;
+            document.getElementById('userEmailHeader').innerText = profile.email;
+            document.getElementById('clinic').value = profile.clinic_name || '';
+            document.getElementById('firstName').value = profile.first_name || '';
+            document.getElementById('lastName').value = profile.last_name || '';
+            document.getElementById('mobile').value = profile.mobile_number || '';
+            document.getElementById('address').value = profile.address || '';
+            document.getElementById('city').value = profile.city || '';
+            document.getElementById('state').value = profile.state || '';
+            document.getElementById('profilePicPreview').src = profile.profile_url || 'https://via.placeholder.com/150';
 
-                // ADMIN PANEL BUTTON GATEKEEPER
-                // Only show if Admin AND Approved AND Active
-                if (data.user_type === 'admin' && data.status.toLowerCase() === 'approved' && data.is_active === true) {
-                    document.getElementById('adminBtn').classList.remove('hidden');
-                }
+            // Check Admin Status for Nav
+            if (profile.user_type === 'admin' && profile.status === 'Approved' && profile.is_active) {
+                document.getElementById('adminNavLink').classList.remove('hidden');
             }
-        };
+
+            document.body.style.display = 'block';
+        }
 
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('updateBtn');
-            btn.disabled = true; btn.innerText = "SAVING...";
+            const btn = document.getElementById('saveBtn');
+            const id = document.getElementById('userId').value;
+            const file = document.getElementById('fileUpload').files[0];
+            
+            btn.disabled = true;
+            btn.innerText = "SAVING...";
 
-            try {
-                let photoUrl = existingPhotoUrl;
-                const file = document.getElementById('profilePic').files[0];
+            let updateData = {
+                clinic_name: document.getElementById('clinic').value,
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                mobile_number: document.getElementById('mobile').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value
+            };
 
-                if (file) {
-                    const fileName = `${Date.now()}_user`;
-                    await supabaseClient.storage.from('profiles').upload(fileName, file);
+            // Handle Image Upload if new file exists
+            if (file) {
+                const fileName = `profile_${id}_${Date.now()}`;
+                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
+                if (!upErr) {
                     const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
-                    photoUrl = pub.publicUrl;
+                    updateData.profile_url = pub.publicUrl;
                 }
+            }
 
-                const { error } = await supabaseClient.from('applications').update({
-                    profile_url: photoUrl,
-                    profile_picture: photoUrl,
-                    title: document.getElementById('title').value,
-                    first_name: document.getElementById('firstName').value,
-                    last_name: document.getElementById('lastName').value,
-                    mobile_number: document.getElementById('mobile').value,
-                    dob: document.getElementById('dob').value,
-                    clinic_name: document.getElementById('clinicName').value,
-                    address: document.getElementById('address').value,
-                    city: document.getElementById('city').value,
-                    state: document.getElementById('state').value,
-                    pincode: document.getElementById('pincode').value
-                }).eq('email', currentUser.email);
+            // CRITICAL FIX: Ensure the record is matched by ID for a proper update
+            const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
 
-                if (error) throw error;
-                alert("Profile Updated!");
-            } catch (err) { alert(err.message); }
-            finally { btn.disabled = false; btn.innerText = "SAVE MY PROFILE"; }
+            if (!error) {
+                alert("Profile successfully updated!");
+                window.location.href = "navigation.html"; // Success Redirect
+            } else {
+                alert("Error saving: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "SAVE";
+            }
         };
 
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = "index.html"; }
+        function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
+        window.onclick = function(event) {
+            if (!event.target.closest('.relative')) {
+                const dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) { dropdowns[i].classList.remove('show'); }
+            }
+        }
+        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.replace("index.html"); }
+
+        initDashboard();
     </script>
 </body>
 </html>
