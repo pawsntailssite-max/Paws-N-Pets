@@ -32,13 +32,26 @@
         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 text-sm items-center">
             <div class="flex-1 min-w-[250px] relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search members..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search members, emails, or business..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white font-medium">
-                <option value="all">All Types</option>
+            
+            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white font-medium text-slate-600">
+                <option value="all">All Roles</option>
                 <option value="member">Member</option>
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
+            </select>
+
+            <select id="filterStatus" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white font-medium text-slate-600">
+                <option value="all">All Status</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+            </select>
+
+            <select id="filterActive" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white font-medium text-slate-600">
+                <option value="all">All Activity</option>
+                <option value="true">Active Only</option>
+                <option value="false">Inactive Only</option>
             </select>
         </div>
 
@@ -46,9 +59,7 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Practitioner</th>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Clinic Info</th>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Status</th>
+                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Member</th> <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Business Info</th> <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Status</th>
                         <th class="p-4 font-semibold text-slate-600 uppercase text-xs text-center">Actions</th>
                     </tr>
                 </thead>
@@ -126,24 +137,93 @@
 
         async function loadData() {
             const { data, error } = await supabaseClient.from('applications').select('*').order('created_at', { ascending: false });
-            if (!error) { allApplications = data; renderTable(data); }
+            if (!error) { 
+                allApplications = data; 
+                renderTable(data); 
+            }
         }
 
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = "";
+            
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-400 italic">No records found matching your filters.</td></tr>`;
+                return;
+            }
+
             data.forEach(app => {
+                const isApproved = app.status.toLowerCase() === 'approved';
+                const profileImg = app.profile_url || 'https://via.placeholder.com/150';
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b border-slate-100 transition">
-                        <td class="p-4"><div class="font-bold text-slate-900">${app.title || ''} ${app.first_name} ${app.last_name}</div><div class="text-[10px] text-slate-400 uppercase font-black">${app.user_type}</div></td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${profileImg}" class="w-10 h-10 rounded-full object-cover border border-slate-200" onerror="this.src='https://via.placeholder.com/150'">
+                                <div>
+                                    <div class="font-bold text-slate-900">${app.title || ''} ${app.first_name} ${app.last_name}</div>
+                                    <div class="text-[10px] text-slate-400 uppercase font-black">${app.user_type}</div>
+                                </div>
+                            </div>
+                        </td>
                         <td class="p-4"><div class="text-sm font-semibold">${app.clinic_name || 'N/A'}</div><div class="text-[10px] text-slate-400">${app.email}</div></td>
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${app.status.toLowerCase() === 'approved' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${app.status}</span>
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${isApproved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${app.status}</span>
                             <span class="ml-1 text-[10px] font-bold ${app.is_active ? 'text-blue-500' : 'text-slate-300'}">${app.is_active ? 'Active' : 'Inactive'}</span>
                         </td>
-                        <td class="p-4 text-center"><button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:underline">Edit</button></td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-3">
+                                <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700 transition" title="Edit Record">
+                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                </button>
+                                <button onclick="deleteRecord('${app.id}')" class="text-red-400 hover:text-red-600 transition" title="Delete Record">
+                                    <i class="fa-solid fa-trash-can text-lg"></i>
+                                </button>
+                            </div>
+                        </td>
                     </tr>`;
             });
+        }
+
+        // FULLY FUNCTIONAL FILTER LOGIC
+        function filterTable() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('filterType').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const activeFilter = document.getElementById('filterActive').value;
+
+            const filteredData = allApplications.filter(app => {
+                // 1. Search filter (checks name, email, and business)
+                const searchString = `${app.first_name} ${app.last_name} ${app.email} ${app.clinic_name}`.toLowerCase();
+                const matchesSearch = searchString.includes(searchQuery);
+
+                // 2. Type filter
+                const matchesType = typeFilter === 'all' || (app.user_type && app.user_type.toLowerCase() === typeFilter);
+
+                // 3. Status filter
+                const matchesStatus = statusFilter === 'all' || (app.status && app.status.toLowerCase() === statusFilter);
+
+                // 4. Active filter
+                const isActiveStr = app.is_active ? "true" : "false";
+                const matchesActive = activeFilter === 'all' || isActiveStr === activeFilter;
+
+                return matchesSearch && matchesType && matchesStatus && matchesActive;
+            });
+
+            renderTable(filteredData);
+        }
+
+        // DELETE FUNCTIONALITY
+        async function deleteRecord(id) {
+            if(confirm("Are you sure you want to completely delete this record? This action cannot be undone.")) {
+                const { error } = await supabaseClient.from('applications').delete().eq('id', id);
+                if(!error) {
+                    loadData(); // Refresh the table
+                } else {
+                    alert("Error deleting record: " + error.message);
+                }
+            }
         }
 
         function openEditModal(id) {
@@ -204,12 +284,16 @@
             }
 
             const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
-            if (!error) { closeModal(); loadData(); } else { alert(error.message); }
+            if (!error) { 
+                closeModal(); 
+                loadData(); // Automatically refreshes the table to reflect edits
+            } else { 
+                alert(error.message); 
+            }
             btn.disabled = false; btn.innerText = "Save Changes";
         }
 
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.replace("index.html"); }
-        function filterTable() { /* logic same as before */ }
     </script>
 </body>
 </html>
