@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { display: none; } /* Prevent flash of unstyled content */
+        body { display: none; } 
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
     </style>
@@ -19,7 +19,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             
             <div class="flex items-center gap-3">
-                <img src="logo.jpg" alt="Logo" class="w-10 h-10 object-cover rounded-full border border-slate-200" onerror="this.src='https://via.placeholder.com/40?text=P'">
+                <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
                 <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block">PAWS-N-TAILS</span>
             </div>
 
@@ -60,8 +60,11 @@
 
     <main class="max-w-4xl mx-auto p-12 text-center">
         <div class="py-20">
-            <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Central Hub</h2>
-            <p class="text-slate-500 text-lg">Select an option from the navigation bar above to manage your account.</p>
+            <div class="inline-block p-4 bg-blue-50 rounded-full text-blue-600 mb-6">
+                <i class="fa-solid fa-paw text-4xl"></i>
+            </div>
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Welcome to the Hub</h2>
+            <p class="text-slate-500 text-lg">Use the navigation bar at the top to access your profile, security settings, or administrative tools.</p>
         </div>
     </main>
 
@@ -71,9 +74,11 @@
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         async function initPortal() {
+            // Get current session
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { window.location.replace("index.html"); return; }
 
+            // Fetch profile data from applications table
             const { data: profile, error } = await supabaseClient
                 .from('applications')
                 .select('*')
@@ -86,11 +91,11 @@
                 return;
             }
 
-            // Update UI with Member Info
+            // Populate Member Identity Info
             document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
             document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
             
-            // Logic for Admin Button Visibility
+            // Administrative Access Check
             const isAdmin = profile.user_type === 'admin';
             const isApproved = (profile.status || '').toLowerCase() === 'approved';
             const isActive = profile.is_active === true;
@@ -99,16 +104,16 @@
                 document.getElementById('adminNavLink').classList.remove('hidden');
             }
 
-            // Everything loaded, show the page
+            // Reveal content after data is ready
             document.body.style.display = 'block';
         }
 
-        // Dropdown Toggle Logic
+        // Dropdown Visibility Toggle
         function toggleDropdown() {
             document.getElementById('dashboardDropdown').classList.toggle('show');
         }
 
-        // Close dropdown if clicking outside
+        // Interaction Handler: Close dropdown if clicking outside the menu
         window.onclick = function(event) {
             if (!event.target.closest('.relative')) {
                 const dropdowns = document.getElementsByClassName("dropdown-content");
