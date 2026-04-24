@@ -33,7 +33,7 @@
                             <i class="fa-solid fa-user-circle mr-2"></i> User Profile
                         </a>
                         <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            <i class="fa-solid fa-key mr-2"></i> Security
+                            <i class="fa-solid fa-shield-halved mr-2"></i> Security
                         </a>
                     </div>
                 </div>
@@ -74,9 +74,11 @@
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         async function initPortal() {
+            // Get current session
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { window.location.replace("index.html"); return; }
 
+            // Fetch profile data from applications table
             const { data: profile, error } = await supabaseClient
                 .from('applications')
                 .select('*')
@@ -89,25 +91,29 @@
                 return;
             }
 
+            // Populate Member Identity Info
             document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
             document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
             
+            // Administrative Access Check
             const isAdmin = profile.user_type === 'admin';
             const isApproved = (profile.status || '').toLowerCase() === 'approved';
             const isActive = profile.is_active === true;
 
-            // This ensures the Admin button only shows if all conditions are met
             if (isAdmin && isApproved && isActive) {
                 document.getElementById('adminNavLink').classList.remove('hidden');
             }
 
+            // Reveal content after data is ready
             document.body.style.display = 'block';
         }
 
+        // Dropdown Visibility Toggle
         function toggleDropdown() {
             document.getElementById('dashboardDropdown').classList.toggle('show');
         }
 
+        // Interaction Handler: Close dropdown if clicking outside the menu
         window.onclick = function(event) {
             if (!event.target.closest('.relative')) {
                 const dropdowns = document.getElementsByClassName("dropdown-content");
