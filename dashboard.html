@@ -28,25 +28,18 @@
                         <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                     <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            <i class="fa-solid fa-user-circle mr-2"></i> User Profile
-                        </a>
-                        <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            <i class="fa-solid fa-shield-halved mr-2"></i> Security
-                        </a>
+                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">User Profile</a>
                     </div>
                 </div>
-                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 text-purple-600 font-bold text-sm transition-colors">
+                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg text-purple-600 font-bold text-sm transition-colors">
                     <i class="fa-solid fa-unlock-keyhole"></i> Admin Panel
                 </a>
-                <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-50 text-red-500 font-bold text-sm transition-colors">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
-                </button>
+                <button onclick="handleLogout()" class="px-4 py-2 text-red-500 font-bold text-sm transition-colors">Logout</button>
             </div>
 
             <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
                 <div class="text-right hidden md:block">
-                    <p id="navBusinessName" class="text-xs font-black text-slate-900 uppercase truncate max-w-[150px]"></p>
+                    <p id="navBusinessName" class="text-xs font-black text-slate-900 uppercase"></p>
                     <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Active Member</p>
                 </div>
                 <img id="navProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
@@ -60,59 +53,57 @@
             <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-8">
                 <div class="relative group">
                     <img id="profilePicPreview" src="" class="w-28 h-28 rounded-full border-4 border-white/30 object-cover shadow-2xl" onerror="this.src='https://via.placeholder.com/150'">
-                    <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-all">
+                    <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer">
                         <i class="fa-solid fa-camera text-2xl"></i>
                     </label>
                     <input type="file" id="fileUpload" class="hidden" accept="image/*" onchange="previewImage(this)">
                 </div>
                 <div class="text-center md:text-left">
                     <h2 class="text-3xl font-bold" id="userNameHeader">My Profile</h2>
-                    <p class="text-blue-100 font-medium opacity-80" id="userEmailHeader"></p>
+                    <p class="text-blue-100 opacity-80" id="userEmailHeader"></p>
                 </div>
             </div>
 
             <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <input type="hidden" id="internalId">
-
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label>
-                <input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
                 
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label>
-                <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
                 
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label>
-                <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Email Address</label>
-                <input type="email" id="email" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Email (Private)</label>
+                <input type="email" id="email" disabled class="w-full p-3 bg-slate-100 border rounded-xl font-semibold text-slate-400 cursor-not-allowed"></div>
 
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label>
-                <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label>
-                <input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label>
-                <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label>
-                <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label>
-                <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label>
-                <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label>
-                <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></div>
+                <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div class="md:col-span-3 pt-8 flex gap-4">
                     <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 uppercase transition-all">
                         Discard
                     </button>
-                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl uppercase transition-all active:scale-95">
-                        Save
+                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl uppercase transition-all">
+                        Save Changes
                     </button>
                 </div>
             </form>
@@ -124,33 +115,22 @@
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        let originalEmail = "";
-
         async function initDashboard() {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { window.location.replace("index.html"); return; }
 
-            const { data: profile, error } = await supabaseClient
-                .from('applications')
-                .select('*')
-                .eq('email', user.email)
-                .single();
+            const { data: profile, error } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
 
-            if (error || !profile) { 
-                console.error("Profile Fetch Error:", error);
-                window.location.replace("index.html"); 
-                return; 
-            }
+            if (error || !profile) { window.location.replace("index.html"); return; }
 
-            document.getElementById('internalId').value = profile.id;
-            originalEmail = profile.email;
-
+            // UI Population
             document.getElementById('navBusinessName').innerText = profile.clinic_name || 'Individual';
             document.getElementById('navProfilePic').src = profile.profile_url || profile.profile_picture || 'https://via.placeholder.com/150';
             document.getElementById('userNameHeader').innerText = `${profile.first_name} ${profile.last_name}`;
             document.getElementById('userEmailHeader').innerText = profile.email;
             document.getElementById('profilePicPreview').src = profile.profile_url || profile.profile_picture || 'https://via.placeholder.com/150';
 
+            // Form Population
             document.getElementById('title').value = profile.title || '';
             document.getElementById('firstName').value = profile.first_name || '';
             document.getElementById('lastName').value = profile.last_name || '';
@@ -163,9 +143,7 @@
             document.getElementById('state').value = profile.state || '';
             document.getElementById('pincode').value = profile.pincode || '';
 
-            if (profile.user_type === 'admin' && profile.status === 'Approved' && profile.is_active) {
-                document.getElementById('adminNavLink').classList.remove('hidden');
-            }
+            if (profile.user_type === 'admin') document.getElementById('adminNavLink').classList.remove('hidden');
             document.body.style.display = 'block';
         }
 
@@ -180,18 +158,21 @@
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
-            const rowId = document.getElementById('internalId').value;
-            const newEmail = document.getElementById('email').value;
             const file = document.getElementById('fileUpload').files[0];
             
+            // Get fresh user from session
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) { alert("Session expired. Please login again."); return; }
+
             btn.disabled = true;
             btn.innerText = "SAVING...";
 
+            // CRITICAL: We do NOT include 'email' in updateData. 
+            // We only update the content fields.
             let updateData = {
                 title: document.getElementById('title').value,
                 first_name: document.getElementById('firstName').value,
                 last_name: document.getElementById('lastName').value,
-                email: newEmail,
                 mobile_number: document.getElementById('mobile').value,
                 dob: document.getElementById('dob').value || null,
                 clinic_name: document.getElementById('clinic').value,
@@ -201,51 +182,36 @@
                 pincode: document.getElementById('pincode').value
             };
 
-            // Photo Update (Mirroring admin.html double-column logic)
             if (file) {
-                const fileName = `${rowId}_${Date.now()}`;
+                const fileName = `profile_${user.id}_${Date.now()}`;
                 const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
                 if (!upErr) {
                     const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
                     updateData.profile_url = pub.publicUrl;
-                    updateData.profile_picture = pub.publicUrl; // Added to match admin.html
+                    updateData.profile_picture = pub.publicUrl;
                 }
             }
 
-            // Update Auth if email changed
-            if (newEmail !== originalEmail) {
-                const { error: authErr } = await supabaseClient.auth.updateUser({ email: newEmail });
-                if (authErr) { console.error("Auth Error:", authErr); }
-            }
-
-            // UPDATE DATA (Matched exactly to admin.html pattern)
-            console.log("Attempting update for ID:", rowId, updateData);
-            
+            // We update where email matches the logged-in user.
+            // This is the most direct and secure way.
             const { data, error } = await supabaseClient
                 .from('applications')
                 .update(updateData)
-                .eq('id', rowId)
-                .select(); // Select ensures we get the updated row back to verify
+                .eq('email', user.email)
+                .select();
 
             if (!error && data && data.length > 0) {
-                console.log("Update successful:", data);
                 alert("Profile successfully saved!");
                 window.location.href = "navigation.html";
             } else {
-                console.error("Database Error:", error);
-                alert("Database Error: " + (error ? error.message : "No rows were updated. Check your ID."));
+                console.error("Save Error:", error);
+                alert("Could not save changes. Please check your internet connection.");
                 btn.disabled = false;
-                btn.innerText = "SAVE";
+                btn.innerText = "Save Changes";
             }
         };
 
         function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
-        window.onclick = function(event) {
-            if (!event.target.closest('.relative')) {
-                const dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) { dropdowns[i].classList.remove('show'); }
-            }
-        }
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.replace("index.html"); }
 
         initDashboard();
