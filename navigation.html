@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal | PAWS-N-TAILS</title>
+    <title>Home | PAWS-N-TAILS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { display: none; } 
+        body { display: none; } /* Prevents flash of unstyled content before auth check */
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
     </style>
@@ -17,54 +17,83 @@
 
     <nav class="bg-white border-b border-slate-200 px-4 py-2 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
-            
             <div class="flex items-center gap-3">
                 <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
-                <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block">PAWS-N-TAILS</span>
+                <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block uppercase">Paws & Tails</span>
             </div>
 
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-4">
                 <div class="relative">
                     <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600 transition-colors">
                         <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
-                    <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            <i class="fa-solid fa-user-circle mr-2"></i> User Profile
+                    
+                    <div id="dashboardDropdown" class="dropdown-content absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
+                        <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-blue-50 transition-colors">
+                            <i class="fa-solid fa-user-circle text-blue-500 text-lg"></i>
+                            <span>User Profile</span>
                         </a>
-                        <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            <i class="fa-solid fa-shield-halved mr-2"></i> Security
+                        <a href="security.html" class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-blue-50 transition-colors border-t border-slate-50">
+                            <i class="fa-solid fa-shield-halved text-green-500 text-lg"></i>
+                            <span>Security Settings</span>
                         </a>
                     </div>
                 </div>
 
-                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 text-purple-600 font-bold text-sm transition-colors">
-                    <i class="fa-solid fa-unlock-keyhole"></i> Admin Panel
+                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg text-purple-600 font-bold text-sm hover:bg-purple-50 transition-colors">
+                    <i class="fa-solid fa-user-shield"></i> Admin Panel
                 </a>
-
-                <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-50 text-red-500 font-bold text-sm transition-colors">
+                
+                <button onclick="handleLogout()" class="px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg font-bold text-sm transition-colors">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
 
             <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
                 <div class="text-right hidden md:block">
-                    <p id="userBusinessName" class="text-xs font-black text-slate-900 uppercase truncate max-w-[150px]"></p>
-                    <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Active Member</p>
+                    <p id="navBusinessName" class="text-xs font-black text-slate-900 uppercase">Loading...</p>
+                    <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Member</p>
                 </div>
-                <img id="userProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                <img id="navProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
             </div>
-
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-12 text-center">
-        <div class="py-20">
-            <div class="inline-block p-4 bg-blue-50 rounded-full text-blue-600 mb-6">
-                <i class="fa-solid fa-paw text-4xl"></i>
+    <main class="max-w-7xl mx-auto p-6 md:p-12">
+        <div class="bg-blue-600 rounded-3xl p-8 md:p-12 text-white shadow-xl mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <h1 class="text-4xl font-black mb-2" id="welcomeMessage">Welcome back!</h1>
+                <p class="text-blue-100 text-lg">What would you like to manage today?</p>
             </div>
-            <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Welcome to the Hub</h2>
-            <p class="text-slate-500 text-lg">Use the navigation bar at the top to access your profile, security settings, or administrative tools.</p>
+            <i class="fa-solid fa-paw text-6xl text-blue-500 opacity-50"></i>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <a href="dashboard.html" class="group bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">My Profile</h3>
+                <p class="text-sm text-slate-500">Update your personal information, address, and contact details.</p>
+            </a>
+
+            <a href="security.html" class="group bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:green-100 transition-all flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Security</h3>
+                <p class="text-sm text-slate-500">Change your password and manage your account security settings.</p>
+            </a>
+
+            <a href="admin.html" id="adminCardLink" class="hidden group bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:purple-100 transition-all flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-users-gear"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Admin Panel</h3>
+                <p class="text-sm text-slate-500">Manage all users, review applications, and system settings.</p>
+            </a>
+
         </div>
     </main>
 
@@ -73,62 +102,30 @@
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        async function initPortal() {
-            // Get current session
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.replace("index.html"); return; }
-
-            // Fetch profile data from applications table
-            const { data: profile, error } = await supabaseClient
-                .from('applications')
-                .select('*')
-                .eq('email', user.email)
-                .single();
-
-            if (error || !profile) {
-                console.error("Profile load error");
+        async function initNavigation() {
+            // 1. Check if user is logged in
+            const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+            
+            if (!user || authError) {
                 window.location.replace("index.html");
                 return;
             }
 
-            // Populate Member Identity Info
-            document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
-            document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
-            
-            // Administrative Access Check
-            const isAdmin = profile.user_type === 'admin';
-            const isApproved = (profile.status || '').toLowerCase() === 'approved';
-            const isActive = profile.is_active === true;
+            // 2. Fetch User Profile Data for the Navbar and Welcome message
+            let { data: profile, error } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('id', user.id)
+                .single();
 
-            if (isAdmin && isApproved && isActive) {
-                document.getElementById('adminNavLink').classList.remove('hidden');
+            // Fallback to email lookup if ID fails
+            if (!profile || error) {
+                const fallback = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
+                profile = fallback.data;
             }
 
-            // Reveal content after data is ready
-            document.body.style.display = 'block';
-        }
-
-        // Dropdown Visibility Toggle
-        function toggleDropdown() {
-            document.getElementById('dashboardDropdown').classList.toggle('show');
-        }
-
-        // Interaction Handler: Close dropdown if clicking outside the menu
-        window.onclick = function(event) {
-            if (!event.target.closest('.relative')) {
-                const dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    dropdowns[i].classList.remove('show');
-                }
-            }
-        }
-
-        async function handleLogout() {
-            await supabaseClient.auth.signOut();
-            window.location.replace("index.html");
-        }
-
-        initPortal();
-    </script>
-</body>
-</html>
+            // 3. Populate UI Elements
+            if (profile) {
+                // Set Welcome Message
+                const firstName = profile.first_name || 'User';
+                document.getElementById('welcomeMessage').innerText = `Welcome back
