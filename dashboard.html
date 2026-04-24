@@ -3,68 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal | PAWS-N-TAILS</title>
+    <title>User Profile | PAWS-N-TAILS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { display: none; } 
-        .dropdown-content { display: none; }
-        .dropdown-content.show { display: block; }
-    </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
 
-    <nav class="bg-white border-b border-slate-200 px-4 py-2 sticky top-0 z-50 shadow-sm">
+    <nav class="bg-white border-b border-slate-200 px-4 py-2 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
-            
             <div class="flex items-center gap-3">
-                <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
-                <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block uppercase">PAWS-N-TAILS</span>
+                <img src="./Logo.jpg" class="w-10 h-10 object-contain">
+                <span class="text-lg font-black text-slate-900 uppercase">User Profile</span>
             </div>
-
-            <div class="flex items-center gap-1">
-                <div class="relative">
-                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600 transition-colors">
-                        <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                    </button>
-                    <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            <i class="fa-solid fa-user-circle mr-2"></i> User Profile
-                        </a>
-                        <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            <i class="fa-solid fa-key mr-2"></i> Security
-                        </a>
-                    </div>
-                </div>
-
-                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 text-purple-600 font-bold text-sm transition-colors">
-                    <i class="fa-solid fa-unlock-keyhole"></i> Admin Panel
-                </a>
-
-                <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-50 text-red-500 font-bold text-sm transition-colors">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
-                </button>
-            </div>
-
-            <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
-                <div class="text-right hidden md:block">
-                    <p id="userBusinessName" class="text-xs font-black text-slate-900 uppercase truncate max-w-[150px]">Loading...</p>
-                    <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Active Member</p>
-                </div>
-                <img id="userProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
-            </div>
-
+            <button onclick="window.location.href='navigation.html'" class="text-sm font-bold text-slate-400 hover:text-blue-600">
+                <i class="fa-solid fa-arrow-left"></i> Back to Hub
+            </button>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-12 text-center">
-        <div class="py-20">
-            <div class="inline-block p-4 bg-blue-50 rounded-full text-blue-600 mb-6">
-                <i class="fa-solid fa-paw text-4xl"></i>
+    <main class="max-w-4xl mx-auto p-6 md:p-12">
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
+            <div class="flex flex-col items-center mb-10">
+                <div class="relative group">
+                    <img id="profilePreview" src="https://via.placeholder.com/150" class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
+                    <label for="profileUpload" class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition-all">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="profileUpload" class="hidden" accept="image/*" onchange="uploadPhoto(this)">
+                </div>
+                <h3 id="displayClinic" class="text-xl font-bold mt-4">Loading Profile...</h3>
             </div>
-            <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Welcome to the Hub</h2>
-            <p class="text-slate-500 text-lg">Use the navigation bar at the top to access your profile, security settings, or administrative tools.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Clinic Name</label>
+                <input type="text" id="clinic_name" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+                
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Email</label>
+                <input type="text" id="email" class="w-full p-3 bg-slate-100 border rounded-xl mt-1" disabled></div>
+                
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">First Name</label>
+                <input type="text" id="first_name" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+                
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Last Name</label>
+                <input type="text" id="last_name" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Phone</label>
+                <input type="text" id="phone" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Address</label>
+                <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">City</label>
+                <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">State</label>
+                <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Pincode</label>
+                <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl mt-1"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Account Type</label>
+                <input type="text" id="user_type" class="w-full p-3 bg-slate-100 border rounded-xl mt-1" disabled></div>
+            </div>
+
+            <div class="mt-10 flex gap-4">
+                <button onclick="window.location.href='navigation.html'" class="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200">Discard</button>
+                <button onclick="saveProfile()" class="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg hover:bg-blue-700">Save Profile</button>
+            </div>
         </div>
     </main>
 
@@ -73,68 +79,57 @@
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        async function initPortal() {
-            try {
-                // Get current session
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) { 
-                    console.log("No user found, redirecting...");
-                    window.location.replace("index.html"); 
-                    return; 
-                }
+        async function loadProfile() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
 
-                // Fetch profile
-                const { data: profile, error } = await supabaseClient
-                    .from('applications')
-                    .select('*')
-                    .eq('email', user.email)
-                    .single();
-
-                if (error || !profile) {
-                    console.error("Profile load error:", error);
-                    // Do NOT redirect yet, let the page show so we can debug
-                    document.getElementById('userBusinessName').innerText = "Data Error";
-                } else {
-                    // Populate data
-                    document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
-                    document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
-                    
-                    // Admin Logic
-                    const isAdmin = profile.user_type === 'admin';
-                    const isApproved = (profile.status || '').toLowerCase() === 'approved';
-                    const isActive = profile.is_active === true;
-
-                    if (isAdmin && isApproved && isActive) {
-                        document.getElementById('adminNavLink').classList.remove('hidden');
-                    }
-                }
-            } catch (err) {
-                console.error("Critical System Error:", err);
-            } finally {
-                // THIS IS THE FIX: The page will ALWAYS show, even if the database fails
-                document.body.style.display = 'block';
+            const { data: profile } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
+            if (profile) {
+                document.getElementById('clinic_name').value = profile.clinic_name || '';
+                document.getElementById('displayClinic').innerText = profile.clinic_name || 'User Profile';
+                document.getElementById('email').value = profile.email || '';
+                document.getElementById('first_name').value = profile.first_name || '';
+                document.getElementById('last_name').value = profile.last_name || '';
+                document.getElementById('phone').value = profile.phone || '';
+                document.getElementById('address').value = profile.address || '';
+                document.getElementById('city').value = profile.city || '';
+                document.getElementById('state').value = profile.state || '';
+                document.getElementById('pincode').value = profile.pincode || '';
+                document.getElementById('user_type').value = profile.user_type || '';
+                if (profile.profile_url) document.getElementById('profilePreview').src = profile.profile_url;
             }
         }
 
-        function toggleDropdown() {
-            document.getElementById('dashboardDropdown').classList.toggle('show');
+        async function saveProfile() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const updates = {
+                clinic_name: document.getElementById('clinic_name').value,
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                pincode: document.getElementById('pincode').value
+            };
+            const { error } = await supabaseClient.from('applications').update(updates).eq('email', user.email);
+            if (error) alert("Save failed: " + error.message);
+            else alert("Profile updated!");
         }
 
-        window.onclick = function(event) {
-            if (!event.target.closest('.relative')) {
-                const dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    dropdowns[i].classList.remove('show');
-                }
-            }
+        async function uploadPhoto(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const filePath = `profiles/${user.id}-${Date.now()}`;
+            const { error: uploadError } = await supabaseClient.storage.from('avatars').upload(filePath, file);
+            if (uploadError) return alert("Upload failed.");
+            const { data: { publicUrl } } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
+            await supabaseClient.from('applications').update({ profile_url: publicUrl }).eq('email', user.email);
+            document.getElementById('profilePreview').src = publicUrl;
         }
 
-        async function handleLogout() {
-            await supabaseClient.auth.signOut();
-            window.location.replace("index.html");
-        }
-
-        initPortal();
+        loadProfile();
     </script>
 </body>
 </html>
