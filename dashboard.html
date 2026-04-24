@@ -1,255 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile | PAWS-N-TAILS</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Prevents layout shift before JS loads */
-        body { display: none; }
-        .dropdown-content { display: none; }
-        .dropdown-content.show { display: block; }
-    </style>
-</head>
-<body class="bg-slate-50 font-sans text-slate-800">
+<div>
+    <label class="text-[10px] font-bold text-slate-400 uppercase">4. Email (Identity)</label>
+    <input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-100 rounded-xl font-semibold focus:border-blue-500 outline-none">
+    <p class="text-[9px] text-orange-500 mt-1 font-bold italic">* Changing this affects your login identity.</p>
+</div>
 
-    <nav class="bg-white border-b border-slate-200 px-4 py-2 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
-                <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block uppercase">Paws & Tails</span>
-            </div>
+<script>
+    // ... client initialization ...
 
-            <div class="flex items-center gap-1">
-                <div class="relative">
-                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600">
-                        <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                    </button>
-                    <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">User Profile</a>
-                    </div>
-                </div>
-                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg text-purple-600 font-bold text-sm">
-                    <i class="fa-solid fa-user-shield"></i> Admin Panel
-                </a>
-                <button onclick="handleLogout()" class="px-4 py-2 text-red-500 font-bold text-sm">Logout</button>
-            </div>
+    let originalEmail = ""; // We need this to find the row if the email changes
 
-            <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
-                <div class="text-right hidden md:block">
-                    <p id="navBusinessName" class="text-xs font-black text-slate-900 uppercase">Loading...</p>
-                    <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Member</p>
-                </div>
-                <img id="navProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
-            </div>
-        </div>
-    </nav>
+    async function initDashboard() {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) { window.location.replace("index.html"); return; }
 
-    <main class="max-w-5xl mx-auto p-6 md:p-12">
-        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-            
-            <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-8">
-                <div class="relative group">
-                    <img id="profilePicPreview" src="" class="w-28 h-28 rounded-full border-4 border-white/30 object-cover shadow-2xl" onerror="this.src='https://via.placeholder.com/150'">
-                    <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                        <i class="fa-solid fa-camera text-2xl"></i>
-                    </label>
-                    <input type="file" id="fileUpload" class="hidden" accept="image/*" onchange="previewImage(this)">
-                </div>
-                <div class="text-center md:text-left">
-                    <h2 class="text-3xl font-bold" id="userNameHeader">My Profile</h2>
-                    <p class="text-blue-100 opacity-80" id="userEmailHeader"></p>
-                </div>
-            </div>
+        const { data: profile, error } = await supabaseClient
+            .from('applications')
+            .select('*')
+            .eq('email', user.email)
+            .single();
 
-            <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label>
-                <input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold focus:ring-2 focus:ring-blue-500 outline-none"></div>
-                
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label>
-                <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label>
-                <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+        if (error || !profile) { window.location.replace("index.html"); return; }
 
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Email (Locked)</label>
-                <input type="email" id="email" disabled class="w-full p-3 bg-slate-100 border rounded-xl font-semibold text-slate-400 cursor-not-allowed"></div>
+        originalEmail = profile.email; // Store the current email
 
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label>
-                <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+        // Populate fields
+        document.getElementById('email').value = profile.email || '';
+        // ... populate other fields ...
+        document.body.style.display = 'block';
+    }
 
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label>
-                <input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+    document.getElementById('profileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('saveBtn');
+        const newEmail = document.getElementById('email').value;
+        
+        btn.disabled = true;
+        btn.innerText = "UPDATING IDENTITY...";
 
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label>
-                <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label>
-                <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label>
-                <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label>
-                <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label>
-                <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div class="md:col-span-3 pt-8 flex gap-4">
-                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-50 uppercase transition-all">
-                        Discard
-                    </button>
-                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl uppercase transition-all">
-                        Save Changes
-                    </button>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <script>
-        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
-        // 1. DATA INITIALIZATION
-        async function initDashboard() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.replace("index.html"); return; }
-
-            const { data: profile, error } = await supabaseClient
-                .from('applications')
-                .select('*')
-                .eq('email', user.email)
-                .single();
-
-            if (error || !profile) {
-                console.error("Profile Fetch Error:", error);
-                window.location.replace("index.html");
-                return;
-            }
-
-            // Map database fields to UI
-            document.getElementById('navBusinessName').innerText = profile.clinic_name || 'Personal';
-            const profileImg = profile.profile_url || profile.profile_picture || 'https://via.placeholder.com/150';
-            document.getElementById('navProfilePic').src = profileImg;
-            document.getElementById('profilePicPreview').src = profileImg;
-            document.getElementById('userNameHeader').innerText = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'User Profile';
-            document.getElementById('userEmailHeader').innerText = profile.email;
-
-            // Map database fields to Form
-            document.getElementById('title').value = profile.title || '';
-            document.getElementById('firstName').value = profile.first_name || '';
-            document.getElementById('lastName').value = profile.last_name || '';
-            document.getElementById('email').value = profile.email || '';
-            document.getElementById('mobile').value = profile.mobile_number || '';
-            document.getElementById('dob').value = profile.dob || '';
-            document.getElementById('clinic').value = profile.clinic_name || '';
-            document.getElementById('address').value = profile.address || '';
-            document.getElementById('city').value = profile.city || '';
-            document.getElementById('state').value = profile.state || '';
-            document.getElementById('pincode').value = profile.pincode || '';
-
-            if (profile.user_type === 'admin') {
-                document.getElementById('adminNavLink').classList.remove('hidden');
-            }
-            
-            document.body.style.display = 'block';
-        }
-
-        // 2. IMAGE PREVIEW
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => document.getElementById('profilePicPreview').src = e.target.result;
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // 3. SAVE LOGIC
-        document.getElementById('profileForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveBtn');
-            const file = document.getElementById('fileUpload').files[0];
-            
-            // Get fresh user from session
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { alert("Session expired. Please login again."); return; }
-
-            btn.disabled = true;
-            btn.innerText = "SAVING...";
-
-            // BUILD UPDATE OBJECT (Exclude 'email' column to avoid RLS block)
-            let updateData = {
-                title: document.getElementById('title').value,
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                mobile_number: document.getElementById('mobile').value,
-                dob: document.getElementById('dob').value || null,
-                clinic_name: document.getElementById('clinic').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                state: document.getElementById('state').value,
-                pincode: document.getElementById('pincode').value
-            };
-
-            // Handle Image Upload if selected
-            if (file) {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${user.id}_${Date.now()}.${fileExt}`;
-                const { error: uploadError } = await supabaseClient.storage
-                    .from('profiles')
-                    .upload(fileName, file);
-
-                if (!uploadError) {
-                    const { data: publicData } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
-                    updateData.profile_url = publicData.publicUrl;
-                    updateData.profile_picture = publicData.publicUrl;
-                } else {
-                    console.error("Storage Error:", uploadError);
-                }
-            }
-
-            // EXECUTE UPDATE
-            const { data, error } = await supabaseClient
-                .from('applications')
-                .update(updateData)
-                .eq('email', user.email)
-                .select();
-
-            if (error) {
-                console.error("Database Error:", error);
-                alert("Database Error: " + error.message);
-                btn.disabled = false;
-                btn.innerText = "Save Changes";
-            } else if (data && data.length > 0) {
-                alert("Profile saved successfully!");
-                window.location.href = "navigation.html";
-            } else {
-                // If it reaches here, identification failed or RLS blocked the write
-                console.warn("Update attempt failed: Zero rows affected.");
-                alert("Save Failed: No changes were recorded. This usually happens if you don't have update permissions in Supabase Policies.");
-                btn.disabled = false;
-                btn.innerText = "Save Changes";
-            }
+        let updateData = {
+            email: newEmail, // Now including the email in the update
+            title: document.getElementById('title').value,
+            first_name: document.getElementById('firstName').value,
+            last_name: document.getElementById('lastName').value,
+            mobile_number: document.getElementById('mobile').value,
+            // ... other fields ...
         };
 
-        // UI HELPERS
-        function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
-        async function handleLogout() { await supabaseClient.signOut(); window.location.replace("index.html"); }
+        // TARGETING BY ORIGINAL EMAIL
+        const { data, error } = await supabaseClient
+            .from('applications')
+            .update(updateData)
+            .eq('email', originalEmail) 
+            .select();
 
-        // Window click to close dropdowns
-        window.onclick = function(event) {
-            if (!event.target.closest('.relative')) {
-                document.getElementById('dashboardDropdown').classList.remove('show');
-            }
+        if (error) {
+            console.error("Update Error:", error);
+            alert("Error: " + error.message);
+            btn.disabled = false;
+        } else if (data && data.length > 0) {
+            alert("Email and Profile updated! Please note: Your login email has NOT changed in the Auth system yet.");
+            window.location.href = "navigation.html";
+        } else {
+            alert("Permission Denied: RLS is blocking the email change.");
+            btn.disabled = false;
         }
-
-        initDashboard();
-    </script>
-</body>
-</html>
+    };
+</script>
