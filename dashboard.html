@@ -3,133 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account | PAWS-N-TAILS</title>
+    <title>Portal | PAWS-N-TAILS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { display: none; }
+        body { display: none; } 
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
-        .pass-toggle { cursor: pointer; color: #94a3b8; transition: color 0.2s; }
-        .pass-toggle:hover { color: #3b82f6; }
-        /* Transition for switching views */
-        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
 
     <nav class="bg-white border-b border-slate-200 px-4 py-2 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
             <div class="flex items-center gap-3">
                 <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
-                <span class="text-lg font-black tracking-tighter text-slate-900 uppercase">Paws & Tails</span>
+                <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block uppercase">PAWS-N-TAILS</span>
             </div>
-            <div class="flex items-center gap-4">
+
+            <div class="flex items-center gap-1">
                 <div class="relative">
-                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600">
+                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600 transition-colors">
                         <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
-                    <div id="dashboardDropdown" class="dropdown-content absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="javascript:void(0)" onclick="showView('profile')" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between">
-                            User Profile <i class="fa-solid fa-user-gear text-slate-400 text-xs"></i>
+                    <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
+                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                            <i class="fa-solid fa-user-circle mr-2"></i> User Profile
                         </a>
-                        <a href="javascript:void(0)" onclick="showView('security')" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between border-t border-slate-100">
-                            Security <i class="fa-solid fa-key text-slate-400 text-xs"></i>
+                        <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                            <i class="fa-solid fa-key mr-2"></i> Security
                         </a>
                     </div>
                 </div>
-                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg text-purple-600 font-bold text-sm">Admin Panel</a>
-                <button onclick="handleLogout()" class="px-4 py-2 text-red-500 font-bold text-sm">Logout</button>
+
+                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 text-purple-600 font-bold text-sm transition-colors">
+                    <i class="fa-solid fa-unlock-keyhole"></i> Admin Panel
+                </a>
+
+                <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-50 text-red-500 font-bold text-sm transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
             </div>
+
+            <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
+                <div class="text-right hidden md:block">
+                    <p id="userBusinessName" class="text-xs font-black text-slate-900 uppercase truncate max-w-[150px]">Loading...</p>
+                    <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Active Member</p>
+                </div>
+                <img id="userProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
+            </div>
+
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-6 md:p-12">
-        
-        <div id="profileView" class="view-section active">
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-8">
-                    <div class="relative group">
-                        <img id="profilePicPreview" src="" class="w-28 h-28 rounded-full border-4 border-white/30 object-cover shadow-2xl" onerror="this.src='https://via.placeholder.com/150'">
-                        <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer">
-                            <i class="fa-solid fa-camera text-2xl"></i>
-                        </label>
-                        <input type="file" id="fileUpload" class="hidden" accept="image/*" onchange="previewImage(this)">
-                    </div>
-                    <div class="text-center md:text-left">
-                        <h2 class="text-3xl font-bold" id="userNameHeader">User Profile</h2>
-                        <p class="text-blue-100 opacity-80" id="userEmailHeader"></p>
-                    </div>
-                </div>
-
-                <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <input type="hidden" id="internalId">
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label><input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label><input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label><input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Profile Email</label><input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-50 rounded-xl font-semibold focus:border-blue-500 outline-none"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label><input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label><input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label><input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label><input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label><input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label><input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label><input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                    
-                    <div class="md:col-span-3 pt-8 flex gap-4">
-                        <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
-                        <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase">Save Changes</button>
-                    </div>
-                </form>
+    <main class="max-w-4xl mx-auto p-12 text-center">
+        <div class="py-20">
+            <div class="inline-block p-4 bg-blue-50 rounded-full text-blue-600 mb-6">
+                <i class="fa-solid fa-paw text-4xl"></i>
             </div>
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Welcome to the Hub</h2>
+            <p class="text-slate-500 text-lg">Use the navigation bar at the top to access your profile, security settings, or administrative tools.</p>
         </div>
-
-        <div id="securityView" class="view-section">
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                <div class="bg-slate-800 p-10 text-white flex items-center gap-6">
-                    <div class="bg-slate-700 p-4 rounded-2xl shadow-lg">
-                        <i class="fa-solid fa-shield-halved text-3xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold uppercase tracking-wide">Security & Password</h2>
-                        <p class="text-slate-400 text-sm">Update your credentials to keep your account safe</p>
-                    </div>
-                </div>
-
-                <form id="securityForm" class="p-10 max-w-2xl mx-auto space-y-8">
-                    <div class="space-y-4">
-                        <div class="relative">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">New Password</label>
-                            <div class="relative">
-                                <input type="password" id="newPassword" placeholder="Minimum 6 characters" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold outline-none focus:border-blue-500 pr-12 transition-all">
-                                <span class="absolute right-4 top-4 pass-toggle text-xl" onclick="togglePass('newPassword', this)">
-                                    <i class="fa-solid fa-eye"></i>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="relative">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Confirm New Password</label>
-                            <div class="relative">
-                                <input type="password" id="confirmPassword" placeholder="Repeat new password" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold outline-none focus:border-blue-500 pr-12 transition-all">
-                                <span class="absolute right-4 top-4 pass-toggle text-xl" onclick="togglePass('confirmPassword', this)">
-                                    <i class="fa-solid fa-eye"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pt-6 flex flex-col md:flex-row gap-4">
-                        <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase hover:bg-slate-50 transition-all">Discard</button>
-                        <button type="submit" id="savePassBtn" class="flex-1 py-4 bg-slate-800 text-white font-black rounded-2xl shadow-xl uppercase hover:bg-slate-900 transition-all">Save Password</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
     </main>
 
     <script>
@@ -137,160 +73,68 @@
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- VIEW CONTROLLER ---
-        function showView(viewName) {
-            // Hide all views
-            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-            // Show requested view
-            if (viewName === 'profile') document.getElementById('profileView').classList.add('active');
-            if (viewName === 'security') document.getElementById('securityView').classList.add('active');
-            
-            toggleDropdown(); // Close dropdown after selection
-        }
+        async function initPortal() {
+            try {
+                // Get current session
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) { 
+                    console.log("No user found, redirecting...");
+                    window.location.replace("index.html"); 
+                    return; 
+                }
 
-        async function initDashboard() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.replace("index.html"); return; }
+                // Fetch profile
+                const { data: profile, error } = await supabaseClient
+                    .from('applications')
+                    .select('*')
+                    .eq('email', user.email)
+                    .single();
 
-            let { data: profile, error } = await supabaseClient
-                .from('applications')
-                .select('*')
-                .eq('id', user.id)
-                .single();
+                if (error || !profile) {
+                    console.error("Profile load error:", error);
+                    // Do NOT redirect yet, let the page show so we can debug
+                    document.getElementById('userBusinessName').innerText = "Data Error";
+                } else {
+                    // Populate data
+                    document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
+                    document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
+                    
+                    // Admin Logic
+                    const isAdmin = profile.user_type === 'admin';
+                    const isApproved = (profile.status || '').toLowerCase() === 'approved';
+                    const isActive = profile.is_active === true;
 
-            if (!profile || error) {
-                const fallback = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
-                profile = fallback.data;
-                error = fallback.error;
-            }
-
-            if (error || !profile) {
-                alert("Profile not found.");
+                    if (isAdmin && isApproved && isActive) {
+                        document.getElementById('adminNavLink').classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                console.error("Critical System Error:", err);
+            } finally {
+                // THIS IS THE FIX: The page will ALWAYS show, even if the database fails
                 document.body.style.display = 'block';
-                return;
             }
-
-            // Populate Profile Form
-            document.getElementById('internalId').value = profile.id;
-            document.getElementById('userNameHeader').innerText = `${profile.first_name || ''} ${profile.last_name || ''}` || 'User Profile';
-            document.getElementById('userEmailHeader').innerText = profile.email;
-            document.getElementById('profilePicPreview').src = profile.profile_url || profile.profile_picture || 'https://via.placeholder.com/150';
-            
-            document.getElementById('title').value = profile.title || '';
-            document.getElementById('firstName').value = profile.first_name || '';
-            document.getElementById('lastName').value = profile.last_name || '';
-            document.getElementById('email').value = profile.email || '';
-            document.getElementById('mobile').value = profile.mobile_number || '';
-            document.getElementById('dob').value = profile.dob || '';
-            document.getElementById('clinic').value = profile.clinic_name || '';
-            document.getElementById('address').value = profile.address || '';
-            document.getElementById('city').value = profile.city || '';
-            document.getElementById('state').value = profile.state || '';
-            document.getElementById('pincode').value = profile.pincode || '';
-
-            if (profile.user_type === 'admin') document.getElementById('adminNavLink').classList.remove('hidden');
-            document.body.style.display = 'block';
         }
 
-        // --- PROFILE SUBMIT ---
-        document.getElementById('profileForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveBtn');
-            const rowId = document.getElementById('internalId').value;
-            const file = document.getElementById('fileUpload').files[0];
-            
-            btn.disabled = true;
-            btn.innerText = "SAVING...";
+        function toggleDropdown() {
+            document.getElementById('dashboardDropdown').classList.toggle('show');
+        }
 
-            let updateData = {
-                email: document.getElementById('email').value,
-                title: document.getElementById('title').value,
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                mobile_number: document.getElementById('mobile').value,
-                dob: document.getElementById('dob').value || null,
-                clinic_name: document.getElementById('clinic').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                state: document.getElementById('state').value,
-                pincode: document.getElementById('pincode').value
-            };
-
-            const { data: { user } } = await supabaseClient.auth.getUser();
-
-            if (file) {
-                const fileName = `${user.id}_${Date.now()}`;
-                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
-                if (!upErr) {
-                    const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
-                    updateData.profile_url = pub.publicUrl;
-                    updateData.profile_picture = pub.publicUrl;
+        window.onclick = function(event) {
+            if (!event.target.closest('.relative')) {
+                const dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    dropdowns[i].classList.remove('show');
                 }
             }
-
-            const { error } = await supabaseClient
-                .from('applications')
-                .update(updateData)
-                .or(`id.eq.${rowId},email.eq.${user.email}`);
-
-            if (error) {
-                alert("Update Error: " + error.message);
-                btn.disabled = false;
-                btn.innerText = "Save Changes";
-            } else {
-                alert("Profile Updated Successfully!");
-                window.location.href = "navigation.html";
-            }
-        };
-
-        // --- SECURITY SUBMIT ---
-        document.getElementById('securityForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('savePassBtn');
-            const pass = document.getElementById('newPassword').value;
-            const conf = document.getElementById('confirmPassword').value;
-
-            if (pass !== conf) { alert("Passwords do not match!"); return; }
-            if (pass.length < 6) { alert("Password must be at least 6 characters."); return; }
-
-            btn.disabled = true;
-            btn.innerText = "UPDATING...";
-
-            const { error } = await supabaseClient.auth.updateUser({ password: pass });
-
-            if (error) {
-                alert("Security Error: " + error.message);
-                btn.disabled = false;
-                btn.innerText = "Save Password";
-            } else {
-                alert("Password changed successfully!");
-                window.location.href = "navigation.html";
-            }
-        };
-
-        // UI Helpers
-        function togglePass(inputId, iconEl) {
-            const input = document.getElementById(inputId);
-            const icon = iconEl.querySelector('i');
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = "password";
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
         }
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => document.getElementById('profilePicPreview').src = e.target.result;
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.replace("index.html"); }
 
-        initDashboard();
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.replace("index.html");
+        }
+
+        initPortal();
     </script>
 </body>
 </html>
