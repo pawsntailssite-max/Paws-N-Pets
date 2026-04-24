@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile | PAWS-N-TAILS</title>
+    <title>My Account | PAWS-N-TAILS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,11 +11,12 @@
         body { display: none; }
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
-        /* Style for password toggle icons */
         .pass-toggle { cursor: pointer; color: #94a3b8; transition: color 0.2s; }
         .pass-toggle:hover { color: #3b82f6; }
-        /* Smooth scrolling for anchor links */
-        html { scroll-behavior: smooth; }
+        /* Transition for switching views */
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
@@ -32,11 +33,11 @@
                         <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                     <div id="dashboardDropdown" class="dropdown-content absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">
-                            <i class="fa-solid fa-user text-xs mr-2 text-slate-400"></i> User Profile
+                        <a href="javascript:void(0)" onclick="showView('profile')" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between">
+                            User Profile <i class="fa-solid fa-user-gear text-slate-400 text-xs"></i>
                         </a>
-                        <a href="#security-section" onclick="toggleDropdown()" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">
-                            <i class="fa-solid fa-key text-xs mr-2 text-slate-400"></i> Security
+                        <a href="javascript:void(0)" onclick="showView('security')" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 flex items-center justify-between border-t border-slate-100">
+                            Security <i class="fa-solid fa-key text-slate-400 text-xs"></i>
                         </a>
                     </div>
                 </div>
@@ -46,84 +47,106 @@
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-6 md:p-12 space-y-8">
-        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-            <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-8">
-                <div class="relative group">
-                    <img id="profilePicPreview" src="" class="w-28 h-28 rounded-full border-4 border-white/30 object-cover shadow-2xl" onerror="this.src='https://via.placeholder.com/150'">
-                    <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer">
-                        <i class="fa-solid fa-camera text-2xl"></i>
-                    </label>
-                    <input type="file" id="fileUpload" class="hidden" accept="image/*" onchange="previewImage(this)">
-                </div>
-                <div class="text-center md:text-left">
-                    <h2 class="text-3xl font-bold" id="userNameHeader">User Profile</h2>
-                    <p class="text-blue-100 opacity-80" id="userEmailHeader"></p>
-                </div>
-            </div>
-
-            <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <input type="hidden" id="internalId">
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label><input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label><input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label><input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Profile Email</label><input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-50 rounded-xl font-semibold focus:border-blue-500 outline-none"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label><input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label><input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label><input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label><input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label><input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label><input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label><input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div class="md:col-span-3 pt-8 flex gap-4">
-                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
-                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase">Save Changes</button>
-                </div>
-            </form>
-        </div>
-
-        <div id="security-section" class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-            <div class="bg-slate-800 p-6 text-white flex items-center gap-4">
-                <div class="bg-slate-700 p-3 rounded-xl"><i class="fa-solid fa-lock text-xl"></i></div>
-                <div>
-                    <h2 class="text-xl font-bold uppercase tracking-wide">Security Settings</h2>
-                    <p class="text-slate-400 text-xs">Update your account password</p>
-                </div>
-            </div>
-
-            <form id="securityForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="relative">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">New Password</label>
-                    <div class="relative">
-                        <input type="password" id="newPassword" placeholder="Minimum 6 characters" required class="w-full p-3 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-blue-500 pr-10">
-                        <span class="absolute right-3 top-3.5 pass-toggle" onclick="togglePass('newPassword', this)">
-                            <i class="fa-solid fa-eye"></i>
-                        </span>
+    <main class="max-w-5xl mx-auto p-6 md:p-12">
+        
+        <div id="profileView" class="view-section active">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-8">
+                    <div class="relative group">
+                        <img id="profilePicPreview" src="" class="w-28 h-28 rounded-full border-4 border-white/30 object-cover shadow-2xl" onerror="this.src='https://via.placeholder.com/150'">
+                        <label for="fileUpload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer">
+                            <i class="fa-solid fa-camera text-2xl"></i>
+                        </label>
+                        <input type="file" id="fileUpload" class="hidden" accept="image/*" onchange="previewImage(this)">
+                    </div>
+                    <div class="text-center md:text-left">
+                        <h2 class="text-3xl font-bold" id="userNameHeader">User Profile</h2>
+                        <p class="text-blue-100 opacity-80" id="userEmailHeader"></p>
                     </div>
                 </div>
 
-                <div class="relative">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Confirm Password</label>
-                    <div class="relative">
-                        <input type="password" id="confirmPassword" placeholder="Repeat new password" required class="w-full p-3 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-blue-500 pr-10">
-                        <span class="absolute right-3 top-3.5 pass-toggle" onclick="togglePass('confirmPassword', this)">
-                            <i class="fa-solid fa-eye"></i>
-                        </span>
+                <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <input type="hidden" id="internalId">
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label><input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label><input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label><input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Profile Email</label><input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-50 rounded-xl font-semibold focus:border-blue-500 outline-none"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label><input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label><input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label><input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label><input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label><input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label><input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label><input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                    
+                    <div class="md:col-span-3 pt-8 flex gap-4">
+                        <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
+                        <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="securityView" class="view-section">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-slate-800 p-10 text-white flex items-center gap-6">
+                    <div class="bg-slate-700 p-4 rounded-2xl shadow-lg">
+                        <i class="fa-solid fa-shield-halved text-3xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold uppercase tracking-wide">Security & Password</h2>
+                        <p class="text-slate-400 text-sm">Update your credentials to keep your account safe</p>
                     </div>
                 </div>
 
-                <div class="md:col-span-2 pt-4 flex gap-4">
-                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
-                    <button type="submit" id="savePassBtn" class="flex-1 py-4 bg-slate-800 text-white font-black rounded-2xl shadow-xl uppercase">Save Password</button>
-                </div>
-            </form>
+                <form id="securityForm" class="p-10 max-w-2xl mx-auto space-y-8">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">New Password</label>
+                            <div class="relative">
+                                <input type="password" id="newPassword" placeholder="Minimum 6 characters" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold outline-none focus:border-blue-500 pr-12 transition-all">
+                                <span class="absolute right-4 top-4 pass-toggle text-xl" onclick="togglePass('newPassword', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Confirm New Password</label>
+                            <div class="relative">
+                                <input type="password" id="confirmPassword" placeholder="Repeat new password" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold outline-none focus:border-blue-500 pr-12 transition-all">
+                                <span class="absolute right-4 top-4 pass-toggle text-xl" onclick="togglePass('confirmPassword', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 flex flex-col md:flex-row gap-4">
+                        <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase hover:bg-slate-50 transition-all">Discard</button>
+                        <button type="submit" id="savePassBtn" class="flex-1 py-4 bg-slate-800 text-white font-black rounded-2xl shadow-xl uppercase hover:bg-slate-900 transition-all">Save Password</button>
+                    </div>
+                </form>
+            </div>
         </div>
+
     </main>
 
     <script>
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- VIEW CONTROLLER ---
+        function showView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            // Show requested view
+            if (viewName === 'profile') document.getElementById('profileView').classList.add('active');
+            if (viewName === 'security') document.getElementById('securityView').classList.add('active');
+            
+            toggleDropdown(); // Close dropdown after selection
+        }
 
         async function initDashboard() {
             const { data: { user } } = await supabaseClient.auth.getUser();
@@ -147,6 +170,7 @@
                 return;
             }
 
+            // Populate Profile Form
             document.getElementById('internalId').value = profile.id;
             document.getElementById('userNameHeader').innerText = `${profile.first_name || ''} ${profile.last_name || ''}` || 'User Profile';
             document.getElementById('userEmailHeader').innerText = profile.email;
@@ -168,7 +192,7 @@
             document.body.style.display = 'block';
         }
 
-        // --- PROFILE FORM LOGIC (REMAINS DISTURBED-FREE) ---
+        // --- PROFILE SUBMIT ---
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
@@ -214,12 +238,12 @@
                 btn.disabled = false;
                 btn.innerText = "Save Changes";
             } else {
-                alert("Profile Updated!");
+                alert("Profile Updated Successfully!");
                 window.location.href = "navigation.html";
             }
         };
 
-        // --- SECURITY FORM LOGIC ---
+        // --- SECURITY SUBMIT ---
         document.getElementById('securityForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('savePassBtn');
@@ -227,10 +251,10 @@
             const conf = document.getElementById('confirmPassword').value;
 
             if (pass !== conf) { alert("Passwords do not match!"); return; }
-            if (pass.length < 6) { alert("Min 6 characters required."); return; }
+            if (pass.length < 6) { alert("Password must be at least 6 characters."); return; }
 
             btn.disabled = true;
-            btn.innerText = "SAVING...";
+            btn.innerText = "UPDATING...";
 
             const { error } = await supabaseClient.auth.updateUser({ password: pass });
 
@@ -239,12 +263,12 @@
                 btn.disabled = false;
                 btn.innerText = "Save Password";
             } else {
-                alert("Password updated successfully!");
+                alert("Password changed successfully!");
                 window.location.href = "navigation.html";
             }
         };
 
-        // Toggle Password Visibility Logic
+        // UI Helpers
         function togglePass(inputId, iconEl) {
             const input = document.getElementById(inputId);
             const icon = iconEl.querySelector('i');
@@ -256,7 +280,6 @@
                 icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
-
         function previewImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
