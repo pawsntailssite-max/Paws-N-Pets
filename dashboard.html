@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { display: none; } /* Hidden until auth check passes */
+        body { display: none; }
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
     </style>
@@ -21,7 +21,6 @@
                 <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
                 <span class="text-lg font-black tracking-tighter text-slate-900 uppercase">Paws & Tails</span>
             </div>
-
             <div class="flex items-center gap-4">
                 <div class="relative">
                     <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600">
@@ -57,27 +56,31 @@
             <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <input type="hidden" id="internalId">
 
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Title</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label>
                 <input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">First Name</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label>
                 <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Last Name</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label>
                 <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Email Address</label>
-                    <input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-50 rounded-xl font-semibold focus:border-blue-500 outline-none">
-                </div>
-                
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Mobile</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Profile Email</label>
+                <input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-50 rounded-xl font-semibold focus:border-blue-500 outline-none"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label>
                 <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">DOB</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label>
                 <input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">Business Name</label>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label>
                 <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">Address</label>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label>
                 <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label>
+                <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label>
+                <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label>
+                <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div class="md:col-span-3 pt-8 flex gap-4">
                     <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
@@ -96,37 +99,25 @@
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { window.location.replace("index.html"); return; }
 
-            console.log("Looking for user profile...");
-
-            // ATTEMPT 1: Search by UUID (Professional way)
             let { data: profile, error } = await supabaseClient
                 .from('applications')
                 .select('*')
                 .eq('id', user.id)
                 .single();
 
-            // ATTEMPT 2: Fallback to Email if ID lookup failed
             if (!profile || error) {
-                console.warn("ID match failed, trying Email match...");
-                const fallback = await supabaseClient
-                    .from('applications')
-                    .select('*')
-                    .eq('email', user.email)
-                    .single();
-                
+                const fallback = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
                 profile = fallback.data;
                 error = fallback.error;
             }
 
             if (error || !profile) {
-                alert("Critical Error: Profile not found in database.");
-                console.error("Fetch error:", error);
-                // Instead of redirecting immediately, we show the body so you can see the error
+                alert("Profile not found. Please check your database records.");
                 document.body.style.display = 'block';
                 return;
             }
 
-            // Populate Form
+            // Fill Form
             document.getElementById('internalId').value = profile.id;
             document.getElementById('userNameHeader').innerText = `${profile.first_name || ''} ${profile.last_name || ''}` || 'User Profile';
             document.getElementById('userEmailHeader').innerText = profile.email;
@@ -140,9 +131,11 @@
             document.getElementById('dob').value = profile.dob || '';
             document.getElementById('clinic').value = profile.clinic_name || '';
             document.getElementById('address').value = profile.address || '';
+            document.getElementById('city').value = profile.city || '';
+            document.getElementById('state').value = profile.state || '';
+            document.getElementById('pincode').value = profile.pincode || '';
 
             if (profile.user_type === 'admin') document.getElementById('adminNavLink').classList.remove('hidden');
-            
             document.body.style.display = 'block';
         }
 
@@ -150,11 +143,12 @@
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
             const rowId = document.getElementById('internalId').value;
+            const file = document.getElementById('fileUpload').files[0];
             
             btn.disabled = true;
             btn.innerText = "SAVING...";
 
-            const updateData = {
+            let updateData = {
                 email: document.getElementById('email').value,
                 title: document.getElementById('title').value,
                 first_name: document.getElementById('firstName').value,
@@ -162,17 +156,28 @@
                 mobile_number: document.getElementById('mobile').value,
                 dob: document.getElementById('dob').value || null,
                 clinic_name: document.getElementById('clinic').value,
-                address: document.getElementById('address').value
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                pincode: document.getElementById('pincode').value
             };
 
-            // Identify by ID (if available) or current session email
             const { data: { user } } = await supabaseClient.auth.getUser();
 
-            const { data, error } = await supabaseClient
+            if (file) {
+                const fileName = `${user.id}_${Date.now()}`;
+                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
+                if (!upErr) {
+                    const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
+                    updateData.profile_url = pub.publicUrl;
+                    updateData.profile_picture = pub.publicUrl;
+                }
+            }
+
+            const { error } = await supabaseClient
                 .from('applications')
                 .update(updateData)
-                .or(`id.eq.${rowId},email.eq.${user.email}`) // Targets either the ID or the session email
-                .select();
+                .or(`id.eq.${rowId},email.eq.${user.email}`);
 
             if (error) {
                 alert("Update Error: " + error.message);
@@ -191,7 +196,6 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
         function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.replace("index.html"); }
 
