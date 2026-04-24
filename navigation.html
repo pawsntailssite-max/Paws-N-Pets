@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { display: none; } 
+        /* REMOVED: body { display: none; } - We want to see the page no matter what */
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
     </style>
@@ -25,36 +25,35 @@
 
             <div class="flex items-center gap-1">
                 <div class="relative">
-                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600 transition-colors">
+                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600">
                         <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                     <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">
                             <i class="fa-solid fa-user-circle mr-2"></i> User Profile
                         </a>
-                        <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                        <a href="security.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">
                             <i class="fa-solid fa-shield-halved mr-2"></i> Security
                         </a>
                     </div>
                 </div>
 
-                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 text-purple-600 font-bold text-sm transition-colors">
+                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 text-purple-600 font-bold text-sm">
                     <i class="fa-solid fa-unlock-keyhole"></i> Admin Panel
                 </a>
 
-                <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-50 text-red-500 font-bold text-sm transition-colors">
+                <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-50 text-red-500 font-bold text-sm">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
 
             <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
                 <div class="text-right hidden md:block">
-                    <p id="userBusinessName" class="text-xs font-black text-slate-900 uppercase truncate max-w-[150px]"></p>
+                    <p id="userBusinessName" class="text-xs font-black text-slate-900 uppercase">Loading...</p>
                     <p class="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Active Member</p>
                 </div>
                 <img id="userProfilePic" src="" class="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover" onerror="this.src='https://via.placeholder.com/150'">
             </div>
-
         </div>
     </nav>
 
@@ -64,7 +63,7 @@
                 <i class="fa-solid fa-paw text-4xl"></i>
             </div>
             <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Welcome to the Hub</h2>
-            <p class="text-slate-500 text-lg">Use the navigation bar at the top to access your profile, security settings, or administrative tools.</p>
+            <p class="text-slate-500 text-lg">Use the navigation bar above to get started.</p>
         </div>
     </main>
 
@@ -74,11 +73,16 @@
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         async function initPortal() {
-            // Get current session
+            console.log("Checking authentication...");
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.replace("index.html"); return; }
+            
+            if (!user) { 
+                console.warn("No user found. Staying on page for debug.");
+                return; 
+            }
 
-            // Fetch profile data from applications table
+            console.log("User logged in as:", user.email);
+
             const { data: profile, error } = await supabaseClient
                 .from('applications')
                 .select('*')
@@ -86,12 +90,11 @@
                 .single();
 
             if (error || !profile) {
-                console.error("Profile load error");
-                window.location.replace("index.html");
+                console.error("Database error or profile missing:", error);
+                document.getElementById('userBusinessName').innerText = "Data Error";
                 return;
             }
 
-            // Populate Member Identity Info
             document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
             document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
             
@@ -101,19 +104,13 @@
             const isActive = profile.is_active === true;
 
             if (isAdmin && isApproved && isActive) {
+                console.log("Admin access granted.");
                 document.getElementById('adminNavLink').classList.remove('hidden');
             }
-
-            // Reveal content after data is ready
-            document.body.style.display = 'block';
         }
 
-        // Dropdown Visibility Toggle
-        function toggleDropdown() {
-            document.getElementById('dashboardDropdown').classList.toggle('show');
-        }
+        function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
 
-        // Interaction Handler: Close dropdown if clicking outside the menu
         window.onclick = function(event) {
             if (!event.target.closest('.relative')) {
                 const dropdowns = document.getElementsByClassName("dropdown-content");
