@@ -11,6 +11,9 @@
         body { display: none; }
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
+        /* Style for password toggle icons */
+        .pass-toggle { cursor: pointer; color: #94a3b8; transition: color 0.2s; }
+        .pass-toggle:hover { color: #3b82f6; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
@@ -36,9 +39,8 @@
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-6 md:p-12">
+    <main class="max-w-5xl mx-auto p-6 md:p-12 space-y-8">
         <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-            
             <div class="bg-blue-600 p-8 text-white flex flex-col md:flex-row items-center gap-8">
                 <div class="relative group">
                     <img id="profilePicPreview" src="" class="w-28 h-28 rounded-full border-4 border-white/30 object-cover shadow-2xl" onerror="this.src='https://via.placeholder.com/150'">
@@ -55,36 +57,57 @@
 
             <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <input type="hidden" id="internalId">
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label>
-                <input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label>
-                <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label>
-                <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Profile Email</label>
-                <input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-50 rounded-xl font-semibold focus:border-blue-500 outline-none"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label>
-                <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label>
-                <input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label>
-                <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label>
-                <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label>
-                <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label>
-                <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label>
-                <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label><input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label><input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label><input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Profile Email</label><input type="email" id="email" class="w-full p-3 bg-white border-2 border-blue-50 rounded-xl font-semibold focus:border-blue-500 outline-none"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label><input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label><input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label><input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label><input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label><input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label><input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label><input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
                 <div class="md:col-span-3 pt-8 flex gap-4">
                     <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
                     <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+            <div class="bg-slate-800 p-6 text-white flex items-center gap-4">
+                <div class="bg-slate-700 p-3 rounded-xl"><i class="fa-solid fa-lock text-xl"></i></div>
+                <div>
+                    <h2 class="text-xl font-bold uppercase tracking-wide">Security Settings</h2>
+                    <p class="text-slate-400 text-xs">Update your account password</p>
+                </div>
+            </div>
+
+            <form id="securityForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">New Password</label>
+                    <div class="relative">
+                        <input type="password" id="newPassword" placeholder="Minimum 6 characters" required class="w-full p-3 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-blue-500 pr-10">
+                        <span class="absolute right-3 top-3.5 pass-toggle" onclick="togglePass('newPassword', this)">
+                            <i class="fa-solid fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Confirm Password</label>
+                    <div class="relative">
+                        <input type="password" id="confirmPassword" placeholder="Repeat new password" required class="w-full p-3 bg-slate-50 border rounded-xl font-semibold outline-none focus:border-blue-500 pr-10">
+                        <span class="absolute right-3 top-3.5 pass-toggle" onclick="togglePass('confirmPassword', this)">
+                            <i class="fa-solid fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 pt-4 flex gap-4">
+                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
+                    <button type="submit" id="savePassBtn" class="flex-1 py-4 bg-slate-800 text-white font-black rounded-2xl shadow-xl uppercase">Update Password</button>
                 </div>
             </form>
         </div>
@@ -139,6 +162,7 @@
             document.body.style.display = 'block';
         }
 
+        // --- PROFILE FORM LOGIC ---
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
@@ -188,6 +212,52 @@
                 window.location.href = "navigation.html";
             }
         };
+
+        // --- SECURITY FORM LOGIC ---
+        document.getElementById('securityForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('savePassBtn');
+            const pass = document.getElementById('newPassword').value;
+            const conf = document.getElementById('confirmPassword').value;
+
+            if (pass !== conf) {
+                alert("Passwords do not match!");
+                return;
+            }
+            if (pass.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "UPDATING...";
+
+            const { error } = await supabaseClient.auth.updateUser({ password: pass });
+
+            if (error) {
+                alert("Security Error: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "Update Password";
+            } else {
+                alert("Password updated successfully!");
+                window.location.href = "navigation.html";
+            }
+        };
+
+        // Toggle Password Visibility
+        function togglePass(inputId, iconEl) {
+            const input = document.getElementById(inputId);
+            const icon = iconEl.querySelector('i');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
 
         function previewImage(input) {
             if (input.files && input.files[0]) {
