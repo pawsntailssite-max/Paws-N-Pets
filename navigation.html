@@ -8,7 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { display: none; } 
+        /* This ensures the page is visible immediately to prevent "loading loops" */
+        body { display: block; } 
         .dropdown-content { display: none; }
         .dropdown-content.show { display: block; }
     </style>
@@ -19,7 +20,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             
             <div class="flex items-center gap-3">
-                <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40?text=LOGO'">
+                <img src="./Logo.jpg" alt="Logo" class="w-10 h-10 object-contain" onerror="this.src='https://via.placeholder.com/40'">
                 <span class="text-lg font-black tracking-tighter text-slate-900 hidden sm:block">PAWS-N-TAILS</span>
             </div>
 
@@ -64,7 +65,7 @@
                 <i class="fa-solid fa-paw text-4xl"></i>
             </div>
             <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Welcome to the Hub</h2>
-            <p class="text-slate-500 text-lg">Use the navigation bar at the top to access your profile or security settings.</p>
+            <p class="text-slate-500 text-lg">Your portal is ready. Use the menu above to manage your profile or security.</p>
         </div>
     </main>
 
@@ -74,26 +75,23 @@
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         async function initPortal() {
-            try {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) { window.location.replace("index.html"); return; }
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) { window.location.replace("index.html"); return; }
 
-                const { data: profile, error } = await supabaseClient
-                    .from('applications')
-                    .select('*')
-                    .eq('email', user.email)
-                    .single();
+            const { data: profile } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('email', user.email)
+                .single();
 
-                if (profile) {
-                    document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
-                    document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
-                    
-                    if (profile.user_type === 'admin' && (profile.status || '').toLowerCase() === 'approved' && profile.is_active) {
-                        document.getElementById('adminNavLink').classList.remove('hidden');
-                    }
+            if (profile) {
+                document.getElementById('userBusinessName').innerText = profile.clinic_name || 'Individual';
+                document.getElementById('userProfilePic').src = profile.profile_url || 'https://via.placeholder.com/150';
+                
+                if (profile.user_type === 'admin' && (profile.status || '').toLowerCase() === 'approved' && profile.is_active) {
+                    document.getElementById('adminNavLink').classList.remove('hidden');
                 }
-            } catch (e) { console.error(e); }
-            document.body.style.display = 'block';
+            }
         }
 
         function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
