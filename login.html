@@ -39,7 +39,7 @@
         </form>
 
         <div class="mt-6 text-center space-y-2">
-            <button id="forgotBtn" class="text-sm text-blue-600 hover:underline">Forgot Password?</button>
+            <button type="button" id="forgotBtn" class="text-sm text-blue-600 hover:underline">Forgot Password?</button>
             <div class="block">
                 <a href="apply.html" class="text-sm text-slate-500 hover:text-blue-600">Don't have an account? Register here</a>
             </div>
@@ -56,13 +56,16 @@
         const forgotBtn = document.getElementById('forgotBtn');
         const subtitle = document.getElementById('auth-subtitle');
         
+        // Checks if the user just clicked the link in their email
         const isResetFlow = window.location.hash.includes('type=recovery');
 
+        // Transforms the login page into an "Update Password" page automatically
         if (isResetFlow) {
             subtitle.innerText = "Update Your Password";
             subtitle.classList.add("text-blue-600", "font-bold");
             document.getElementById('email-field').classList.add('hidden');
             document.getElementById('password-field').classList.add('hidden');
+            document.getElementById('email').removeAttribute('required'); // Prevent form validation errors
             document.getElementById('new-password-field').classList.remove('hidden');
             authBtn.innerText = "UPDATE PASSWORD";
             forgotBtn.classList.add('hidden');
@@ -71,47 +74,63 @@
         loginForm.onsubmit = async (e) => {
             e.preventDefault();
             authBtn.disabled = true;
-            const email = document.getElementById('email').value;
-
+            
             try {
                 if (isResetFlow) {
                     const newPass = document.getElementById('newPassword').value;
+                    if (!newPass || newPass.length < 6) throw new Error("Password must be at least 6 characters.");
+                    
                     const { error } = await supabaseClient.auth.updateUser({ password: newPass });
                     if (error) throw error;
                     
-                    alert("Password updated successfully! Redirecting to login...");
-                    window.location.href = "login.html";
+                    alert("Password updated successfully! Please log in with your new password.");
+                    // Strips the hash from the URL and reloads the clean login page
+                    window.location.href = window.location.pathname; 
                 } else {
+                    const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
                     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     
                     // SUCCESS CASE: Now redirects to the Navigation Hub
-                    alert("Login Successful! Welcome back.");
                     window.location.href = "navigation.html";
                 }
             } catch (err) {
-                // FAILURE CASE: Go back to Index
-                alert("Login Failed: " + err.message + ". Returning to home page.");
-                window.location.href = "index.html";
+                alert(err.message);
             } finally {
                 authBtn.disabled = false;
             }
         };
 
-        forgotBtn.onclick = async () => {
+        // Handles the Forgot Password button click
+        forgotBtn.onclick = async (e) => {
+            e.preventDefault();
             const email = document.getElementById('email').value;
+            
             if (!email) {
-                alert("Please enter your email address first.");
+                alert("Please enter your email address in the box above first.");
                 return;
             }
             
+            // Visual feedback
+            const originalText = forgotBtn.innerText;
+            forgotBtn.innerText = "Sending link...";
+            forgotBtn.disabled = true;
+
+            // window.location.origin dynamically gets your live domain (https://yourdomain.com)
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                 redirectTo: window.location.origin + '/login.html',
             });
 
-            if (error) alert(error.message);
-            else alert("Reset link sent! Please check your email.");
+            if (error) {
+                alert(error.message);
+            } else {
+                alert("Reset link sent! Please check your email.");
+            }
+            
+            // Reset button state
+            forgotBtn.innerText = originalText;
+            forgotBtn.disabled = false;
         };
     </script>
 </body>
