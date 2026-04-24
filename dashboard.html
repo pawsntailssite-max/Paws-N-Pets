@@ -14,6 +14,8 @@
         /* Style for password toggle icons */
         .pass-toggle { cursor: pointer; color: #94a3b8; transition: color 0.2s; }
         .pass-toggle:hover { color: #3b82f6; }
+        /* Smooth scrolling for anchor links */
+        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
@@ -30,7 +32,12 @@
                         <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                     <div id="dashboardDropdown" class="dropdown-content absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">User Profile</a>
+                        <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">
+                            <i class="fa-solid fa-user text-xs mr-2 text-slate-400"></i> User Profile
+                        </a>
+                        <a href="#security-section" onclick="toggleDropdown()" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">
+                            <i class="fa-solid fa-key text-xs mr-2 text-slate-400"></i> Security
+                        </a>
                     </div>
                 </div>
                 <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg text-purple-600 font-bold text-sm">Admin Panel</a>
@@ -75,7 +82,7 @@
             </form>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+        <div id="security-section" class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
             <div class="bg-slate-800 p-6 text-white flex items-center gap-4">
                 <div class="bg-slate-700 p-3 rounded-xl"><i class="fa-solid fa-lock text-xl"></i></div>
                 <div>
@@ -107,7 +114,7 @@
 
                 <div class="md:col-span-2 pt-4 flex gap-4">
                     <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
-                    <button type="submit" id="savePassBtn" class="flex-1 py-4 bg-slate-800 text-white font-black rounded-2xl shadow-xl uppercase">Update Password</button>
+                    <button type="submit" id="savePassBtn" class="flex-1 py-4 bg-slate-800 text-white font-black rounded-2xl shadow-xl uppercase">Save Password</button>
                 </div>
             </form>
         </div>
@@ -135,12 +142,11 @@
             }
 
             if (error || !profile) {
-                alert("Profile not found. Please check your database records.");
+                alert("Profile not found.");
                 document.body.style.display = 'block';
                 return;
             }
 
-            // Fill Form
             document.getElementById('internalId').value = profile.id;
             document.getElementById('userNameHeader').innerText = `${profile.first_name || ''} ${profile.last_name || ''}` || 'User Profile';
             document.getElementById('userEmailHeader').innerText = profile.email;
@@ -162,7 +168,7 @@
             document.body.style.display = 'block';
         }
 
-        // --- PROFILE FORM LOGIC ---
+        // --- PROFILE FORM LOGIC (REMAINS DISTURBED-FREE) ---
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
@@ -220,42 +226,34 @@
             const pass = document.getElementById('newPassword').value;
             const conf = document.getElementById('confirmPassword').value;
 
-            if (pass !== conf) {
-                alert("Passwords do not match!");
-                return;
-            }
-            if (pass.length < 6) {
-                alert("Password must be at least 6 characters long.");
-                return;
-            }
+            if (pass !== conf) { alert("Passwords do not match!"); return; }
+            if (pass.length < 6) { alert("Min 6 characters required."); return; }
 
             btn.disabled = true;
-            btn.innerText = "UPDATING...";
+            btn.innerText = "SAVING...";
 
             const { error } = await supabaseClient.auth.updateUser({ password: pass });
 
             if (error) {
                 alert("Security Error: " + error.message);
                 btn.disabled = false;
-                btn.innerText = "Update Password";
+                btn.innerText = "Save Password";
             } else {
                 alert("Password updated successfully!");
                 window.location.href = "navigation.html";
             }
         };
 
-        // Toggle Password Visibility
+        // Toggle Password Visibility Logic
         function togglePass(inputId, iconEl) {
             const input = document.getElementById(inputId);
             const icon = iconEl.querySelector('i');
             if (input.type === "password") {
                 input.type = "text";
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 input.type = "password";
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
