@@ -24,17 +24,15 @@
 
             <div class="flex items-center gap-1">
                 <div class="relative">
-                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600 transition-colors">
+                    <button onclick="toggleDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 font-bold text-sm text-slate-600">
                         <i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                     <div id="dashboardDropdown" class="dropdown-content absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
                         <a href="dashboard.html" class="block px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-blue-50">User Profile</a>
                     </div>
                 </div>
-                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg text-purple-600 font-bold text-sm transition-colors">
-                    <i class="fa-solid fa-unlock-keyhole"></i> Admin Panel
-                </a>
-                <button onclick="handleLogout()" class="px-4 py-2 text-red-500 font-bold text-sm transition-colors">Logout</button>
+                <a id="adminNavLink" href="admin.html" class="hidden flex items-center gap-2 px-4 py-2 rounded-lg text-purple-600 font-bold text-sm">Admin Panel</a>
+                <button onclick="handleLogout()" class="px-4 py-2 text-red-500 font-bold text-sm">Logout</button>
             </div>
 
             <div class="flex items-center gap-3 border-l pl-4 border-slate-100">
@@ -65,46 +63,37 @@
             </div>
 
             <form id="profileForm" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label>
+                <input type="hidden" id="internalId">
+
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Title</label>
                 <input type="text" id="title" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">First Name</label>
                 <input type="text" id="firstName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-                
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Last Name</label>
                 <input type="text" id="lastName" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Email (Private)</label>
-                <input type="email" id="email" disabled class="w-full p-3 bg-slate-100 border rounded-xl font-semibold text-slate-400 cursor-not-allowed"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile Number</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Email (Locked)</label>
+                <input type="email" id="email" disabled class="w-full p-3 bg-slate-100 border rounded-xl font-semibold text-slate-400"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Mobile</label>
                 <input type="text" id="mobile" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. Date of Birth</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">DOB</label>
                 <input type="date" id="dob" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">Business Name</label>
                 <input type="text" id="clinic" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label>
+                <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">Address</label>
                 <input type="text" id="address" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">City</label>
                 <input type="text" id="city" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">State</label>
                 <input type="text" id="state" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
-
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Pincode</label>
                 <input type="text" id="pincode" class="w-full p-3 bg-slate-50 border rounded-xl font-semibold"></div>
 
                 <div class="md:col-span-3 pt-8 flex gap-4">
-                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 uppercase transition-all">
-                        Discard
-                    </button>
-                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl uppercase transition-all">
-                        Save Changes
-                    </button>
+                    <button type="button" onclick="window.location.href='navigation.html'" class="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-black rounded-2xl uppercase">Discard</button>
+                    <button type="submit" id="saveBtn" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -119,18 +108,27 @@
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { window.location.replace("index.html"); return; }
 
-            const { data: profile, error } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
+            const { data: profile, error } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('email', user.email)
+                .single();
 
-            if (error || !profile) { window.location.replace("index.html"); return; }
+            if (error || !profile) { 
+                console.error("Init Error:", error);
+                window.location.replace("index.html"); 
+                return; 
+            }
 
-            // UI Population
+            // Capture the ID immediately so we have it for the update
+            document.getElementById('internalId').value = profile.id;
+            
             document.getElementById('navBusinessName').innerText = profile.clinic_name || 'Individual';
             document.getElementById('navProfilePic').src = profile.profile_url || profile.profile_picture || 'https://via.placeholder.com/150';
             document.getElementById('userNameHeader').innerText = `${profile.first_name} ${profile.last_name}`;
             document.getElementById('userEmailHeader').innerText = profile.email;
             document.getElementById('profilePicPreview').src = profile.profile_url || profile.profile_picture || 'https://via.placeholder.com/150';
 
-            // Form Population
             document.getElementById('title').value = profile.title || '';
             document.getElementById('firstName').value = profile.first_name || '';
             document.getElementById('lastName').value = profile.last_name || '';
@@ -158,17 +156,14 @@
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
+            const rowId = document.getElementById('internalId').value;
             const file = document.getElementById('fileUpload').files[0];
             
-            // Get fresh user from session
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { alert("Session expired. Please login again."); return; }
+            if (!rowId) { alert("Error: User ID not found. Refresh the page."); return; }
 
             btn.disabled = true;
             btn.innerText = "SAVING...";
 
-            // CRITICAL: We do NOT include 'email' in updateData. 
-            // We only update the content fields.
             let updateData = {
                 title: document.getElementById('title').value,
                 first_name: document.getElementById('firstName').value,
@@ -183,7 +178,7 @@
             };
 
             if (file) {
-                const fileName = `profile_${user.id}_${Date.now()}`;
+                const fileName = `profile_${rowId}_${Date.now()}`;
                 const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
                 if (!upErr) {
                     const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
@@ -192,20 +187,25 @@
                 }
             }
 
-            // We update where email matches the logged-in user.
-            // This is the most direct and secure way.
+            console.log("Pushing update to ID:", rowId);
+
             const { data, error } = await supabaseClient
                 .from('applications')
                 .update(updateData)
-                .eq('email', user.email)
+                .eq('id', rowId)
                 .select();
 
-            if (!error && data && data.length > 0) {
+            if (error) {
+                console.error("Supabase Error:", error);
+                alert("Database Error: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "Save Changes";
+            } else if (data && data.length > 0) {
                 alert("Profile successfully saved!");
                 window.location.href = "navigation.html";
             } else {
-                console.error("Save Error:", error);
-                alert("Could not save changes. Please check your internet connection.");
+                // This is the "No rows updated" case
+                alert("Permission Denied: You don't have permission to update this row. Check your Supabase RLS Policies.");
                 btn.disabled = false;
                 btn.innerText = "Save Changes";
             }
@@ -213,7 +213,6 @@
 
         function toggleDropdown() { document.getElementById('dashboardDropdown').classList.toggle('show'); }
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.replace("index.html"); }
-
         initDashboard();
     </script>
 </body>
