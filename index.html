@@ -1,101 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAWS-N-TAILS | Veterinarian Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-slate-50 text-slate-800 font-sans">
+// --- Inside your index.html script section ---
 
-    <div class="min-h-screen flex flex-col items-center justify-center px-4 text-center py-12">
-        
-        <div class="mb-6">
-            <img src="Logo.jpg" alt="PAWS-N-TAILS Logo" 
-                 onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='block';" 
-                 class="h-32 w-auto mx-auto mb-2 drop-shadow-xl rounded-lg">
-            
-            <div id="fallback-icon" style="display:none;" class="text-blue-600">
-                <i class="fa-solid fa-paw text-7xl"></i>
-            </div>
-        </div>
+async function updateCounters() {
+    try {
+        // 1. Get Total Applications
+        const { count: total, error: e1 } = await supabaseClient
+            .from('applications')
+            .select('*', { count: 'exact', head: true });
 
-        <div class="mb-12">
-            <h1 class="text-5xl font-black tracking-tight text-slate-900 mb-1">
-                PAWS-N-TAILS
-            </h1>
-            <h2 class="text-xl font-bold uppercase tracking-[0.4em] text-blue-600">
-                Veterinarian Portal
-            </h2>
-        </div>
+        // 2. Get Pending Applications (Match 'reg_status' and 'Pending' from your form)
+        const { count: pending, error: e2 } = await supabaseClient
+            .from('applications')
+            .select('*', { count: 'exact', head: true })
+            .eq('reg_status', 'Pending');
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 w-full max-w-2xl">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center">
-                <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">Total Registrations</span>
-                <h3 id="stat-total" class="text-5xl font-black text-slate-800 tracking-tighter">--</h3>
-                <p class="text-sm text-slate-400 mt-2 italic">Pending + Approved</p>
-            </div>
-            
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1.5 bg-green-500"></div>
-                <span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">Active Members</span>
-                <h3 id="stat-active" class="text-5xl font-black text-slate-800 tracking-tighter">--</h3>
-                <p class="text-sm text-slate-400 mt-2 italic">Approved & Active</p>
-            </div>
-        </div>
+        // 3. Get Active Members (Match 'is_active' being true)
+        const { count: active, error: e3 } = await supabaseClient
+            .from('applications')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_active', true);
 
-        <div class="flex flex-col gap-4 w-full max-w-md">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="apply.html" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-95 text-center">
-                    Register as Member
-                </a>
-                <a href="login.html" class="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 text-center">
-                    Members Login
-                </a>
-            </div>
-            
-            <a href="mailto:support@pawsntails.com" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95">
-                <i class="fa-solid fa-envelope"></i> Contact Us
-            </a>
-        </div>
+        if (e1 || e2 || e3) throw (e1 || e2 || e3);
 
-        <p class="mt-16 text-slate-400 text-xs font-bold tracking-widest uppercase">
-            &copy; 2026 Paws-N-Tails Veterinary Network
-        </p>
-    </div>
+        // Update the HTML elements (Ensure these IDs exist in your index.html HTML)
+        document.getElementById('totalCounter').innerText = total || 0;
+        document.getElementById('pendingCounter').innerText = pending || 0;
+        document.getElementById('activeCounter').innerText = active || 0;
 
-    <script>
-        // Supabase Configuration
-        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+    } catch (err) {
+        console.error("Counter Error:", err.message);
+    }
+}
 
-        // Function to fetch live counts from your table
-        async function getStats() {
-            try {
-                // 1. Total Count (Pending + Approved)
-                const { count: total, error: e1 } = await supabaseClient
-                    .from('applications')
-                    .select('*', { count: 'exact', head: true });
-
-                // 2. Active Count (Status = approved)
-                const { count: active, error: e2 } = await supabaseClient
-                    .from('applications')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('reg_status', 'approved');
-
-                // Update UI if no errors
-                if (!e1) document.getElementById('stat-total').innerText = total;
-                if (!e2) document.getElementById('stat-active').innerText = active;
-            } catch (err) {
-                console.error("Stats fetch error:", err);
-            }
-        }
-
-        // Initialize stats on page load
-        getStats();
-    </script>
-</body>
-</html>
+// Call this when the page loads
+updateCounters();
