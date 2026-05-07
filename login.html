@@ -1,67 +1,105 @@
-<script>
-    const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-    const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PAWS-N-TAILS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center px-4">
 
-    const loginForm = document.getElementById('loginForm');
-    const authBtn = document.getElementById('authBtn');
-    
-    // UI ADJUSTMENTS: Changing labels to match SaaS model
-    document.querySelector('label[for="email"]').innerText = "Unique User ID";
-    document.getElementById('email').type = "text";
-    document.getElementById('email').placeholder = "e.g. happypaws01";
-    document.querySelector('label[for="password"]').innerText = "License Key";
-    document.getElementById('password').placeholder = "PK-XXXXXX";
+    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+        <div class="text-center mb-8">
+            <div class="text-blue-600 mb-2"><i class="fa-solid fa-paw text-5xl"></i></div>
+            <h2 class="text-2xl font-bold text-slate-800 uppercase tracking-tight">Paws-N-Tails</h2>
+            <p class="text-slate-500">Member Access</p>
+        </div>
 
-    loginForm.onsubmit = async (e) => {
-        e.preventDefault();
-        authBtn.disabled = true;
-        authBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> VERIFYING...`;
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Unique User ID</label>
+                <input type="text" id="userId" placeholder="e.g. happypaws01" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
 
-        const userId = document.getElementById('email').value.trim().toLowerCase();
-        const licenseKey = document.getElementById('password').value.trim();
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">License Key</label>
+                <input type="password" id="licenseKey" placeholder="PK-XXXX-XXXX" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
 
-        try {
-            // 1. Check the master_control table
-            const { data, error } = await supabaseClient
-                .from('master_control')
-                .select('*')
-                .eq('user_id', userId)
-                .eq('api_key', licenseKey)
-                .single();
+            <button type="submit" id="authBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95">
+                SIGN IN
+            </button>
+        </form>
 
-            if (error || !data) {
-                throw new Error("Invalid User ID or License Key.");
+        <div class="mt-6 text-center">
+            <a href="apply.html" class="text-sm text-slate-500 hover:text-blue-600">Need a license? Apply here</a>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd'; // Standard Public Key
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        const loginForm = document.getElementById('loginForm');
+        const authBtn = document.getElementById('authBtn');
+
+        loginForm.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            // UI Feedback
+            authBtn.disabled = true;
+            authBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> VERIFYING...';
+
+            const user_id_input = document.getElementById('userId').value.trim();
+            const license_key_input = document.getElementById('licenseKey').value.trim();
+
+            try {
+                // 1. Query the master_control table
+                // We use the public client here, so RLS must allow SELECT for this to work
+                const { data, error } = await supabaseClient
+                    .from('master_control')
+                    .select('*')
+                    .eq('user_id', user_id_input)
+                    .eq('api_key', license_key_input)
+                    .single();
+
+                if (error || !data) {
+                    throw new Error("Invalid User ID or License Key.");
+                }
+
+                // 2. Check Account Status
+                if (data.reg_status !== 'Active') {
+                    throw new Error(`Your account is currently ${data.reg_status}.`);
+                }
+
+                // 3. Check Expiry
+                const today = new Date();
+                const expiry = new Date(data.expiry_date);
+                if (today > expiry) {
+                    throw new Error("Your license has expired. Please renew in Master Control.");
+                }
+
+                // 4. SUCCESS: Store the session
+                localStorage.setItem('paws_session', JSON.stringify({
+                    clinicName: data.client_name,
+                    userId: data.user_id,
+                    schema: data.db_schema,
+                    license: data.api_key
+                }));
+
+                // 5. REDIRECT
+                window.location.href = "navigation.html";
+
+            } catch (err) {
+                alert(err.message);
+                authBtn.disabled = false;
+                authBtn.innerText = "SIGN IN";
             }
-
-            // 2. Check if the status is Active
-            if (data.reg_status !== 'Active') {
-                throw new Error("This account is " + data.reg_status + ". Please contact support.");
-            }
-
-            // 3. Check Expiry Date
-            const today = new Date();
-            const expiry = new Date(data.expiry_date);
-            if (today > expiry) {
-                throw new Error("Your license expired on " + data.expiry_date);
-            }
-
-            // 4. SUCCESS: Store session info locally
-            localStorage.setItem('paws_session', JSON.stringify({
-                clientName: data.client_name,
-                userId: data.user_id,
-                schema: data.db_schema,
-                expiry: data.expiry_date
-            }));
-
-            // Redirect to navigation/dashboard
-            window.location.href = "navigation.html";
-
-        } catch (err) {
-            alert(err.message);
-        } finally {
-            authBtn.disabled = false;
-            authBtn.innerText = "SIGN IN";
-        }
-    };
-</script>
+        };
+    </script>
+</body>
+</html>
