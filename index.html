@@ -13,100 +13,79 @@
     <div class="min-h-screen flex flex-col items-center justify-center px-4 text-center py-12">
         
         <div class="mb-6">
-            <img src="Logo.jpg" alt="PAWS-N-TAILS Logo" 
+            <img src="Logo.jpg" alt="Logo" 
                  onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='block';" 
                  class="h-32 w-auto mx-auto mb-2 drop-shadow-xl rounded-lg">
-            
             <div id="fallback-icon" style="display:none;" class="text-blue-600">
                 <i class="fa-solid fa-paw text-7xl"></i>
             </div>
         </div>
 
         <div class="mb-12">
-            <h1 class="text-5xl font-black tracking-tight text-slate-900 mb-1">
-                PAWS-N-TAILS
-            </h1>
-            <h2 class="text-xl font-bold uppercase tracking-[0.4em] text-blue-600">
-                Veterinarian Portal
-            </h2>
+            <h1 class="text-5xl font-black tracking-tight text-slate-900 mb-1">PAWS-N-TAILS</h1>
+            <h2 class="text-xl font-bold uppercase tracking-[0.4em] text-blue-600">Veterinarian Portal</h2>
         </div>
 
-        <!-- Dashboard Counters -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 w-full max-w-2xl">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center">
-                <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">Total Registrations</span>
-                <h3 id="stat-total" class="text-5xl font-black text-slate-800 tracking-tighter">--</h3>
-                <p class="text-sm text-slate-400 mt-2 italic">Pending + Approved</p>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col items-center">
+                <span class="bg-slate-100 text-slate-600 text-[10px] font-black px-3 py-1 rounded-full mb-3 uppercase tracking-widest">Network Growth</span>
+                <h3 id="stat-total" class="text-5xl font-black text-slate-800 tracking-tighter">0</h3>
+                <p class="text-xs text-slate-400 mt-2 font-bold uppercase tracking-tighter">Registered Clinics</p>
             </div>
             
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1.5 bg-green-500"></div>
-                <span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">Active Members</span>
-                <h3 id="stat-active" class="text-5xl font-black text-slate-800 tracking-tighter">--</h3>
-                <p class="text-sm text-slate-400 mt-2 italic">Approved & Active</p>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col items-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-500"></div>
+                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-black px-3 py-1 rounded-full mb-3 uppercase tracking-widest">Live Members</span>
+                <h3 id="stat-active" class="text-5xl font-black text-slate-800 tracking-tighter">0</h3>
+                <p class="text-xs text-slate-400 mt-2 font-bold uppercase tracking-tighter">Verified & Active</p>
             </div>
         </div>
 
         <div class="flex flex-col gap-4 w-full max-w-md">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="apply.html" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-95 text-center">
-                    Register as Member
+                <a href="apply.html" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-blue-200 transition-all hover:scale-[1.02] active:scale-95 text-center uppercase text-sm tracking-wider">
+                    Get Access
                 </a>
-                <a href="login.html" class="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 text-center">
-                    Members Login
+                <a href="login.html" class="bg-white border-2 border-slate-200 text-slate-700 hover:bg-slate-50 font-bold py-4 px-6 rounded-2xl transition-all hover:scale-[1.02] active:scale-95 text-center uppercase text-sm tracking-wider">
+                    Member Login
                 </a>
             </div>
             
-            <a href="mailto:support@pawsntails.com" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95">
-                <i class="fa-solid fa-envelope"></i> Contact Us
+            <a href="mailto:support@pawsntails.com" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 uppercase text-xs tracking-widest">
+                <i class="fa-solid fa-headset text-blue-400"></i> Technical Support
             </a>
         </div>
 
-        <p class="mt-16 text-slate-400 text-xs font-bold tracking-widest uppercase">
-            &copy; 2026 Paws-N-Tails Veterinary Network
+        <p class="mt-16 text-slate-400 text-[10px] font-bold tracking-[0.3em] uppercase">
+            &copy; 2026 Paws-N-Tails SaaS Infrastructure
         </p>
     </div>
 
     <script>
-        // Supabase Configuration
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        // Function to fetch live counts from your table
         async function getStats() {
             try {
-                // 1. Total Count (Includes everyone in the applications table)
-                const { count: total, error: e1 } = await supabaseClient
-                    .from('applications')
+                // 1. Total registrations from Master Control
+                const { count: total } = await supabaseClient
+                    .from('master_control')
                     .select('*', { count: 'exact', head: true });
 
-                // 2. Active Count (Uses the is_active boolean field)
-                // This ensures we only count members who have been fully processed
-                const { count: active, error: e2 } = await supabaseClient
-                    .from('applications')
+                // 2. Only Active members from Master Control
+                const { count: active } = await supabaseClient
+                    .from('master_control')
                     .select('*', { count: 'exact', head: true })
-                    .eq('is_active', true);
+                    .eq('reg_status', 'Active');
 
-                // Update UI with real data, fallback to 0 if null
-                if (!e1) {
-                    document.getElementById('stat-total').innerText = total || 0;
-                } else {
-                    console.error("Total fetch error:", e1);
-                }
-
-                if (!e2) {
-                    document.getElementById('stat-active').innerText = active || 0;
-                } else {
-                    console.error("Active fetch error:", e2);
-                }
-
+                document.getElementById('stat-total').innerText = total || 0;
+                document.getElementById('stat-active').innerText = active || 0;
             } catch (err) {
-                console.error("Stats system error:", err);
+                console.error("Stats error:", err);
             }
         }
 
-        // Initialize stats on page load
         getStats();
     </script>
 </body>
