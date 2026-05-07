@@ -1,0 +1,11 @@
+CREATE TABLE master_control (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    client_name text NOT NULL,
+    user_id text UNIQUE NOT NULL, -- The unique handle for the clinic
+    email text UNIQUE NOT NULL,
+    api_key text UNIQUE,          -- Generated upon approval
+    db_schema text,               -- The name of their private data silo
+    reg_status text DEFAULT 'Pending', -- Pending, Demo, Active, Suspended
+    expiry_date DATE,             -- Format: YYYY-MM-DD (SQL standard)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
