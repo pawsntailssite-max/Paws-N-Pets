@@ -14,46 +14,46 @@
         <!-- Dashboard Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
-                <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase">Master Control</h1>
-                <p class="text-slate-400 font-medium">SaaS Client Management & Kill-Switch Console</p>
+                <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase text-blue-500">Master Control</h1>
+                <p class="text-slate-400 font-medium tracking-wide">Paws-N-Tails SaaS Client Management</p>
             </div>
             <div class="flex items-center gap-3 bg-slate-900 p-4 rounded-2xl border border-slate-800">
                 <div class="h-3 w-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span class="text-sm font-bold uppercase tracking-widest text-slate-300">Database Live</span>
+                <span class="text-sm font-bold uppercase tracking-widest text-slate-300">System Online</span>
             </div>
         </div>
 
         <!-- Stats Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Clients</p>
-                <h2 id="count-total" class="text-3xl font-black text-white">0</h2>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Clinics</p>
+                <h2 id="count-total" class="text-4xl font-black text-white">0</h2>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-l-4 border-l-emerald-500">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active Licenses</p>
-                <h2 id="count-active" class="text-3xl font-black text-white">0</h2>
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-emerald-500">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active</p>
+                <h2 id="count-active" class="text-4xl font-black text-white text-emerald-400">0</h2>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-l-4 border-l-rose-500">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-rose-500">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Suspended</p>
-                <h2 id="count-suspended" class="text-3xl font-black text-white">0</h2>
+                <h2 id="count-suspended" class="text-4xl font-black text-white text-rose-400">0</h2>
             </div>
         </div>
 
-        <!-- Main Table Container -->
+        <!-- Main Table -->
         <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead class="bg-slate-800/50">
                         <tr class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-                            <th class="px-6 py-5">Client Info</th>
-                            <th class="px-6 py-5">Access Status</th>
+                            <th class="px-6 py-5">Clinic Details</th>
+                            <th class="px-6 py-5">Status</th>
                             <th class="px-6 py-5">License Key</th>
-                            <th class="px-6 py-5">Expiry (DD/MM/YYYY)</th>
-                            <th class="px-6 py-5 text-right">Actions</th>
+                            <th class="px-6 py-5">Expiry</th>
+                            <th class="px-6 py-5 text-right">Control</th>
                         </tr>
                     </thead>
                     <tbody id="clientTableBody" class="divide-y divide-slate-800">
-                        <!-- Dynamic Rows will appear here -->
+                        <tr><td colspan="5" class="p-10 text-center text-slate-500 italic">Connecting to secure vault...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -61,16 +61,21 @@
     </div>
 
     <script>
-        // 1. CONFIGURATION
+        // 1. CONFIGURATION (Direct from your Supabase Dashboard)
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
-        
-        // Use 'supabaseAdmin' to avoid the "Identifier already declared" error
-        const supabaseAdmin = window.supabase.createClient(SB_URL, SB_SERVICE_KEY);
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA';
+
+        // Creating Admin Client with Force Headers to bypass all RLS
+        const supabaseAdmin = supabase.createClient(SB_URL, SB_KEY, {
+            global: {
+                headers: { 'Authorization': `Bearer ${SB_KEY}` }
+            }
+        });
 
         // 2. FETCH DATA
         async function fetchClients() {
             try {
+                console.log("Fetching clinic data...");
                 const { data, error } = await supabaseAdmin
                     .from('master_control')
                     .select('*')
@@ -84,6 +89,7 @@
                 document.getElementById('count-suspended').innerText = data.filter(c => c.reg_status === 'Suspended').length;
 
                 const tbody = document.getElementById('clientTableBody');
+                
                 if (data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-500">No applications found in database.</td></tr>`;
                     return;
@@ -93,8 +99,7 @@
                     <tr class="hover:bg-slate-800/40 transition-all border-b border-slate-800/50">
                         <td class="px-6 py-5">
                             <div class="text-white font-bold text-lg">${client.client_name}</div>
-                            <div class="text-xs text-slate-500 font-mono italic">UID: ${client.user_id}</div>
-                            <div class="text-[10px] text-blue-400 mt-1">${client.email}</div>
+                            <div class="text-xs text-slate-500 font-mono">ID: ${client.user_id}</div>
                         </td>
                         <td class="px-6 py-5">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(client.reg_status)}">
@@ -103,56 +108,42 @@
                         </td>
                         <td class="px-6 py-5">
                             <code class="bg-black/40 px-2 py-1 rounded text-emerald-400 text-xs font-mono border border-emerald-500/20">
-                                ${client.api_key || 'UNASSIGNED'}
+                                ${client.api_key || 'WAITING...'}
                             </code>
                         </td>
                         <td class="px-6 py-5 text-sm font-bold text-slate-400">
-                            ${client.expiry_date ? formatDate(client.expiry_date) : '---'}
+                            ${client.expiry_date || '---'}
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex justify-end gap-2">
-                                <button onclick="approve('${client.id}', '${client.user_id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-lg transition-colors shadow-lg shadow-emerald-900/20" title="Approve/Renew">
+                                <button onclick="approve('${client.id}', '${client.user_id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-2.5 rounded-xl transition-all active:scale-90 shadow-lg shadow-emerald-900/40" title="Grant Access">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
-                                <button onclick="suspend('${client.id}')" class="bg-rose-600 hover:bg-rose-500 text-white p-2 rounded-lg transition-colors shadow-lg shadow-rose-900/20" title="Suspend/Kill Access">
-                                    <i class="fa-solid fa-power-off"></i>
+                                <button onclick="suspend('${client.id}')" class="bg-rose-600 hover:bg-rose-500 text-white p-2.5 rounded-xl transition-all active:scale-90 shadow-lg shadow-rose-900/40" title="Revoke Access">
+                                    <i class="fa-solid fa-ban"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
                 `).join('');
             } catch (err) {
-                console.error("Fetch Error:", err.message);
-                alert("Error fetching records: " + err.message);
+                console.error("Critical Admin Error:", err.message);
+                document.getElementById('clientTableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500 font-bold uppercase">Error: ${err.message}</td></tr>`;
             }
         }
 
-        // 3. UTILITY FUNCTIONS
         function getStatusColor(status) {
-            switch(status) {
-                case 'Active': return 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
-                case 'Pending': return 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
-                case 'Suspended': return 'bg-rose-500/10 text-rose-500 border border-rose-500/20';
-                default: return 'bg-slate-500/10 text-slate-500';
-            }
+            if(status === 'Active') return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+            if(status === 'Suspended') return 'bg-rose-500/10 text-rose-400 border border-rose-500/30';
+            return 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
         }
 
-        function formatDate(dateStr) {
-            if(!dateStr) return '---';
-            const [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
-        }
-
-        // 4. ACTION FUNCTIONS
         async function approve(id, userId) {
-            if(!confirm("Approve access for this client?")) return;
+            if(!confirm("Generate License and Grant Access?")) return;
             
-            // Generate a random License Key
-            const key = 'PK-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            
-            // Default 365 day expiry (SaaS Standard)
+            const key = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
             const exp = new Date();
-            exp.setDate(exp.getDate() + 365); 
+            exp.setDate(exp.getDate() + 365); // 1 Year License
 
             const { error } = await supabaseAdmin
                 .from('master_control')
@@ -160,32 +151,26 @@
                     api_key: key,
                     reg_status: 'Active',
                     expiry_date: exp.toISOString().split('T')[0],
-                    db_schema: `schema_${userId.toLowerCase().replace(/\s/g, '_')}`
+                    db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
                 })
                 .eq('id', id);
 
-            if (error) {
-                alert("Update failed: " + error.message);
-            } else {
-                fetchClients(); // Refresh list
-            }
+            if (error) alert("Approval Error: " + error.message);
+            else fetchClients();
         }
 
         async function suspend(id) {
-            if(!confirm("Are you sure you want to KILL ACCESS for this client?")) return;
+            if(!confirm("KILL ACCESS IMMEDIATELY? This clinic will be locked out.")) return;
             const { error } = await supabaseAdmin
                 .from('master_control')
                 .update({ reg_status: 'Suspended' })
                 .eq('id', id);
             
-            if (error) {
-                alert("Suspension failed: " + error.message);
-            } else {
-                fetchClients(); // Refresh list
-            }
+            if (error) alert("Suspension Error: " + error.message);
+            else fetchClients();
         }
 
-        // Initialize table on load
+        // Auto-load
         fetchClients();
     </script>
 </body>
