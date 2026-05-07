@@ -11,6 +11,7 @@
 <body class="bg-slate-950 text-slate-200 min-h-screen p-6 font-sans">
 
     <div class="max-w-7xl mx-auto">
+        <!-- Dashboard Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
                 <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase">Master Control</h1>
@@ -22,6 +23,7 @@
             </div>
         </div>
 
+        <!-- Stats Overview -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Clients</p>
@@ -37,6 +39,7 @@
             </div>
         </div>
 
+        <!-- Main Table Container -->
         <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
@@ -50,7 +53,8 @@
                         </tr>
                     </thead>
                     <tbody id="clientTableBody" class="divide-y divide-slate-800">
-                        </tbody>
+                        <!-- Dynamic Rows will appear here -->
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -59,8 +63,7 @@
     <script>
         // 1. CONFIGURATION
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        // IMPORTANT: Replace this with your SERVICE_ROLE key from Supabase Settings -> API
-        const SB_SERVICE_KEY = 'YOUR_SUPABASE_SERVICE_ROLE_KEY'; 
+        const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
         
         // Use 'supabaseAdmin' to avoid the "Identifier already declared" error
         const supabaseAdmin = window.supabase.createClient(SB_URL, SB_SERVICE_KEY);
@@ -147,9 +150,9 @@
             // Generate a random License Key
             const key = 'PK-' + Math.random().toString(36).substr(2, 9).toUpperCase();
             
-            // Default 30 day expiry
+            // Default 365 day expiry (SaaS Standard)
             const exp = new Date();
-            exp.setDate(exp.getDate() + 30); 
+            exp.setDate(exp.getDate() + 365); 
 
             const { error } = await supabaseAdmin
                 .from('master_control')
