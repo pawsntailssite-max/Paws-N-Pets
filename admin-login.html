@@ -35,7 +35,9 @@
     <script>
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        
+        // Renamed from 'supabaseClient' to 'authClient' to avoid collisions
+        const authClient = supabase.createClient(SB_URL, SB_KEY);
 
         async function requestMagicLink() {
             const email = document.getElementById('adminEmail').value.trim();
@@ -47,18 +49,18 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>REDIRECTING...';
 
-            // Still trigger the link for the record, but don't wait for it
-            supabaseClient.auth.signInWithOtp({
+            // Send the link in the background
+            authClient.auth.signInWithOtp({
                 email: email,
                 options: {
                     emailRedirectTo: window.location.origin + '/master-control.html'
                 }
             });
 
-            // BYPASS: Go straight to the dashboard immediately
+            // Bypass and go straight to the dashboard
             setTimeout(() => {
                 window.location.href = "master-control.html";
-            }, 500);
+            }, 600);
         }
     </script>
 </body>
