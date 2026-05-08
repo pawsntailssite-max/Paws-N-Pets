@@ -13,7 +13,7 @@
         <div class="text-center mb-8">
             <div class="text-blue-500 mb-2"><i class="fa-solid fa-shield-halved text-5xl"></i></div>
             <h1 class="text-2xl font-black uppercase tracking-tighter italic">Master Control Access</h1>
-            <p class="text-slate-500 text-sm">Enter your email to access the management console.</p>
+            <p class="text-slate-500 text-sm">Enter your email to receive a secure login link.</p>
         </div>
         
         <div class="space-y-4">
@@ -25,7 +25,7 @@
             
             <button onclick="requestMagicLink()" id="reqBtn"
                     class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
-                PROCEED TO DASHBOARD
+                SEND MAGIC LINK
             </button>
         </div>
         
@@ -36,7 +36,7 @@
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         
-        // Renamed from 'supabaseClient' to 'authClient' to avoid collisions
+        // Using authClient to avoid the global 'supabase' variable collision
         const authClient = supabase.createClient(SB_URL, SB_KEY);
 
         async function requestMagicLink() {
@@ -47,20 +47,26 @@
             if(!email) { alert("Please enter your email"); return; }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>REDIRECTING...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>SENDING...';
 
-            // Send the link in the background
-            authClient.auth.signInWithOtp({
+            // Send the magic link and wait for the response
+            const { error } = await authClient.auth.signInWithOtp({
                 email: email,
                 options: {
                     emailRedirectTo: window.location.origin + '/master-control.html'
                 }
             });
 
-            // Bypass and go straight to the dashboard
-            setTimeout(() => {
-                window.location.href = "master-control.html";
-            }, 600);
+            if (error) {
+                msg.className = "mt-6 text-xs text-center text-rose-500";
+                msg.innerText = "Error: " + error.message;
+                btn.disabled = false;
+                btn.innerText = "SEND MAGIC LINK";
+            } else {
+                msg.className = "mt-6 text-xs text-center text-emerald-500";
+                msg.innerText = "Success! Check your email for the secure link.";
+                btn.innerText = "LINK SENT";
+            }
         }
     </script>
 </body>
