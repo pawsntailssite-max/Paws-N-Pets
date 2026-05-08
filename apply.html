@@ -13,10 +13,9 @@
     <div class="max-w-xl mx-auto bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
         
         <div class="text-center mb-10">
-            <!-- Replaced Paw Icon with Logo.jpg -->
             <img src="Logo.jpg" alt="Logo" class="w-16 h-16 rounded-2xl object-cover mx-auto mb-4 shadow-lg shadow-blue-200 border border-slate-100">
-            <!-- Replaced GET STARTED -->
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">PAWS_N_TAILS</h2>
+            <!-- Surgical Change: PAWS-N-TAILS -->
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">PAWS-N-TAILS</h2>
             <p class="text-slate-500 font-medium mt-1">Request your Veterinarian Portal access</p>
         </div>
 
@@ -59,7 +58,6 @@
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
                 <div class="relative mt-1">
                     <i class="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <!-- Enforces exactly 10 digits -->
                     <input type="tel" id="mobile" required placeholder="10-digit mobile number" 
                            pattern="[0-9]{10}" title="Please enter exactly 10 digits"
                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
@@ -81,7 +79,6 @@
     </div>
 
     <script>
-        // Supabase Init
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
@@ -92,16 +89,13 @@
         form.onsubmit = async (e) => {
             e.preventDefault();
             
-            // UI Loading State
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> SENDING...`;
 
-            // Data Generation Logic
             const userIdClean = document.getElementById('userId').value.toLowerCase().trim();
             const generatedApiKey = 'PK-' + Math.random().toString(36).substr(2, 8).toUpperCase();
             const generatedSchema = 'clinic_' + userIdClean.replace(/[^a-z0-9]/g, '_');
             
-            // Generate Expiry Date (1 Year Ahead, Format: DD/MM/YYYY)
             const d = new Date();
             d.setFullYear(d.getFullYear() + 1);
             const day = String(d.getDate()).padStart(2, '0');
@@ -134,7 +128,6 @@
                 window.location.replace("index.html");
 
             } catch (err) {
-                // If Supabase throws a Date Format error, it's usually because the column expects YYYY-MM-DD format.
                 alert("Request Failed: " + err.message);
             } finally {
                 btn.disabled = false;
