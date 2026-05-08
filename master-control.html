@@ -8,119 +8,98 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        [v-cloak] { display: none; }
-        body { opacity: 0; transition: opacity 0.5s ease-in; }
-        body.authorized { opacity: 1; }
+        body { visibility: hidden; background-color: #020617; }
+        body.authorized { visibility: visible; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-200 min-h-screen p-6 font-sans">
+<body class="text-slate-200 min-h-screen p-6 font-sans">
 
     <div class="max-w-7xl mx-auto">
-        <!-- Dashboard Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 border-b border-slate-800 pb-8">
             <div>
                 <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase text-blue-500">Master Control</h1>
-                <p class="text-slate-400 font-medium tracking-wide">Paws-N-Tails SaaS Client Management</p>
+                <p class="text-slate-400 font-medium">SaaS Client Management</p>
             </div>
             <div class="flex items-center gap-4">
                 <button onclick="logoutAdmin()" class="text-xs font-bold text-slate-500 hover:text-rose-500 uppercase tracking-widest transition-colors">
                     <i class="fa-solid fa-power-off mr-2"></i>Logout
                 </button>
-                <div class="flex items-center gap-3 bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <div class="h-3 w-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span class="text-sm font-bold uppercase tracking-widest text-slate-300">Admin Verified</span>
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-sm font-bold uppercase tracking-widest text-emerald-400">Admin Verified</span>
                 </div>
             </div>
         </div>
 
-        <!-- Stats Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Clinics</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Clinics</p>
                 <h2 id="count-total" class="text-4xl font-black text-white">0</h2>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-emerald-500">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active Licenses</p>
-                <h2 id="count-active" class="text-4xl font-black text-white text-emerald-400">0</h2>
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-emerald-500 text-center">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active</p>
+                <h2 id="count-active" class="text-4xl font-black text-emerald-400">0</h2>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-rose-500">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-rose-500 text-center">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Suspended</p>
-                <h2 id="count-suspended" class="text-4xl font-black text-white text-rose-400">0</h2>
+                <h2 id="count-suspended" class="text-4xl font-black text-rose-400">0</h2>
             </div>
         </div>
 
-        <!-- Main Table Container -->
         <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-800/50 border-b border-slate-700">
-                        <tr class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-                            <th class="px-6 py-5">Clinic Details</th>
-                            <th class="px-6 py-5">Status</th>
-                            <th class="px-6 py-5">License Key</th>
-                            <th class="px-6 py-5">Expiry</th>
-                            <th class="px-6 py-5 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientTableBody" class="divide-y divide-slate-800">
-                        <tr><td colspan="5" class="p-10 text-center text-slate-500 italic">Accessing secure database...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <table class="w-full text-left">
+                <thead class="bg-slate-800/50 border-b border-slate-700">
+                    <tr class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                        <th class="px-6 py-5">Clinic</th>
+                        <th class="px-6 py-5">Status</th>
+                        <th class="px-6 py-5">License Key</th>
+                        <th class="px-6 py-5">Expiry</th>
+                        <th class="px-6 py-5 text-right">Control</th>
+                    </tr>
+                </thead>
+                <tbody id="clientTableBody" class="divide-y divide-slate-800">
+                    <tr><td colspan="5" class="p-10 text-center text-slate-500 italic font-mono">Verifying credentials...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // 1. CONFIGURATION
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
-        const ADMIN_EMAIL = 'your-email@example.com'; // CRITICAL: Change this to your email
+        
+        // --- CHANGE THIS TO YOUR ACTUAL EMAIL ---
+        const ADMIN_EMAIL = 'your-email@example.com'; 
 
-        // Initialize Admin Client
-        const supabaseAdmin = supabase.createClient(SB_URL, SB_SERVICE_KEY, {
-            auth: { autoRefreshToken: true, persistSession: true }
-        });
+        const supabaseAdmin = supabase.createClient(SB_URL, SB_SERVICE_KEY);
 
-        // 2. SECURITY GUARD (MAGIC LINK CHECK)
-        async function checkAdminAuth() {
-            const { data: { user }, error } = await supabaseAdmin.auth.getUser();
-
-            if (!user || user.email !== ADMIN_EMAIL) {
-                console.warn("Unauthorized access attempt.");
-                window.location.href = "admin-login.html";
-            } else {
+        async function init() {
+            // Check session immediately
+            const { data: { session } } = await supabaseAdmin.auth.getSession();
+            
+            if (session && session.user.email === ADMIN_EMAIL) {
                 document.body.classList.add('authorized');
-                fetchClients(); // Only load data if authorized
+                fetchClients();
+            } else {
+                // Not logged in or wrong email? Boot them.
+                window.location.href = "admin-login.html";
             }
         }
 
-        // 3. DATA MANAGEMENT FUNCTIONS
         async function fetchClients() {
             try {
-                const { data, error } = await supabaseAdmin
-                    .from('master_control')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
+                const { data, error } = await supabaseAdmin.from('master_control').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
 
-                // Update Stats UI
                 document.getElementById('count-total').innerText = data.length;
                 document.getElementById('count-active').innerText = data.filter(c => c.reg_status === 'Active').length;
                 document.getElementById('count-suspended').innerText = data.filter(c => c.reg_status === 'Suspended').length;
 
                 const tbody = document.getElementById('clientTableBody');
-                if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-500">No applications found.</td></tr>`;
-                    return;
-                }
-
                 tbody.innerHTML = data.map(client => `
                     <tr class="hover:bg-slate-800/40 transition-all border-b border-slate-800/50">
                         <td class="px-6 py-5">
-                            <div class="text-white font-bold text-lg">${client.client_name}</div>
-                            <div class="text-xs text-slate-500 font-mono">ID: ${client.user_id}</div>
-                            <div class="text-[10px] text-blue-400 mt-1">${client.email}</div>
+                            <div class="text-white font-bold text-lg leading-tight">${client.client_name}</div>
+                            <div class="text-[10px] text-slate-500 font-mono">UID: ${client.user_id}</div>
                         </td>
                         <td class="px-6 py-5">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(client.reg_status)}">
@@ -128,74 +107,45 @@
                             </span>
                         </td>
                         <td class="px-6 py-5">
-                            <code class="bg-black/40 px-2 py-1 rounded text-emerald-400 text-xs font-mono border border-emerald-500/20">
-                                ${client.api_key || 'UNASSIGNED'}
+                            <code class="bg-black/40 px-2 py-1 rounded text-emerald-400 text-xs font-mono">
+                                ${client.api_key || 'WAITING'}
                             </code>
                         </td>
                         <td class="px-6 py-5 text-sm font-bold text-slate-400">
-                            ${client.expiry_date ? formatDate(client.expiry_date) : '---'}
+                            ${client.expiry_date || '---'}
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex justify-end gap-2">
-                                <button onclick="approve('${client.id}', '${client.user_id}')" 
-                                    class="bg-emerald-600 hover:bg-emerald-500 text-white p-2.5 rounded-xl transition-all active:scale-90 shadow-lg" title="Approve">
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-                                <button onclick="suspend('${client.id}')" 
-                                    class="bg-rose-600 hover:bg-rose-500 text-white p-2.5 rounded-xl transition-all active:scale-90 shadow-lg" title="Suspend Access">
-                                    <i class="fa-solid fa-ban"></i>
-                                </button>
+                                <button onclick="approve('${client.id}', '${client.user_id}')" class="bg-emerald-600 p-2.5 rounded-xl hover:bg-emerald-500"><i class="fa-solid fa-check"></i></button>
+                                <button onclick="suspend('${client.id}')" class="bg-rose-600 p-2.5 rounded-xl hover:bg-rose-500"><i class="fa-solid fa-ban"></i></button>
                             </div>
                         </td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                console.error("Fetch error:", err.message);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function approve(id, userId) {
-            if(!confirm("Approve this clinic and generate a 1-year License Key?")) return;
-            
+            if(!confirm("Approve access?")) return;
             const newKey = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
-            const expDate = new Date();
-            expDate.setDate(expDate.getDate() + 365);
+            const exp = new Date(); exp.setDate(exp.getDate() + 365);
 
-            const { error } = await supabaseAdmin
-                .from('master_control')
-                .update({
-                    api_key: newKey,
-                    reg_status: 'Active',
-                    expiry_date: expDate.toISOString().split('T')[0],
-                    db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
-                })
-                .eq('id', id);
-
-            if (error) alert("Error: " + error.message);
-            else fetchClients();
+            await supabaseAdmin.from('master_control').update({
+                api_key: newKey, reg_status: 'Active',
+                expiry_date: exp.toISOString().split('T')[0],
+                db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+            }).eq('id', id);
+            fetchClients();
         }
 
         async function suspend(id) {
-            if(!confirm("WARNING: This will instantly lock the clinic out of the system. Proceed?")) return;
-            const { error } = await supabaseAdmin
-                .from('master_control')
-                .update({ reg_status: 'Suspended' })
-                .eq('id', id);
-            
-            if (error) alert("Error: " + error.message);
-            else fetchClients();
+            if(!confirm("Suspend access?")) return;
+            await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
+            fetchClients();
         }
 
-        // 4. HELPERS
         function getStatusColor(status) {
-            if(status === 'Active') return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
-            if(status === 'Suspended') return 'bg-rose-500/10 text-rose-400 border border-rose-500/30';
-            return 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
-        }
-
-        function formatDate(d) {
-            const date = new Date(d);
-            return date.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            return status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400';
         }
 
         async function logoutAdmin() {
@@ -203,8 +153,7 @@
             window.location.href = "admin-login.html";
         }
 
-        // Run security check on load
-        checkAdminAuth();
+        init();
     </script>
 </body>
 </html>
