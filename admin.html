@@ -3,303 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | PAWS-N-TAILS</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Admin Gateway | PAWS-N-TAILS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { display: none; } /* Hidden until Gatekeeper clears access */
-        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
-    </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800">
-
-    <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="bg-blue-600 p-2 rounded-lg text-white"><i class="fa-solid fa-paw text-xl"></i></div>
-            <h1 class="text-xl font-bold tracking-tight text-slate-900">PAWS-N-TAILS Admin</h1>
+<body class="bg-slate-950 flex items-center justify-center min-h-screen text-slate-200">
+    <div class="max-w-md w-full p-8 bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl">
+        <div class="text-center mb-8">
+            <div class="text-blue-500 mb-2"><i class="fa-solid fa-shield-halved text-5xl"></i></div>
+            <h1 class="text-2xl font-black uppercase tracking-tighter italic">Master Control</h1>
+            <p class="text-slate-500 text-sm">Secure Admin Gateway</p>
         </div>
-        <div class="flex items-center gap-6">
-            <a href="dashboard.html" class="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wider flex items-center gap-2">
-                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-            </a>
-            <span id="adminName" class="text-xs font-bold text-slate-500 uppercase tracking-widest border-l pl-6 border-slate-200"></span>
-            <button onclick="handleLogout()" class="text-[10px] font-bold bg-slate-100 border border-slate-200 px-3 py-1.5 rounded hover:bg-red-50 hover:text-red-600 transition-all uppercase">Logout</button>
-        </div>
-    </nav>
-
-    <main class="max-w-7xl mx-auto p-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 text-sm items-center">
-            <div class="flex-1 min-w-[250px] relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search members, emails, or business..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Admin Email</label>
+                <input type="email" id="adminEmail" placeholder="admin@pawsntails.com" 
+                       class="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-blue-500 transition-all text-white">
             </div>
             
-            <select id="filterType" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white font-medium text-slate-600">
-                <option value="all">All Roles</option>
-                <option value="member">Member</option>
-                <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
-            </select>
-
-            <select id="filterStatus" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white font-medium text-slate-600">
-                <option value="all">All Status</option>
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-            </select>
-
-            <select id="filterActive" onchange="filterTable()" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white font-medium text-slate-600">
-                <option value="all">All Activity</option>
-                <option value="true">Active Only</option>
-                <option value="false">Inactive Only</option>
-            </select>
+            <button onclick="requestMagicLink()" id="reqBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                SEND MAGIC LINK
+            </button>
         </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 border-b border-slate-200">
-                    <tr>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Member</th>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Business Info</th>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs">Status</th>
-                        <th class="p-4 font-semibold text-slate-600 uppercase text-xs text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="divide-y divide-slate-100">
-                    <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">Fetching records...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <div id="editModal" class="modal">
-        <div class="bg-white max-w-5xl mx-auto my-10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-20">
-                <div class="flex items-center gap-4">
-                    <img id="modalProfilePicPreview" src="" class="w-14 h-14 rounded-full object-cover border-2 border-blue-100 shadow-sm" onerror="this.src='https://via.placeholder.com/150'">
-                    <h2 class="text-xl font-bold text-slate-800">Master Record Edit</h2>
-                </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
-            </div>
-            <div class="p-8 overflow-y-auto bg-slate-50/50">
-                <div class="mb-6 bg-white p-4 rounded-xl border border-slate-200 text-center">
-                    <input type="file" id="fileUpload" accept="image/*" class="text-xs">
-                </div>
-                <form id="editForm" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <input type="hidden" id="editId">
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">1. Title</label><input type="text" id="editTitle" class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">2. First Name</label><input type="text" id="editFirstName" class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">3. Last Name</label><input type="text" id="editLastName" class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">4. Email</label><input type="email" id="editEmail" disabled class="w-full p-2 border rounded text-sm bg-slate-100"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">5. Mobile</label><input type="text" id="editMobile" class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">6. DOB</label><input type="date" id="editDob" class="w-full p-2 border rounded text-sm"></div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">7. Business Name</label><input type="text" id="editClinic" class="w-full p-2 border rounded text-sm"></div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold text-slate-400 uppercase">8. Address</label><input type="text" id="editAddress" class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">9. City</label><input type="text" id="editCity" class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">10. State</label><input type="text" id="editState" class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">11. Pincode</label><input type="text" id="editPincode" class="w-full p-2 border rounded text-sm"></div>
-                    
-                    <div class="bg-blue-50 p-2 rounded"><label class="text-[10px] font-bold text-blue-600">12. User Type</label><select id="editUserType" class="w-full p-2 border rounded text-sm"><option value="member">Member</option><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
-                    <div class="bg-blue-50 p-2 rounded"><label class="text-[10px] font-bold text-blue-600">13. Expiry</label><input type="date" id="editExpiry" class="w-full p-2 border rounded text-sm"></div>
-                    <div class="bg-blue-50 p-2 rounded"><label class="text-[10px] font-bold text-blue-600">14. Status</label><select id="editStatus" class="w-full p-2 border rounded text-sm"><option value="Pending">Pending</option><option value="Approved">Approved</option></select></div>
-                    <div class="bg-blue-50 p-2 rounded"><label class="text-[10px] font-bold text-blue-600">15. Active</label><select id="editIsActive" class="w-full p-2 border rounded text-sm"><option value="true">Active</option><option value="false">Inactive</option></select></div>
-                </form>
-            </div>
-            <div class="p-6 border-t bg-white flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-5 py-2 text-sm font-bold text-slate-500">Cancel</button>
-                <button id="saveBtn" onclick="saveEdit()" class="px-8 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-lg">Save Changes</button>
-            </div>
-        </div>
+        
+        <p id="msg" class="mt-6 text-xs text-center font-medium"></p>
     </div>
 
     <script>
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-        let allApplications = [];
 
-        // GATEKEEPER: THE FINAL WALL
-        async function gatekeeper() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.replace("index.html"); return; }
+        async function requestMagicLink() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const btn = document.getElementById('reqBtn');
+            const msg = document.getElementById('msg');
 
-            const { data: profile } = await supabaseClient.from('applications').select('*').eq('email', user.email).single();
-            
-            // STRICT CHECK: Approved + Active + Admin (Added fallback to empty string if status is null)
-            const userStatus = profile && profile.status ? profile.status.toLowerCase() : '';
-            if (!profile || profile.user_type !== 'admin' || userStatus !== 'approved' || profile.is_active !== true) {
-                alert("UNAUTHORIZED ACCESS: Admin, Approved, and Active status required.");
-                window.location.replace("index.html");
+            if(!email) { alert("Please enter your email"); return; }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>SENDING...';
+
+            const { error } = await supabaseClient.auth.signInWithOtp({
+                email: email,
+                options: {
+                    // This tells Supabase where to send you after you click the link
+                    emailRedirectTo: window.location.origin + '/master-control.html'
+                }
+            });
+
+            if (error) {
+                msg.className = "mt-6 text-xs text-center text-rose-500";
+                msg.innerText = "Error: " + error.message;
+                btn.disabled = false;
+                btn.innerText = "SEND MAGIC LINK";
             } else {
-                document.body.style.display = 'block';
-                document.getElementById('adminName').innerText = profile.first_name;
-                loadData();
+                msg.className = "mt-6 text-xs text-center text-emerald-500";
+                msg.innerText = "Success! Check your email for the secure link.";
+                btn.innerText = "LINK SENT";
             }
         }
-        gatekeeper();
-
-        async function loadData() {
-            const { data, error } = await supabaseClient.from('applications').select('*').order('created_at', { ascending: false });
-            if (!error) { 
-                allApplications = data; 
-                renderTable(data); 
-            }
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = "";
-            
-            if(data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-400 italic">No records found matching your filters.</td></tr>`;
-                return;
-            }
-
-            data.forEach(app => {
-                // BUG FIX: Provide a default fallback to 'Pending' if status is missing in the database
-                const displayStatus = app.status || 'Pending';
-                const isApproved = displayStatus.toLowerCase() === 'approved';
-                const profileImg = app.profile_url || 'https://via.placeholder.com/150';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100 transition">
-                        <td class="p-4">
-                            <div class="flex items-center gap-3">
-                                <img src="${profileImg}" class="w-10 h-10 rounded-full object-cover border border-slate-200" onerror="this.src='https://via.placeholder.com/150'">
-                                <div>
-                                    <div class="font-bold text-slate-900">${app.title || ''} ${app.first_name} ${app.last_name}</div>
-                                    <div class="text-[10px] text-slate-400 uppercase font-black">${app.user_type || 'Unknown'}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-4"><div class="text-sm font-semibold">${app.clinic_name || 'N/A'}</div><div class="text-[10px] text-slate-400">${app.email}</div></td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${isApproved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${displayStatus}</span>
-                            <span class="ml-1 text-[10px] font-bold ${app.is_active ? 'text-blue-500' : 'text-slate-300'}">${app.is_active ? 'Active' : 'Inactive'}</span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-3">
-                                <button onclick="openEditModal('${app.id}')" class="text-blue-500 hover:text-blue-700 transition" title="Edit Record">
-                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
-                                </button>
-                                <button onclick="deleteRecord('${app.id}')" class="text-red-400 hover:text-red-600 transition" title="Delete Record">
-                                    <i class="fa-solid fa-trash-can text-lg"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>`;
-            });
-        }
-
-        // FULLY FUNCTIONAL FILTER LOGIC
-        function filterTable() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-            const typeFilter = document.getElementById('filterType').value;
-            const statusFilter = document.getElementById('filterStatus').value;
-            const activeFilter = document.getElementById('filterActive').value;
-
-            const filteredData = allApplications.filter(app => {
-                // 1. Search filter (checks name, email, and business)
-                const searchString = `${app.first_name} ${app.last_name} ${app.email} ${app.clinic_name}`.toLowerCase();
-                const matchesSearch = searchString.includes(searchQuery);
-
-                // 2. Type filter
-                const matchesType = typeFilter === 'all' || (app.user_type && app.user_type.toLowerCase() === typeFilter);
-
-                // 3. Status filter (with fallback for missing statuses)
-                const appStatus = (app.status || 'Pending').toLowerCase();
-                const matchesStatus = statusFilter === 'all' || appStatus === statusFilter;
-
-                // 4. Active filter
-                const isActiveStr = app.is_active ? "true" : "false";
-                const matchesActive = activeFilter === 'all' || isActiveStr === activeFilter;
-
-                return matchesSearch && matchesType && matchesStatus && matchesActive;
-            });
-
-            renderTable(filteredData);
-        }
-
-        // DELETE FUNCTIONALITY
-        async function deleteRecord(id) {
-            if(confirm("Are you sure you want to completely delete this record? This action cannot be undone.")) {
-                const { error } = await supabaseClient.from('applications').delete().eq('id', id);
-                if(!error) {
-                    loadData(); // Refresh the table
-                } else {
-                    alert("Error deleting record: " + error.message);
-                }
-            }
-        }
-
-        function openEditModal(id) {
-            const app = allApplications.find(a => a.id === id);
-            document.getElementById('editId').value = app.id;
-            document.getElementById('modalProfilePicPreview').src = app.profile_url || '';
-            document.getElementById('editTitle').value = app.title || '';
-            document.getElementById('editFirstName').value = app.first_name || '';
-            document.getElementById('editLastName').value = app.last_name || '';
-            document.getElementById('editEmail').value = app.email || '';
-            document.getElementById('editMobile').value = app.mobile_number || '';
-            document.getElementById('editDob').value = app.dob || '';
-            document.getElementById('editClinic').value = app.clinic_name || '';
-            document.getElementById('editAddress').value = app.address || '';
-            document.getElementById('editCity').value = app.city || '';
-            document.getElementById('editState').value = app.state || '';
-            document.getElementById('editPincode').value = app.pincode || '';
-            document.getElementById('editUserType').value = app.user_type || 'member';
-            document.getElementById('editExpiry').value = app.expiry_date || '';
-            document.getElementById('editStatus').value = app.status || 'Pending';
-            document.getElementById('editIsActive').value = app.is_active === true ? "true" : "false";
-            document.getElementById('editModal').style.display = 'block';
-        }
-
-        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
-
-        async function saveEdit() {
-            const btn = document.getElementById('saveBtn');
-            const id = document.getElementById('editId').value;
-            const file = document.getElementById('fileUpload').files[0];
-            btn.disabled = true; btn.innerText = "Saving...";
-
-            let updateData = {
-                title: document.getElementById('editTitle').value,
-                first_name: document.getElementById('editFirstName').value,
-                last_name: document.getElementById('editLastName').value,
-                mobile_number: document.getElementById('editMobile').value,
-                dob: document.getElementById('editDob').value || null,
-                clinic_name: document.getElementById('editClinic').value,
-                address: document.getElementById('editAddress').value,
-                city: document.getElementById('editCity').value,
-                state: document.getElementById('editState').value,
-                pincode: document.getElementById('editPincode').value,
-                user_type: document.getElementById('editUserType').value,
-                expiry_date: document.getElementById('editExpiry').value || null,
-                status: document.getElementById('editStatus').value,
-                is_active: document.getElementById('editIsActive').value === "true"
-            };
-
-            if (file) {
-                const fileName = `${id}_${Date.now()}`;
-                const { error: upErr } = await supabaseClient.storage.from('profiles').upload(fileName, file);
-                if (!upErr) {
-                    const { data: pub } = supabaseClient.storage.from('profiles').getPublicUrl(fileName);
-                    updateData.profile_url = pub.publicUrl;
-                    updateData.profile_picture = pub.publicUrl;
-                }
-            }
-
-            const { error } = await supabaseClient.from('applications').update(updateData).eq('id', id);
-            if (!error) { 
-                closeModal(); 
-                loadData(); // Automatically refreshes the table to reflect edits
-            } else { 
-                alert(error.message); 
-            }
-            btn.disabled = false; btn.innerText = "Save Changes";
-        }
-
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.replace("index.html"); }
     </script>
 </body>
 </html>
