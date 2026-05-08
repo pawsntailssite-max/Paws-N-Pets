@@ -14,43 +14,56 @@
         <div class="text-center mb-8">
             <div class="text-blue-600 mb-2"><i class="fa-solid fa-paw text-5xl"></i></div>
             <h2 class="text-2xl font-bold text-slate-800 uppercase tracking-tight">Paws-N-Tails</h2>
-            <p class="text-slate-500">Member Access</p>
+            <p class="text-slate-500 font-medium">Member Access</p>
         </div>
 
         <form id="loginForm" class="space-y-4">
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Unique User ID</label>
-                <input type="text" id="userId" placeholder="e.g. happypaws01" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="userId" placeholder="e.g. happypaws01" required 
+                       class="w-full p-2.5 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-all">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">License Key</label>
-                <input type="password" id="licenseKey" placeholder="PK-XXXX-XXXX" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="licenseKey" placeholder="PK-XXXX-XXXX" required 
+                       class="w-full p-2.5 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-all">
             </div>
 
-            <button type="submit" id="authBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95">
+            <button type="submit" id="authBtn" 
+                    class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95">
                 SIGN IN
             </button>
         </form>
 
-        <div class="mt-6 text-center">
-            <a href="apply.html" class="text-sm text-slate-500 hover:text-blue-600">Need a license? Apply here</a>
+        <div class="mt-6 text-center border-t border-slate-100 pt-6">
+            <a href="apply.html" class="text-sm text-slate-400 hover:text-blue-600 font-medium transition-colors">
+                Need a license? Apply here
+            </a>
         </div>
     </div>
 
     <script>
-        // CONFIGURATION
+        // 1. CONFIGURATION
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd'; // Standard Public Key
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd'; 
+
+        // 2. INITIALIZATION (With Fail-safe)
+        let supabaseClient;
+        try {
+            supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+            console.log("Login initialized successfully.");
+        } catch (e) {
+            console.error("Supabase load error:", e);
+        }
 
         const loginForm = document.getElementById('loginForm');
         const authBtn = document.getElementById('authBtn');
 
+        // 3. LOGIN LOGIC
         loginForm.onsubmit = async (e) => {
             e.preventDefault();
             
-            // UI Feedback
             authBtn.disabled = true;
             authBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> VERIFYING...';
 
@@ -58,8 +71,7 @@
             const license_key_input = document.getElementById('licenseKey').value.trim();
 
             try {
-                // 1. Query the master_control table
-                // We use the public client here, so RLS must allow SELECT for this to work
+                // Query master_control for the match
                 const { data, error } = await supabaseClient
                     .from('master_control')
                     .select('*')
@@ -68,22 +80,19 @@
                     .single();
 
                 if (error || !data) {
-                    throw new Error("Invalid User ID or License Key.");
+                    throw new Error("Invalid Credentials. Check your User ID and Key.");
                 }
 
-                // 2. Check Account Status
                 if (data.reg_status !== 'Active') {
-                    throw new Error(`Your account is currently ${data.reg_status}.`);
+                    throw new Error(`Access Denied: Account is ${data.reg_status}.`);
                 }
 
-                // 3. Check Expiry
-                const today = new Date();
-                const expiry = new Date(data.expiry_date);
-                if (today > expiry) {
-                    throw new Error("Your license has expired. Please renew in Master Control.");
+                // Check Expiry
+                if (data.expiry_date && new Date() > new Date(data.expiry_date)) {
+                    throw new Error("Access Expired. Please contact support.");
                 }
 
-                // 4. SUCCESS: Store the session
+                // Save Session
                 localStorage.setItem('paws_session', JSON.stringify({
                     clinicName: data.client_name,
                     userId: data.user_id,
@@ -91,7 +100,7 @@
                     license: data.api_key
                 }));
 
-                // 5. REDIRECT
+                // Go to Dashboard
                 window.location.href = "navigation.html";
 
             } catch (err) {
