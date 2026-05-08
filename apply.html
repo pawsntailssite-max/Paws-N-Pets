@@ -13,10 +13,10 @@
     <div class="max-w-xl mx-auto bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
         
         <div class="text-center mb-10">
-            <div class="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
-                <i class="fa-solid fa-paw text-white text-3xl"></i>
-            </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">GET STARTED</h2>
+            <!-- Replaced Paw Icon with Logo.jpg -->
+            <img src="Logo.jpg" alt="Logo" class="w-16 h-16 rounded-2xl object-cover mx-auto mb-4 shadow-lg shadow-blue-200 border border-slate-100">
+            <!-- Replaced GET STARTED -->
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">PAWS_N_TAILS</h2>
             <p class="text-slate-500 font-medium mt-1">Request your Veterinarian Portal access</p>
         </div>
 
@@ -54,6 +54,18 @@
                 </div>
             </div>
 
+            <!-- Mobile Number -->
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
+                <div class="relative mt-1">
+                    <i class="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <!-- Enforces exactly 10 digits -->
+                    <input type="tel" id="mobile" required placeholder="10-digit mobile number" 
+                           pattern="[0-9]{10}" title="Please enter exactly 10 digits"
+                           class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+            </div>
+
             <div class="pt-6">
                 <button type="submit" id="submitBtn" 
                         class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-slate-200 uppercase tracking-widest text-sm">
@@ -84,16 +96,33 @@
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> SENDING...`;
 
+            // Data Generation Logic
+            const userIdClean = document.getElementById('userId').value.toLowerCase().trim();
+            const generatedApiKey = 'PK-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+            const generatedSchema = 'clinic_' + userIdClean.replace(/[^a-z0-9]/g, '_');
+            
+            // Generate Expiry Date (1 Year Ahead, Format: DD/MM/YYYY)
+            const d = new Date();
+            d.setFullYear(d.getFullYear() + 1);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const expiryFormatted = `${day}/${month}/${year}`;
+
             const payload = {
                 client_name: document.getElementById('clientName').value,
-                user_id: document.getElementById('userId').value.toLowerCase().trim(),
+                user_id: userIdClean,
                 email: document.getElementById('email').value.toLowerCase().trim(),
-                reg_status: 'Pending'
+                mobile: document.getElementById('mobile').value.trim(),
+                api_key: generatedApiKey,
+                db_schema: generatedSchema,
+                reg_status: 'Pending',
+                expiry_date: expiryFormatted
             };
 
             try {
                 const { error } = await supabaseClient
-                    .from('master_control') // Pointing to your new command table
+                    .from('master_control')
                     .insert([payload]);
 
                 if (error) {
@@ -105,6 +134,7 @@
                 window.location.replace("index.html");
 
             } catch (err) {
+                // If Supabase throws a Date Format error, it's usually because the column expects YYYY-MM-DD format.
                 alert("Request Failed: " + err.message);
             } finally {
                 btn.disabled = false;
