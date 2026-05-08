@@ -8,9 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Hidden by default to prevent unauthorized flickering */
-        body { visibility: hidden; background-color: #020617; }
-        body.authorized { visibility: visible; }
+        /* Forced visible for bypass mode */
+        body { visibility: visible; background-color: #020617; }
         
         .glass-panel {
             background: rgba(15, 23, 42, 0.8);
@@ -26,14 +25,14 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 border-b border-slate-800 pb-8">
             <div>
                 <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase text-blue-500">Master Control</h1>
-                <p class="text-slate-400 font-medium">SaaS Client Management</p>
+                <p class="text-slate-400 font-medium">SaaS Client Management (Bypass Mode)</p>
             </div>
             <div class="flex items-center gap-4">
                 <button onclick="logoutAdmin()" class="text-xs font-bold text-slate-500 hover:text-rose-500 uppercase tracking-widest transition-colors">
-                    <i class="fa-solid fa-power-off mr-2"></i>Logout
+                    <i class="fa-solid fa-power-off mr-2"></i>Exit
                 </button>
                 <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <span class="text-sm font-bold uppercase tracking-widest text-emerald-400">Admin Verified</span>
+                    <span class="text-sm font-bold uppercase tracking-widest text-emerald-400">Admin Bypass Active</span>
                 </div>
             </div>
         </div>
@@ -67,59 +66,22 @@
                     </tr>
                 </thead>
                 <tbody id="clientTableBody" class="divide-y divide-slate-800">
-                    <tr><td colspan="5" class="p-10 text-center text-slate-500 italic font-mono">Initializing secure connection...</td></tr>
+                    <tr><td colspan="5" class="p-10 text-center text-slate-500 italic font-mono">Loading management table...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Supabase Configuration
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
-        const SB_ANON_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-        // Note: Using Service Key on the frontend is insecure for production. 
-        // Consider moving database updates to Edge Functions in the future.
         const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
         
-        // --- !!! REQUIRED: Update this to match your login email exactly !!! ---
-        const ADMIN_EMAIL = 'admin@pawsntails.com'; 
-
-        // Primary client for Auth
-        const supabase = window.supabase.createClient(SB_URL, SB_ANON_KEY);
-        // Admin client for database overrides
+        // Admin client using service key to bypass Row Level Security
         const supabaseAdmin = window.supabase.createClient(SB_URL, SB_SERVICE_KEY);
 
         async function init() {
-            console.log("Checking authorization...");
-            
-            // 1. Check for an existing session
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (session && session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                authorize();
-            } else {
-                // 2. Listen for the Magic Link login event
-                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-                    if (newSession && newSession.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                        authorize();
-                        subscription.unsubscribe(); 
-                    } else if (event === 'SIGNED_OUT') {
-                        window.location.href = "admin-login.html";
-                    }
-                });
-
-                // 3. Fail-safe: Redirect to login if not authorized within 4 seconds
-                setTimeout(() => {
-                    if (!document.body.classList.contains('authorized')) {
-                        console.warn("Auth timeout: Redirecting to login.");
-                        window.location.href = "admin-login.html";
-                    }
-                }, 4000);
-            }
-        }
-
-        function authorize() {
-            document.body.classList.add('authorized');
+            console.log("Master Control initialized in bypass mode.");
+            // We skip all auth checks and go straight to fetching data
             fetchClients();
         }
 
@@ -132,47 +94,43 @@
 
                 if (error) throw error;
 
-                // Update Metric Counters
                 document.getElementById('count-total').innerText = data.length;
                 document.getElementById('count-active').innerText = data.filter(c => c.reg_status === 'Active').length;
                 document.getElementById('count-suspended').innerText = data.filter(c => c.reg_status === 'Suspended').length;
 
                 const tbody = document.getElementById('clientTableBody');
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No registered clinics found.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No clinics registered in the database.</td></tr>';
                     return;
                 }
 
-                // Render Table Rows
                 tbody.innerHTML = data.map(client => `
                     <tr class="hover:bg-slate-800/40 transition-all border-b border-slate-800/50">
                         <td class="px-6 py-5">
-                            <div class="text-white font-bold text-lg leading-tight">${client.client_name}</div>
+                            <div class="text-white font-bold text-lg leading-tight">${client.client_name || 'Unnamed Clinic'}</div>
                             <div class="text-[10px] text-slate-500 font-mono mt-1">UID: ${client.user_id}</div>
                         </td>
                         <td class="px-6 py-5">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(client.reg_status)}">
-                                ${client.reg_status}
+                                ${client.reg_status || 'Pending'}
                             </span>
                         </td>
                         <td class="px-6 py-5">
                             <code class="bg-black/40 px-2 py-1 rounded text-emerald-400 text-xs font-mono border border-emerald-500/20">
-                                ${client.api_key || 'PENDING_APPROVAL'}
+                                ${client.api_key || 'NONE'}
                             </code>
                         </td>
                         <td class="px-6 py-5 text-sm font-bold text-slate-400">
-                            ${client.expiry_date || 'N/A'}
+                            ${client.expiry_date || '---'}
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex justify-end gap-2">
                                 <button onclick="approveClinic('${client.id}', '${client.user_id}')" 
-                                        class="bg-emerald-600 p-2.5 rounded-xl hover:bg-emerald-500 transition-all active:scale-90" 
-                                        title="Approve & Activate">
+                                        class="bg-emerald-600 p-2.5 rounded-xl hover:bg-emerald-500 transition-all active:scale-90">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
                                 <button onclick="suspendClinic('${client.id}')" 
-                                        class="bg-rose-600 p-2.5 rounded-xl hover:bg-rose-500 transition-all active:scale-90" 
-                                        title="Suspend Access">
+                                        class="bg-rose-600 p-2.5 rounded-xl hover:bg-rose-500 transition-all active:scale-90">
                                     <i class="fa-solid fa-ban"></i>
                                 </button>
                             </div>
@@ -180,57 +138,42 @@
                     </tr>
                 `).join('');
             } catch (err) {
-                console.error("Fetch Error:", err.message);
+                console.error("Data Fetch Error:", err.message);
+                document.getElementById('clientTableBody').innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500">Error connecting to database.</td></tr>`;
             }
         }
 
         async function approveClinic(id, userId) {
-            if(!confirm("Confirm activation for this clinic?")) return;
+            if(!confirm("Activate this clinic?")) return;
             
             const newKey = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
             const exp = new Date(); 
-            exp.setFullYear(exp.getFullYear() + 1); // 1-year license
+            exp.setFullYear(exp.getFullYear() + 1);
 
-            const { error } = await supabaseAdmin
-                .from('master_control')
-                .update({
-                    api_key: newKey, 
-                    reg_status: 'Active',
-                    expiry_date: exp.toISOString().split('T')[0],
-                    db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
-                })
-                .eq('id', id);
+            await supabaseAdmin.from('master_control').update({
+                api_key: newKey, 
+                reg_status: 'Active',
+                expiry_date: exp.toISOString().split('T')[0],
+                db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+            }).eq('id', id);
 
-            if (error) alert("Update failed: " + error.message);
             fetchClients();
         }
 
         async function suspendClinic(id) {
-            if(!confirm("Are you sure you want to suspend this clinic? they will lose access immediately.")) return;
-            
-            const { error } = await supabaseAdmin
-                .from('master_control')
-                .update({ reg_status: 'Suspended' })
-                .eq('id', id);
-
-            if (error) alert("Update failed: " + error.message);
+            if(!confirm("Suspend this clinic?")) return;
+            await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
             fetchClients();
         }
 
         function getStatusColor(status) {
-            switch(status) {
-                case 'Active': return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-                case 'Suspended': return 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
-                default: return 'bg-slate-800 text-slate-400';
-            }
+            return status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
         }
 
-        async function logoutAdmin() {
-            await supabase.auth.signOut();
+        function logoutAdmin() {
             window.location.href = "admin-login.html";
         }
 
-        // Run on load
         init();
     </script>
 </body>
