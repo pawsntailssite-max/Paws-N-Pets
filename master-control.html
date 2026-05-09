@@ -14,7 +14,6 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(30, 41, 59, 0.5);
         }
-        /* Modal Animation */
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -116,7 +115,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expiry Date</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expiry Date (DD/MM/YYYY)</label>
                         <input type="text" id="edit-expiry" placeholder="DD/MM/YYYY" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
                     </div>
                 </div>
@@ -134,10 +133,8 @@
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
-        
         const ADMIN_EMAIL = 'pawsntailssite@gmail.com'; 
 
-        // --- BREVO API CONFIGURATION ---
         const BREVO_API_KEY = 'xsmtpsib-31f5e8bfa6030b5ddf8291fce1aa61decc86ff4dab527004b2417afe995cd82c-lBQIDRDdp7DUR3Fa'; 
         const SENDER_EMAIL = 'pawsntailssite@gmail.com'; 
         const SENDER_NAME = 'PAWS-N-TAILS Admin';
@@ -146,6 +143,22 @@
         const supabaseAdmin = supabase.createClient(SB_URL, SB_SERVICE_KEY);
 
         let globalClientsData = []; 
+
+        // --- HELPER: DATE FORMATTING ---
+        function formatDateForDisplay(dateStr) {
+            if (!dateStr) return '---';
+            // If it's already DD/MM/YYYY, return it
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+            
+            // If it's a standard ISO date from DB (YYYY-MM-DD)
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
 
         async function init() {
             authClient.auth.onAuthStateChange(async (event, session) => {
@@ -202,7 +215,7 @@
                             </code>
                         </td>
                         <td class="px-6 py-5 text-sm font-bold text-slate-400">
-                            ${client.expiry_date || '---'}
+                            ${formatDateForDisplay(client.expiry_date)}
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex justify-end gap-2">
@@ -249,7 +262,6 @@
                         htmlContent: htmlContent
                     })
                 });
-                if (!response.ok) console.error("Brevo API Error");
             } catch (error) {
                 console.error("Fetch error sending email:", error);
             }
@@ -271,7 +283,7 @@
             }).eq('id', id);
 
             if (!error) {
-                fetchClients();
+                await fetchClients();
                 const subject = "PAWS-N-TAILS Portal - Account Activated";
                 const htmlContent = `<div style="font-family: Arial; padding: 20px; border: 1px solid #eee;"><h2>Welcome!</h2><p>Your Key: <strong>${newKey}</strong></p></div>`;
                 await sendBrevoEmail(clientEmail, clientName, subject, htmlContent);
@@ -282,7 +294,7 @@
             if(!confirm("Suspend this clinic?")) return;
             const { error } = await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
             if (!error) {
-                fetchClients();
+                await fetchClients();
                 const subject = "PAWS-N-TAILS Portal - Account Suspended";
                 const htmlContent = `<div style="font-family: Arial; padding: 20px;"><h2>Account Suspended</h2><p>Access has been revoked.</p></div>`;
                 await sendBrevoEmail(clientEmail, clientName, subject, htmlContent);
@@ -291,7 +303,7 @@
 
         // --- 4. EDIT LOGIC (FIXED) ---
         function openEditModal(id) {
-            const client = globalClientsData.find(c => c.id === id);
+            const client = globalClientsData.find(c => String(c.id) === String(id));
             if(!client) return;
 
             document.getElementById('edit-id').value = client.id;
@@ -300,7 +312,8 @@
             document.getElementById('edit-mobile').value = client.mobile || '';
             document.getElementById('edit-email').value = client.email || '';
             document.getElementById('edit-status').value = client.reg_status || 'Pending';
-            document.getElementById('edit-expiry').value = client.expiry_date || '';
+            // Show formatted date in form
+            document.getElementById('edit-expiry').value = formatDateForDisplay(client.expiry_date);
 
             document.getElementById('editModal').classList.add('modal-active');
         }
@@ -314,7 +327,6 @@
             const saveBtn = document.getElementById('saveBtn');
             const originalBtnText = saveBtn.innerText;
             
-            // Set UI to loading state
             saveBtn.innerText = "SAVING...";
             saveBtn.disabled = true;
 
@@ -326,7 +338,7 @@
                 mobile: document.getElementById('edit-mobile').value,
                 email: document.getElementById('edit-email').value,
                 reg_status: document.getElementById('edit-status').value,
-                expiry_date: document.getElementById('edit-expiry').value
+                expiry_date: document.getElementById('edit-expiry').value // Saved as entered (DD/MM/YYYY)
             };
 
             try {
@@ -337,14 +349,13 @@
                 
                 if (error) throw error;
 
-                // Success Feedback
                 alert("Client profile updated successfully!");
                 closeEditModal();
-                await fetchClients(); // Refresh table data
+                await fetchClients(); 
             } catch (err) {
                 alert("Error updating record: " + err.message);
+                console.error("Update failed:", err);
             } finally {
-                // Restore UI state
                 saveBtn.innerText = originalBtnText;
                 saveBtn.disabled = false;
             }
