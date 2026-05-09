@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* SURGICAL UPDATE: Set to display: none so the page is physically empty until authorized */
+        /* Hidden by default to prevent unauthorized flickering */
         body { display: none; background-color: #020617; }
         
         .glass-panel {
@@ -21,7 +21,7 @@
 <body class="text-slate-200 min-h-screen p-6 font-sans">
 
     <div class="max-w-7xl mx-auto">
-        <!-- Dashboard Header -->
+        <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 border-b border-slate-800 pb-8">
             <div>
                 <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase text-blue-500">Master Control</h1>
@@ -32,12 +32,12 @@
                     <i class="fa-solid fa-power-off mr-2"></i>Exit
                 </button>
                 <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <span class="text-sm font-bold uppercase tracking-widest text-emerald-400">Secure Admin Session</span>
+                    <span id="session-label" class="text-sm font-bold uppercase tracking-widest text-emerald-400">Verifying...</span>
                 </div>
             </div>
         </div>
 
-        <!-- Metric Cards -->
+        <!-- Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Clinics</p>
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        <!-- Management Table -->
+        <!-- Main Table -->
         <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-800/50 border-b border-slate-700">
@@ -66,37 +66,53 @@
                     </tr>
                 </thead>
                 <tbody id="clientTableBody" class="divide-y divide-slate-800">
-                    <tr><td colspan="5" class="p-10 text-center text-slate-500 italic font-mono">Loading management table...</td></tr>
+                    <tr><td colspan="5" class="p-10 text-center text-slate-500 italic font-mono">Syncing database...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
+        // CONFIGURATION
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
         
+        // PASTE YOUR ACTUAL EMAIL HERE (MUST BE LOWERCASE)
+        const ADMIN_EMAIL = 'your-actual-email@example.com'; 
+
         const authClient = supabase.createClient(SB_URL, SB_KEY);
         const supabaseAdmin = supabase.createClient(SB_URL, SB_SERVICE_KEY);
 
-        // SURGICAL UPDATE: Hardcode your admin email here to verify identity
-        const ADMIN_EMAIL = 'YOUR_ADMIN_EMAIL@EXAMPLE.COM';
-
         async function init() {
-            const { data: { session } } = await authClient.auth.getSession();
-            
-            // Check 1: Does a session exist?
-            // Check 2: Does the email match the Admin?
-            if (!session || session.user.email !== ADMIN_EMAIL) {
-                console.warn("Unauthorized access attempt.");
-                window.location.replace("admin-login.html");
-                return;
-            }
+            console.log("Initializing Auth Watcher...");
 
-            // All checks passed
-            document.body.style.display = 'block';
-            fetchClients();
+            // Listen for login/logout events
+            authClient.auth.onAuthStateChange(async (event, session) => {
+                console.log("Auth Event Triggered:", event);
+
+                if (session) {
+                    const userEmail = session.user.email.toLowerCase();
+                    const target = ADMIN_EMAIL.toLowerCase();
+
+                    if (userEmail === target) {
+                        console.log("Identity Verified: Welcome Admin.");
+                        document.getElementById('session-label').innerText = "Secure Admin Session";
+                        document.body.style.display = 'block';
+                        fetchClients();
+                    } else {
+                        console.error("Unauthorized Identity Detected.");
+                        alert("Access Denied: Your email is not registered as Admin.");
+                        logoutAdmin();
+                    }
+                } else {
+                    // Check if we are currently processing a magic link (it will have #access_token in URL)
+                    if (!window.location.hash.includes('access_token')) {
+                        console.warn("No session found. Redirecting...");
+                        window.location.replace("admin-login.html");
+                    }
+                }
+            });
         }
 
         async function fetchClients() {
@@ -114,7 +130,7 @@
 
                 const tbody = document.getElementById('clientTableBody');
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No clinics registered.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No clinics found in database.</td></tr>';
                     return;
                 }
 
@@ -140,11 +156,11 @@
                         <td class="px-6 py-5">
                             <div class="flex justify-end gap-2">
                                 <button onclick="approveClinic('${client.id}', '${client.user_id}')" 
-                                        class="bg-emerald-600 p-2.5 rounded-xl hover:bg-emerald-500 transition-all active:scale-90">
+                                        class="bg-emerald-600 p-2.5 rounded-xl hover:bg-emerald-500 transition-all active:scale-95 shadow-lg shadow-emerald-900/20">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
                                 <button onclick="suspendClinic('${client.id}')" 
-                                        class="bg-rose-600 p-2.5 rounded-xl hover:bg-rose-500 transition-all active:scale-90">
+                                        class="bg-rose-600 p-2.5 rounded-xl hover:bg-rose-500 transition-all active:scale-95 shadow-lg shadow-rose-900/20">
                                     <i class="fa-solid fa-ban"></i>
                                 </button>
                             </div>
@@ -152,28 +168,29 @@
                     </tr>
                 `).join('');
             } catch (err) {
-                console.error("Data Fetch Error:", err.message);
+                console.error("Database Error:", err.message);
             }
         }
 
         async function approveClinic(id, userId) {
-            if(!confirm("Activate this clinic?")) return;
+            if(!confirm("Issue license and activate this clinic?")) return;
             const newKey = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
             const exp = new Date(); 
             exp.setFullYear(exp.getFullYear() + 1);
 
-            await supabaseAdmin.from('master_control').update({
+            const { error } = await supabaseAdmin.from('master_control').update({
                 api_key: newKey, 
                 reg_status: 'Active',
                 expiry_date: exp.toISOString().split('T')[0],
                 db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
             }).eq('id', id);
 
+            if (error) alert("Error activating: " + error.message);
             fetchClients();
         }
 
         async function suspendClinic(id) {
-            if(!confirm("Suspend this clinic?")) return;
+            if(!confirm("Immediately suspend this clinic's access?")) return;
             await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
             fetchClients();
         }
