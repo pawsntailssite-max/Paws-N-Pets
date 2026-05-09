@@ -16,6 +16,12 @@
         }
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
     </style>
 </head>
 <body class="text-slate-200 min-h-screen p-6 font-sans relative">
@@ -24,15 +30,17 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 border-b border-slate-800 pb-8">
             <div>
-                <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase text-blue-500">Master Control</h1>
-                <p class="text-slate-400 font-medium">SaaS Client Management</p>
+                <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase">
+                    <span class="text-blue-500">Master</span> Control
+                </h1>
+                <p class="text-slate-400 font-medium tracking-wide">Client Management System</p>
             </div>
             <div class="flex items-center gap-4">
                 <button onclick="logoutAdmin()" class="text-xs font-bold text-slate-500 hover:text-rose-500 uppercase tracking-widest transition-colors">
-                    <i class="fa-solid fa-power-off mr-2"></i>Exit
+                    <i class="fa-solid fa-power-off mr-2"></i>Exit System
                 </button>
                 <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <span id="session-label" class="text-sm font-bold uppercase tracking-widest text-emerald-400">Verifying...</span>
+                    <span id="session-label" class="text-sm font-bold uppercase tracking-widest text-emerald-400">Verifying Session...</span>
                 </div>
             </div>
         </div>
@@ -40,11 +48,11 @@
         <!-- Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Clinics</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Records</p>
                 <h2 id="count-total" class="text-4xl font-black text-white">0</h2>
             </div>
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-emerald-500 text-center">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active Licenses</p>
                 <h2 id="count-active" class="text-4xl font-black text-emerald-400">0</h2>
             </div>
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl border-b-4 border-b-rose-500 text-center">
@@ -53,27 +61,33 @@
             </div>
         </div>
 
-        <!-- Main Table -->
+        <!-- Main Table Content -->
         <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-800/50 border-b border-slate-700">
-                    <tr class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-                        <th class="px-6 py-5">Clinic Details</th>
-                        <th class="px-6 py-5">Status</th>
-                        <th class="px-6 py-5">License Key</th>
-                        <th class="px-6 py-5">Expiry</th>
-                        <th class="px-6 py-5 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="clientTableBody" class="divide-y divide-slate-800">
-                    <tr><td colspan="5" class="p-10 text-center text-slate-500 italic font-mono">Syncing database...</td></tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-800/50 border-b border-slate-700">
+                        <tr class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                            <th class="px-6 py-5">Clinic / Business Name</th>
+                            <th class="px-6 py-5">Status</th>
+                            <th class="px-6 py-5">License Key</th>
+                            <th class="px-6 py-5">Expiry</th>
+                            <th class="px-6 py-5 text-right">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody" class="divide-y divide-slate-800">
+                        <tr>
+                            <td colspan="5" class="p-10 text-center text-slate-500 italic font-mono">
+                                <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Connecting to Secure Database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- EDIT MODAL -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div id="editModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl max-w-lg w-full p-8 relative">
             <button onclick="closeEditModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
                 <i class="fa-solid fa-xmark text-xl"></i>
@@ -84,17 +98,17 @@
                 <input type="hidden" id="edit-id">
                 
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Clinic / Business Name</label>
-                    <input type="text" id="edit-client-name" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Business Name</label>
+                    <input type="text" id="edit-client-name" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 transition-all">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contact Name</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contact Person</label>
                         <input type="text" id="edit-name" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mobile</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mobile Number</label>
                         <input type="text" id="edit-mobile" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
                     </div>
                 </div>
@@ -106,7 +120,7 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registration Status</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account Status</label>
                         <select id="edit-status" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 appearance-none">
                             <option value="Pending">Pending</option>
                             <option value="Active">Active</option>
@@ -115,21 +129,25 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expiry Date (DD/MM/YYYY)</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expiry (DD/MM/YYYY)</label>
                         <input type="text" id="edit-expiry" placeholder="DD/MM/YYYY" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
                     </div>
                 </div>
 
-                <div class="pt-4 flex gap-3">
-                    <button type="submit" id="saveBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors">SAVE CHANGES</button>
-                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors">CANCEL</button>
+                <div class="pt-6 flex gap-3">
+                    <button type="submit" id="saveBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                        SAVE SETTINGS
+                    </button>
+                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl transition-all">
+                        CANCEL
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURATION ---
+        // --- CONFIGURATION ---
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
@@ -137,7 +155,6 @@
 
         const BREVO_API_KEY = 'xsmtpsib-31f5e8bfa6030b5ddf8291fce1aa61decc86ff4dab527004b2417afe995cd82c-lBQIDRDdp7DUR3Fa'; 
         const SENDER_EMAIL = 'pawsntailssite@gmail.com'; 
-        const SENDER_NAME = 'PAWS-N-TAILS Admin';
 
         const authClient = supabase.createClient(SB_URL, SB_KEY);
         const supabaseAdmin = supabase.createClient(SB_URL, SB_SERVICE_KEY);
@@ -159,13 +176,12 @@
         async function init() {
             authClient.auth.onAuthStateChange(async (event, session) => {
                 if (session) {
-                    const userEmail = session.user.email.toLowerCase();
-                    if (userEmail === ADMIN_EMAIL.toLowerCase()) {
-                        document.getElementById('session-label').innerText = "Secure Admin Session";
+                    if (session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                        document.getElementById('session-label').innerText = "Verified Administrator";
                         document.body.style.display = 'block';
                         fetchClients();
                     } else {
-                        alert("Access Denied.");
+                        alert("Unauthorized Access Attempt.");
                         logoutAdmin();
                     }
                 } else if (!window.location.hash.includes('access_token')) {
@@ -190,15 +206,17 @@
 
                 const tbody = document.getElementById('clientTableBody');
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No clinics found.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No registered clinics found.</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = data.map(client => `
-                    <tr class="hover:bg-slate-800/40 transition-all border-b border-slate-800/50">
+                    <tr class="hover:bg-slate-800/40 transition-all border-b border-slate-800/50 group">
                         <td class="px-6 py-5">
-                            <div class="text-white font-bold text-lg leading-tight">${client.client_name || 'Unnamed Clinic'}</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-1">UID: ${client.user_id} | Name: ${client.name || 'N/A'}</div>
+                            <div class="text-white font-bold text-lg leading-tight group-hover:text-blue-400 transition-colors">${client.client_name || 'Unnamed Clinic'}</div>
+                            <div class="text-[10px] text-slate-500 font-mono mt-1">
+                                <span class="bg-slate-800 px-1 rounded">UID: ${client.user_id}</span> | ${client.name || 'N/A'}
+                            </div>
                         </td>
                         <td class="px-6 py-5">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(client.reg_status)}">
@@ -207,7 +225,7 @@
                         </td>
                         <td class="px-6 py-5">
                             <code class="bg-black/40 px-2 py-1 rounded text-emerald-400 text-xs font-mono border border-emerald-500/20">
-                                ${client.api_key || 'NONE'}
+                                ${client.api_key || 'UNASSIGNED'}
                             </code>
                         </td>
                         <td class="px-6 py-5 text-sm font-bold text-slate-400">
@@ -215,20 +233,20 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex justify-end gap-2">
-                                <button onclick="approveClinic('${client.id}', '${client.user_id}', '${client.email}', '${client.client_name}')" title="Activate"
-                                        class="bg-emerald-600 w-10 h-10 rounded-xl hover:bg-emerald-500 transition-all active:scale-95 shadow-lg shadow-emerald-900/20">
+                                <button onclick="approveClinic('${client.id}', '${client.user_id}', '${client.email}', '${client.client_name}')" 
+                                        class="bg-emerald-600 w-10 h-10 rounded-xl hover:bg-emerald-500 transition-all active:scale-90 shadow-lg shadow-emerald-900/20">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
-                                <button onclick="suspendClinic('${client.id}', '${client.email}', '${client.client_name}')" title="Suspend"
-                                        class="bg-rose-600 w-10 h-10 rounded-xl hover:bg-rose-500 transition-all active:scale-95 shadow-lg shadow-rose-900/20">
+                                <button onclick="suspendClinic('${client.id}', '${client.email}', '${client.client_name}')" 
+                                        class="bg-rose-600 w-10 h-10 rounded-xl hover:bg-rose-500 transition-all active:scale-90 shadow-lg shadow-rose-900/20">
                                     <i class="fa-solid fa-ban"></i>
                                 </button>
-                                <button onclick="openEditModal('${client.id}')" title="Edit Profile"
-                                        class="bg-blue-600 w-10 h-10 rounded-xl hover:bg-blue-500 transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                                <button onclick="openEditModal('${client.id}')" 
+                                        class="bg-blue-600 w-10 h-10 rounded-xl hover:bg-blue-500 transition-all active:scale-90 shadow-lg shadow-blue-900/20">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <button onclick="deleteClinic('${client.id}', '${client.db_schema}')" title="Delete Records"
-                                        class="bg-slate-700 w-10 h-10 rounded-xl hover:bg-red-600 transition-all active:scale-95 shadow-lg shadow-slate-900/20">
+                                <button onclick="deleteClinic('${client.id}')" 
+                                        class="bg-slate-700 w-10 h-10 rounded-xl hover:bg-red-600 transition-all active:scale-90">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -240,52 +258,13 @@
             }
         }
 
-        async function sendBrevoEmail(toEmail, toName, subject, htmlContent) {
-            if (!toEmail) return;
-            try {
-                await fetch('https://api.brevo.com/v3/smtp/email', {
-                    method: 'POST',
-                    headers: { 'accept': 'application/json', 'api-key': BREVO_API_KEY, 'content-type': 'application/json' },
-                    body: JSON.stringify({
-                        sender: { name: SENDER_NAME, email: SENDER_EMAIL },
-                        to: [{ email: toEmail, name: toName || 'Client' }],
-                        subject: subject,
-                        htmlContent: htmlContent
-                    })
-                });
-            } catch (error) { console.error("Email Error:", error); }
-        }
-
-        async function approveClinic(id, userId, clientEmail, clientName) {
-            if(!confirm("Activate and send license?")) return;
-            const newKey = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
-            const d = new Date(); d.setFullYear(d.getFullYear() + 1);
-            const expiry = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-
-            const { error } = await supabaseAdmin.from('master_control').update({
-                api_key: newKey, reg_status: 'Active', expiry_date: expiry,
-                db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
-            }).eq('id', id);
-
-            if (!error) {
-                await fetchClients();
-                await sendBrevoEmail(clientEmail, clientName, "Account Activated", `<p>Your Key: <b>${newKey}</b></p>`);
-            }
-        }
-
-        async function suspendClinic(id, clientEmail, clientName) {
-            if(!confirm("Suspend?")) return;
-            const { error } = await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
-            if (!error) {
-                await fetchClients();
-                await sendBrevoEmail(clientEmail, clientName, "Account Suspended", `<p>Access revoked.</p>`);
-            }
-        }
-
-        // --- FIXED EDIT LOGIC ---
+        // --- EDIT LOGIC WITH FIXES ---
         function openEditModal(id) {
             const client = globalClientsData.find(c => String(c.id) === String(id));
-            if(!client) return;
+            if(!client) {
+                alert("Critical: Row data not found locally. Try refreshing.");
+                return;
+            }
 
             document.getElementById('edit-id').value = client.id;
             document.getElementById('edit-client-name').value = client.client_name || '';
@@ -305,55 +284,95 @@
         document.getElementById('editForm').onsubmit = async (e) => {
             e.preventDefault();
             const saveBtn = document.getElementById('saveBtn');
-            const originalBtnText = saveBtn.innerText;
-            
-            saveBtn.innerText = "SAVING...";
+            saveBtn.innerText = "PROCESSING...";
             saveBtn.disabled = true;
 
-            const id = document.getElementById('edit-id').value;
+            // FIX: Convert ID to Number just in case the DB expects an integer
+            const rawId = document.getElementById('edit-id').value;
+            const cleanId = isNaN(rawId) ? rawId : Number(rawId);
             
-            // Construct payload
             const payload = {
-                client_name: document.getElementById('edit-client-name').value,
-                name: document.getElementById('edit-name').value,
-                mobile: document.getElementById('edit-mobile').value,
-                email: document.getElementById('edit-email').value,
+                client_name: document.getElementById('edit-client-name').value.trim(),
+                name: document.getElementById('edit-name').value.trim(),
+                mobile: document.getElementById('edit-mobile').value.trim(),
+                email: document.getElementById('edit-email').value.trim(),
                 reg_status: document.getElementById('edit-status').value,
-                expiry_date: document.getElementById('edit-expiry').value
+                expiry_date: document.getElementById('edit-expiry').value.trim()
             };
 
             try {
-                // IMPORTANT: We use .select() to verify the update actually modified a row
+                // Perform Update + Select to confirm modification
                 const { data, error } = await supabaseAdmin
                     .from('master_control')
                     .update(payload)
-                    .eq('id', id)
+                    .eq('id', cleanId)
                     .select();
                 
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    throw new Error("Update targeted 0 rows. Check if the ID exists in Supabase.");
+                    throw new Error("Target row not found. Ensure the ID matches the database.");
                 }
 
-                alert("Success: Client profile updated!");
+                alert("System updated successfully.");
                 closeEditModal();
-                
-                // Force fresh fetch
                 await fetchClients(); 
             } catch (err) {
-                alert("Critical Update Error: " + err.message);
-                console.error("Update failed detailed trace:", err);
+                alert("Update Error: " + err.message);
+                console.error("Failure Trace:", err);
             } finally {
-                saveBtn.innerText = originalBtnText;
+                saveBtn.innerText = "SAVE SETTINGS";
                 saveBtn.disabled = false;
             }
         };
 
-        async function deleteClinic(id, dbSchema) {
-            if(!confirm("CRITICAL: Delete permanently?")) return;
+        // --- OPERATIONS ---
+        async function approveClinic(id, userId, clientEmail, clientName) {
+            if(!confirm("Authorize activation? This generates a new license key.")) return;
+            const newKey = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+            const d = new Date(); d.setFullYear(d.getFullYear() + 1);
+            const expiry = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+
+            const { error } = await supabaseAdmin.from('master_control').update({
+                api_key: newKey, reg_status: 'Active', expiry_date: expiry,
+                db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+            }).eq('id', id);
+
+            if (!error) {
+                await fetchClients();
+                sendBrevoEmail(clientEmail, clientName, "License Activated", `<p>Welcome. Your Key: <b>${newKey}</b></p>`);
+            }
+        }
+
+        async function suspendClinic(id, clientEmail, clientName) {
+            if(!confirm("Suspend access? This will block the clinic immediately.")) return;
+            const { error } = await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
+            if (!error) {
+                await fetchClients();
+                sendBrevoEmail(clientEmail, clientName, "Account Suspended", `<p>Access has been suspended by administration.</p>`);
+            }
+        }
+
+        async function deleteClinic(id) {
+            if(!confirm("PERMANENT DELETE: This cannot be undone. Proceed?")) return;
             const { error } = await supabaseAdmin.from('master_control').delete().eq('id', id);
             if (!error) fetchClients();
+        }
+
+        async function sendBrevoEmail(toEmail, toName, subject, htmlContent) {
+            if (!toEmail) return;
+            try {
+                await fetch('https://api.brevo.com/v3/smtp/email', {
+                    method: 'POST',
+                    headers: { 'accept': 'application/json', 'api-key': BREVO_API_KEY, 'content-type': 'application/json' },
+                    body: JSON.stringify({
+                        sender: { name: "PAWS-N-TAILS Admin", email: SENDER_EMAIL },
+                        to: [{ email: toEmail, name: toName || 'User' }],
+                        subject: subject,
+                        htmlContent: htmlContent
+                    })
+                });
+            } catch (e) { console.error("Email Notification Failed:", e); }
         }
 
         function getStatusColor(status) {
