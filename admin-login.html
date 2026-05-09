@@ -13,16 +13,11 @@
         <div class="text-center mb-8">
             <div class="text-blue-500 mb-2"><i class="fa-solid fa-shield-halved text-5xl"></i></div>
             <h1 class="text-2xl font-black uppercase tracking-tighter italic">Master Control Access</h1>
-            <p class="text-slate-500 text-sm">Enter your email to receive a secure login link.</p>
+            <p class="text-slate-500 text-sm">Click below to send a secure link to the registered admin email.</p>
         </div>
         
         <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Admin Email</label>
-                <input type="email" id="adminEmail" placeholder="admin@pawsntails.com" 
-                       class="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-blue-500 transition-all text-white">
-            </div>
-            
+            <!-- Email input removed for security. Email is hardcoded in script. -->
             <button onclick="requestMagicLink()" id="reqBtn"
                     class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
                 SEND MAGIC LINK
@@ -35,23 +30,20 @@
     <script>
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
-        
-        // Using authClient to avoid the global 'supabase' variable collision
         const authClient = supabase.createClient(SB_URL, SB_KEY);
 
+        // SURGICAL UPDATE: Hardcoded Admin Email
+        const ADMIN_EMAIL = 'pawsntailssite@gmail.com'; 
+
         async function requestMagicLink() {
-            const email = document.getElementById('adminEmail').value.trim();
             const btn = document.getElementById('reqBtn');
             const msg = document.getElementById('msg');
-
-            if(!email) { alert("Please enter your email"); return; }
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>SENDING...';
 
-            // Send the magic link and wait for the response
             const { error } = await authClient.auth.signInWithOtp({
-                email: email,
+                email: ADMIN_EMAIL,
                 options: {
                     emailRedirectTo: window.location.origin + '/master-control.html'
                 }
@@ -64,7 +56,7 @@
                 btn.innerText = "SEND MAGIC LINK";
             } else {
                 msg.className = "mt-6 text-xs text-center text-emerald-500";
-                msg.innerText = "Success! Check your email for the secure link.";
+                msg.innerText = "Success! The link has been sent to the admin inbox.";
                 btn.innerText = "LINK SENT";
             }
         }
