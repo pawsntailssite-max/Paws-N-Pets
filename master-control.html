@@ -144,13 +144,9 @@
 
         let globalClientsData = []; 
 
-        // --- HELPER: DATE FORMATTING ---
         function formatDateForDisplay(dateStr) {
             if (!dateStr) return '---';
-            // If it's already DD/MM/YYYY, return it
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
-            
-            // If it's a standard ISO date from DB (YYYY-MM-DD)
             try {
                 const d = new Date(dateStr);
                 if (isNaN(d.getTime())) return dateStr;
@@ -169,7 +165,7 @@
                         document.body.style.display = 'block';
                         fetchClients();
                     } else {
-                        alert("Access Denied: Your email is not registered as Admin.");
+                        alert("Access Denied.");
                         logoutAdmin();
                     }
                 } else if (!window.location.hash.includes('access_token')) {
@@ -244,17 +240,12 @@
             }
         }
 
-        // --- 2. BREVO EMAIL LOGIC ---
         async function sendBrevoEmail(toEmail, toName, subject, htmlContent) {
             if (!toEmail) return;
             try {
-                const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+                await fetch('https://api.brevo.com/v3/smtp/email', {
                     method: 'POST',
-                    headers: {
-                        'accept': 'application/json',
-                        'api-key': BREVO_API_KEY,
-                        'content-type': 'application/json'
-                    },
+                    headers: { 'accept': 'application/json', 'api-key': BREVO_API_KEY, 'content-type': 'application/json' },
                     body: JSON.stringify({
                         sender: { name: SENDER_NAME, email: SENDER_EMAIL },
                         to: [{ email: toEmail, name: toName || 'Client' }],
@@ -262,46 +253,36 @@
                         htmlContent: htmlContent
                     })
                 });
-            } catch (error) {
-                console.error("Fetch error sending email:", error);
-            }
+            } catch (error) { console.error("Email Error:", error); }
         }
 
-        // --- 3. ACTIONS LOGIC ---
         async function approveClinic(id, userId, clientEmail, clientName) {
-            if(!confirm("Issue license, activate this clinic, and send approval email?")) return;
+            if(!confirm("Activate and send license?")) return;
             const newKey = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
-            const d = new Date();
-            d.setFullYear(d.getFullYear() + 1);
-            const expiryFormatted = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+            const d = new Date(); d.setFullYear(d.getFullYear() + 1);
+            const expiry = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
             const { error } = await supabaseAdmin.from('master_control').update({
-                api_key: newKey, 
-                reg_status: 'Active',
-                expiry_date: expiryFormatted,
+                api_key: newKey, reg_status: 'Active', expiry_date: expiry,
                 db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
             }).eq('id', id);
 
             if (!error) {
                 await fetchClients();
-                const subject = "PAWS-N-TAILS Portal - Account Activated";
-                const htmlContent = `<div style="font-family: Arial; padding: 20px; border: 1px solid #eee;"><h2>Welcome!</h2><p>Your Key: <strong>${newKey}</strong></p></div>`;
-                await sendBrevoEmail(clientEmail, clientName, subject, htmlContent);
+                await sendBrevoEmail(clientEmail, clientName, "Account Activated", `<p>Your Key: <b>${newKey}</b></p>`);
             }
         }
 
         async function suspendClinic(id, clientEmail, clientName) {
-            if(!confirm("Suspend this clinic?")) return;
+            if(!confirm("Suspend?")) return;
             const { error } = await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
             if (!error) {
                 await fetchClients();
-                const subject = "PAWS-N-TAILS Portal - Account Suspended";
-                const htmlContent = `<div style="font-family: Arial; padding: 20px;"><h2>Account Suspended</h2><p>Access has been revoked.</p></div>`;
-                await sendBrevoEmail(clientEmail, clientName, subject, htmlContent);
+                await sendBrevoEmail(clientEmail, clientName, "Account Suspended", `<p>Access revoked.</p>`);
             }
         }
 
-        // --- 4. EDIT LOGIC (FIXED) ---
+        // --- FIXED EDIT LOGIC ---
         function openEditModal(id) {
             const client = globalClientsData.find(c => String(c.id) === String(id));
             if(!client) return;
@@ -312,7 +293,6 @@
             document.getElementById('edit-mobile').value = client.mobile || '';
             document.getElementById('edit-email').value = client.email || '';
             document.getElementById('edit-status').value = client.reg_status || 'Pending';
-            // Show formatted date in form
             document.getElementById('edit-expiry').value = formatDateForDisplay(client.expiry_date);
 
             document.getElementById('editModal').classList.add('modal-active');
@@ -332,38 +312,46 @@
 
             const id = document.getElementById('edit-id').value;
             
+            // Construct payload
             const payload = {
                 client_name: document.getElementById('edit-client-name').value,
                 name: document.getElementById('edit-name').value,
                 mobile: document.getElementById('edit-mobile').value,
                 email: document.getElementById('edit-email').value,
                 reg_status: document.getElementById('edit-status').value,
-                expiry_date: document.getElementById('edit-expiry').value // Saved as entered (DD/MM/YYYY)
+                expiry_date: document.getElementById('edit-expiry').value
             };
 
             try {
-                const { error } = await supabaseAdmin
+                // IMPORTANT: We use .select() to verify the update actually modified a row
+                const { data, error } = await supabaseAdmin
                     .from('master_control')
                     .update(payload)
-                    .eq('id', id);
+                    .eq('id', id)
+                    .select();
                 
                 if (error) throw error;
 
-                alert("Client profile updated successfully!");
+                if (!data || data.length === 0) {
+                    throw new Error("Update targeted 0 rows. Check if the ID exists in Supabase.");
+                }
+
+                alert("Success: Client profile updated!");
                 closeEditModal();
+                
+                // Force fresh fetch
                 await fetchClients(); 
             } catch (err) {
-                alert("Error updating record: " + err.message);
-                console.error("Update failed:", err);
+                alert("Critical Update Error: " + err.message);
+                console.error("Update failed detailed trace:", err);
             } finally {
                 saveBtn.innerText = originalBtnText;
                 saveBtn.disabled = false;
             }
         };
 
-        // --- 5. DELETE LOGIC ---
         async function deleteClinic(id, dbSchema) {
-            if(!confirm("CRITICAL: Delete this clinic permanently?")) return;
+            if(!confirm("CRITICAL: Delete permanently?")) return;
             const { error } = await supabaseAdmin.from('master_control').delete().eq('id', id);
             if (!error) fetchClients();
         }
