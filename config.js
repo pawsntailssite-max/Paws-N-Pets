@@ -1,0 +1,1 @@
+const BREVO_API_KEY = 'your_new_key_here';
