@@ -8,17 +8,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Hidden by default to prevent unauthorized flickering */
         body { display: none; background-color: #020617; }
-        
         .glass-panel {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(30, 41, 59, 0.5);
         }
+        /* Modal Animation */
+        .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen p-6 font-sans">
+<body class="text-slate-200 min-h-screen p-6 font-sans relative">
 
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
@@ -72,45 +73,95 @@
         </div>
     </div>
 
+    <!-- EDIT MODAL (Hidden by default) -->
+    <div id="editModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl max-w-lg w-full p-8 relative">
+            <button onclick="closeEditModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-black text-white mb-6 uppercase tracking-tight">Edit Client Profile</h2>
+            
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Clinic / Business Name</label>
+                    <input type="text" id="edit-client-name" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contact Name</label>
+                        <input type="text" id="edit-name" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mobile</label>
+                        <input type="text" id="edit-mobile" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</label>
+                    <input type="email" id="edit-email" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registration Status</label>
+                        <select id="edit-status" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 appearance-none">
+                            <option value="Pending">Pending</option>
+                            <option value="Active">Active</option>
+                            <option value="Suspended">Suspended</option>
+                            <option value="Demo">Demo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expiry Date</label>
+                        <input type="text" id="edit-expiry" placeholder="DD/MM/YYYY" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors">SAVE CHANGES</button>
+                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors">CANCEL</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // CONFIGURATION
+        // --- 1. CONFIGURATION ---
         const SB_URL = 'https://vxzixltgnuvximbbttxx.supabase.co';
         const SB_KEY = 'sb_publishable_TyLXdjnySjpRxUS-vBk3MQ_mAq1UELd';
         const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4eml4bHRnbnV2eGltYmJ0dHh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY3MTI0NywiZXhwIjoyMDkyMjQ3MjQ3fQ.a-VAujk38qbfJyJjG-kL2rEXvXGVzLa0VrvXgX2JofA'; 
         
-        // PASTE YOUR ACTUAL EMAIL HERE (MUST BE LOWERCASE)
         const ADMIN_EMAIL = 'pawsntailssite@gmail.com'; 
+
+        // --- BREVO API CONFIGURATION ---
+        // PASTE YOUR BREVO V3 API KEY HERE
+        const BREVO_API_KEY = 'YOUR_BREVO_API_KEY_HERE'; 
+        const SENDER_EMAIL = 'pawsntailssite@gmail.com'; 
+        const SENDER_NAME = 'PAWS-N-TAILS Admin';
 
         const authClient = supabase.createClient(SB_URL, SB_KEY);
         const supabaseAdmin = supabase.createClient(SB_URL, SB_SERVICE_KEY);
 
+        let globalClientsData = []; 
+
         async function init() {
-            console.log("Initializing Auth Watcher...");
-
-            // Listen for login/logout events
             authClient.auth.onAuthStateChange(async (event, session) => {
-                console.log("Auth Event Triggered:", event);
-
                 if (session) {
                     const userEmail = session.user.email.toLowerCase();
-                    const target = ADMIN_EMAIL.toLowerCase();
-
-                    if (userEmail === target) {
-                        console.log("Identity Verified: Welcome Admin.");
+                    if (userEmail === ADMIN_EMAIL.toLowerCase()) {
                         document.getElementById('session-label').innerText = "Secure Admin Session";
                         document.body.style.display = 'block';
                         fetchClients();
                     } else {
-                        console.error("Unauthorized Identity Detected.");
                         alert("Access Denied: Your email is not registered as Admin.");
                         logoutAdmin();
                     }
-                } else {
-                    // Check if we are currently processing a magic link (it will have #access_token in URL)
-                    if (!window.location.hash.includes('access_token')) {
-                        console.warn("No session found. Redirecting...");
-                        window.location.replace("admin-login.html");
-                    }
+                } else if (!window.location.hash.includes('access_token')) {
+                    window.location.replace("admin-login.html");
                 }
             });
         }
@@ -123,6 +174,7 @@
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
+                globalClientsData = data; 
 
                 document.getElementById('count-total').innerText = data.length;
                 document.getElementById('count-active').innerText = data.filter(c => c.reg_status === 'Active').length;
@@ -130,7 +182,7 @@
 
                 const tbody = document.getElementById('clientTableBody');
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No clinics found in database.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500">No clinics found.</td></tr>';
                     return;
                 }
 
@@ -138,7 +190,7 @@
                     <tr class="hover:bg-slate-800/40 transition-all border-b border-slate-800/50">
                         <td class="px-6 py-5">
                             <div class="text-white font-bold text-lg leading-tight">${client.client_name || 'Unnamed Clinic'}</div>
-                            <div class="text-[10px] text-slate-500 font-mono mt-1">UID: ${client.user_id}</div>
+                            <div class="text-[10px] text-slate-500 font-mono mt-1">UID: ${client.user_id} | Name: ${client.name || 'N/A'}</div>
                         </td>
                         <td class="px-6 py-5">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(client.reg_status)}">
@@ -155,13 +207,21 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex justify-end gap-2">
-                                <button onclick="approveClinic('${client.id}', '${client.user_id}')" 
-                                        class="bg-emerald-600 p-2.5 rounded-xl hover:bg-emerald-500 transition-all active:scale-95 shadow-lg shadow-emerald-900/20">
+                                <button onclick="approveClinic('${client.id}', '${client.user_id}', '${client.email}', '${client.client_name}')" title="Activate"
+                                        class="bg-emerald-600 w-10 h-10 rounded-xl hover:bg-emerald-500 transition-all active:scale-95 shadow-lg shadow-emerald-900/20">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
-                                <button onclick="suspendClinic('${client.id}')" 
-                                        class="bg-rose-600 p-2.5 rounded-xl hover:bg-rose-500 transition-all active:scale-95 shadow-lg shadow-rose-900/20">
+                                <button onclick="suspendClinic('${client.id}', '${client.email}', '${client.client_name}')" title="Suspend"
+                                        class="bg-rose-600 w-10 h-10 rounded-xl hover:bg-rose-500 transition-all active:scale-95 shadow-lg shadow-rose-900/20">
                                     <i class="fa-solid fa-ban"></i>
+                                </button>
+                                <button onclick="openEditModal('${client.id}')" title="Edit Profile"
+                                        class="bg-blue-600 w-10 h-10 rounded-xl hover:bg-blue-500 transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="deleteClinic('${client.id}', '${client.db_schema}')" title="Delete Records"
+                                        class="bg-slate-700 w-10 h-10 rounded-xl hover:bg-red-600 transition-all active:scale-95 shadow-lg shadow-slate-900/20">
+                                    <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
                         </td>
@@ -172,31 +232,178 @@
             }
         }
 
-        async function approveClinic(id, userId) {
-            if(!confirm("Issue license and activate this clinic?")) return;
+        // --- 2. BREVO EMAIL LOGIC ---
+        async function sendBrevoEmail(toEmail, toName, subject, htmlContent) {
+            if (!toEmail) {
+                console.warn("No email address provided for this client.");
+                return;
+            }
+
+            try {
+                const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+                    method: 'POST',
+                    headers: {
+                        'accept': 'application/json',
+                        'api-key': BREVO_API_KEY,
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+                        to: [{ email: toEmail, name: toName || 'Client' }],
+                        subject: subject,
+                        htmlContent: htmlContent
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    console.error("Brevo API Error:", errData);
+                    alert("Status updated, but failed to send email. Check console for Brevo error.");
+                } else {
+                    console.log(`Email successfully sent to ${toEmail}`);
+                }
+            } catch (error) {
+                console.error("Fetch error sending email:", error);
+                alert("Status updated, but network error prevented sending email.");
+            }
+        }
+
+        // --- 3. ACTIONS LOGIC ---
+        async function approveClinic(id, userId, clientEmail, clientName) {
+            if(!confirm("Issue license, activate this clinic, and send approval email?")) return;
             const newKey = 'PK-' + Math.random().toString(36).substr(2, 4).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
-            const exp = new Date(); 
-            exp.setFullYear(exp.getFullYear() + 1);
+            
+            const d = new Date();
+            d.setFullYear(d.getFullYear() + 1);
+            const expiryFormatted = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
             const { error } = await supabaseAdmin.from('master_control').update({
                 api_key: newKey, 
                 reg_status: 'Active',
-                expiry_date: exp.toISOString().split('T')[0],
+                expiry_date: expiryFormatted,
                 db_schema: `clinic_${userId.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
             }).eq('id', id);
 
-            if (error) alert("Error activating: " + error.message);
-            fetchClients();
+            if (error) {
+                alert("Error activating: " + error.message);
+            } else {
+                fetchClients(); // Update UI
+                
+                // Construct and send Brevo HTML Email
+                const subject = "PAWS-N-TAILS Portal - Account Activated";
+                const htmlContent = `
+                    <div style="font-family: Arial, sans-serif; max-w: 600px; margin: 0 auto; color: #333; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <h2 style="color: #2563eb; margin-bottom: 20px;">Welcome to PAWS-N-TAILS!</h2>
+                        <p>Hello ${clientName || 'Valued Client'},</p>
+                        <p>Good news! Your Veterinarian Portal access has been <strong>approved and activated</strong>.</p>
+                        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #10b981;">
+                            <p style="margin: 0; font-size: 14px; color: #64748b;">YOUR UNIQUE LICENSE KEY:</p>
+                            <p style="margin: 5px 0 0 0; font-family: monospace; font-size: 20px; font-weight: bold; color: #059669;">${newKey}</p>
+                        </div>
+                        <p>Please keep this key secure as it is required to access your specific database schema.</p>
+                        <br/>
+                        <p>Best Regards,<br/><strong>PAWS-N-TAILS Admin Team</strong></p>
+                    </div>
+                `;
+                await sendBrevoEmail(clientEmail, clientName, subject, htmlContent);
+            }
         }
 
-        async function suspendClinic(id) {
-            if(!confirm("Immediately suspend this clinic's access?")) return;
-            await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
+        async function suspendClinic(id, clientEmail, clientName) {
+            if(!confirm("Suspend this clinic and send suspension email?")) return;
+            const { error } = await supabaseAdmin.from('master_control').update({ reg_status: 'Suspended' }).eq('id', id);
+            
+            if (error) {
+                alert("Error suspending: " + error.message);
+            } else {
+                fetchClients(); // Update UI
+                
+                // Construct and send Brevo HTML Email
+                const subject = "PAWS-N-TAILS Portal - Account Suspended";
+                const htmlContent = `
+                    <div style="font-family: Arial, sans-serif; max-w: 600px; margin: 0 auto; color: #333; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                        <h2 style="color: #e11d48; margin-bottom: 20px;">Account Suspended</h2>
+                        <p>Hello ${clientName || 'Client'},</p>
+                        <p>Notice: Your access to the PAWS-N-TAILS Veterinarian Portal has been <strong>suspended</strong>.</p>
+                        <p>You will no longer be able to access your database records until this is resolved.</p>
+                        <p>Please contact the administrator for more information regarding your account status.</p>
+                        <br/>
+                        <p>Best Regards,<br/><strong>PAWS-N-TAILS Admin Team</strong></p>
+                    </div>
+                `;
+                await sendBrevoEmail(clientEmail, clientName, subject, htmlContent);
+            }
+        }
+
+        // --- 4. EDIT LOGIC ---
+        function openEditModal(id) {
+            const client = globalClientsData.find(c => c.id === id);
+            if(!client) return;
+
+            document.getElementById('edit-id').value = client.id;
+            document.getElementById('edit-client-name').value = client.client_name || '';
+            document.getElementById('edit-name').value = client.name || '';
+            document.getElementById('edit-mobile').value = client.mobile || '';
+            document.getElementById('edit-email').value = client.email || '';
+            document.getElementById('edit-status').value = client.reg_status || 'Pending';
+            document.getElementById('edit-expiry').value = client.expiry_date || '';
+
+            document.getElementById('editModal').classList.add('modal-active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('modal-active');
+        }
+
+        document.getElementById('editForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            
+            const payload = {
+                client_name: document.getElementById('edit-client-name').value,
+                name: document.getElementById('edit-name').value,
+                mobile: document.getElementById('edit-mobile').value,
+                email: document.getElementById('edit-email').value,
+                reg_status: document.getElementById('edit-status').value,
+                expiry_date: document.getElementById('edit-expiry').value
+            };
+
+            const { error } = await supabaseAdmin.from('master_control').update(payload).eq('id', id);
+            
+            if (error) {
+                alert("Error updating record: " + error.message);
+            } else {
+                closeEditModal();
+                fetchClients();
+            }
+        };
+
+        // --- 5. DELETE LOGIC ---
+        async function deleteClinic(id, dbSchema) {
+            const confirmMsg = "CRITICAL WARNING:\n\nAre you sure you want to PERMANENTLY DELETE this clinic?\nThis cannot be undone.";
+            if(!confirm(confirmMsg)) return;
+
+            const { error } = await supabaseAdmin.from('master_control').delete().eq('id', id);
+            if (error) {
+                alert("Error deleting record: " + error.message);
+                return;
+            }
+
+            if (dbSchema) {
+                const { error: rpcError } = await supabaseAdmin.rpc('drop_clinic_schema', { schema_name: dbSchema });
+                if (rpcError) {
+                    console.warn("Row deleted, but failed to drop schema automatically. Error:", rpcError.message);
+                }
+            }
+
             fetchClients();
         }
 
         function getStatusColor(status) {
-            return status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+            if (status === 'Active') return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+            if (status === 'Suspended') return 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+            if (status === 'Demo') return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+            return 'bg-slate-500/10 text-slate-400 border border-slate-500/20';
         }
 
         async function logoutAdmin() {
