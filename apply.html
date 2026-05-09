@@ -14,14 +14,13 @@
         
         <div class="text-center mb-10">
             <img src="Logo.jpg" alt="Logo" class="w-16 h-16 rounded-2xl object-cover mx-auto mb-4 shadow-lg shadow-blue-200 border border-slate-100">
-            <!-- Surgical Change: PAWS-N-TAILS -->
             <h2 class="text-3xl font-black text-slate-900 tracking-tight">PAWS-N-TAILS</h2>
             <p class="text-slate-500 font-medium mt-1">Request your Veterinarian Portal access</p>
         </div>
 
         <form id="applyForm" class="space-y-5">
             
-            <!-- Client Name -->
+            <!-- 1. Clinic Name -->
             <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Clinic / Business Name</label>
                 <div class="relative mt-1">
@@ -31,7 +30,7 @@
                 </div>
             </div>
 
-            <!-- User ID (The Handle) -->
+            <!-- 2. User ID -->
             <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Unique User ID (No Spaces)</label>
                 <div class="relative mt-1">
@@ -43,7 +42,17 @@
                 <p class="text-[10px] text-slate-400 mt-2 px-1">This will be used to identify your private database.</p>
             </div>
 
-            <!-- Email Address -->
+            <!-- 3. Contact Person Name (NEW FIELD) -->
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact persons Name</label>
+                <div class="relative mt-1">
+                    <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="contactName" required placeholder="e.g. Dr. Jane Smith" 
+                           class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+            </div>
+
+            <!-- 4. Email Address -->
             <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Work Email Address</label>
                 <div class="relative mt-1">
@@ -53,7 +62,7 @@
                 </div>
             </div>
 
-            <!-- Mobile Number -->
+            <!-- 5. Mobile Number -->
             <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
                 <div class="relative mt-1">
@@ -104,8 +113,9 @@
             const expiryFormatted = `${day}/${month}/${year}`;
 
             const payload = {
-                client_name: document.getElementById('clientName').value,
+                clinic_name: document.getElementById('clientName').value,
                 user_id: userIdClean,
+                name: document.getElementById('contactName').value, // Sending to 'name' column
                 email: document.getElementById('email').value.toLowerCase().trim(),
                 mobile: document.getElementById('mobile').value.trim(),
                 api_key: generatedApiKey,
